@@ -1,79 +1,13 @@
 <!doctype html>
 <html lang="tr">
-<head>
-  <meta charset="utf-8">
-  <title>Oyun Atölyesi</title>
-  <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="stil.css">
-</head>
-<body>
-  <header class="ust">
-    <div class="logo">Oyun Atölyesi</div>
-    <label class="proje-sec">Proje
-      <select id="projeListesi" title="Açık proje"></select>
-    </label>
-    <button id="yeniProjeBtn">Yeni proje</button>
-    <span id="kayitDurumu" class="soluk"></span>
-    <span class="bosluk"></span>
-    <button id="klasorBtn" title="Projelerin bulunduğu klasörü aç">Klasörü aç</button>
-    <button id="disaAktarBtn" class="vurgu" title="Oyunu tek başına çalışan bir dosya olarak kaydet">Oyunu dışa aktar</button>
-  </header>
-
-  <div id="yeniProjeForm" class="form-satir gizli">
-    <input id="yeniProjeAdi" placeholder="Yeni oyunun adı" maxlength="50">
-    <select id="yeniProjeSablon"></select>
-    <button id="yeniProjeOlustur" class="vurgu">Oluştur</button>
-    <button id="yeniProjeIptal">Vazgeç</button>
-    <span id="yeniProjeHata" class="hata"></span>
-  </div>
-
-  <main class="duzen">
-    <aside class="panel sol">
-      <h2>Sahnedekiler</h2>
-      <ul id="ogeListesi" class="oge-listesi"></ul>
-      <div class="ekle-dugmeleri">
-        <button data-ekle="engel">+ Engel</button>
-        <button data-ekle="tehlike">+ Tehlike</button>
-        <button data-ekle="toplanabilir">+ Toplanabilir</button>
-      </div>
-    </aside>
-
-    <section class="orta">
-      <div class="arac-cubugu">
-        <button id="oynaBtn" class="vurgu">▶ Oyna</button>
-        <button id="duraklatBtn">❚❚ Duraklat</button>
-        <button id="bastanBtn">↺ Baştan</button>
-        <label class="onay"><input type="checkbox" id="testModu"> Test modu (ölümsüz)</label>
-        <span class="bosluk"></span>
-        <span class="soluk">Kontrol: BOŞLUK / tıkla · P: duraklat</span>
-      </div>
-      <div class="sahne-kutu">
-        <canvas id="sahne" tabindex="0"></canvas>
-      </div>
-      <p class="ipucu soluk">Sağdaki ayarları değiştirdiğin anda oyun da değişir. Değişiklikler otomatik kaydedilir.</p>
-    </section>
-
-    <aside class="panel sag">
-      <h2 id="ozellikBaslik">Özellikler</h2>
-      <div id="ozellikler"></div>
-      <div id="ogeIslemleri" class="oge-islemleri gizli">
-        <button id="cogaltBtn">Çoğalt</button>
-        <button id="silBtn" class="tehlikeli">Sil</button>
-      </div>
-    </aside>
-  </main>
-
-  <footer class="alt">
-    <div class="surum-kaydet">
-      <strong>Sürümler</strong>
-      <input id="surumNotu" placeholder="Bu sürüm için kısa not (ör. yarasa daha ağır)" maxlength="60">
-      <button id="surumKaydetBtn">Sürüm kaydet</button>
-    </div>
-    <ul id="surumListesi" class="surum-listesi"></ul>
-  </footer>
-
-  <script src="motor.js"></script>
-  <script src="sablonlar.js"></script>
-  <script src="editor.js"></script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="data:," />
+    <title>Oyun Atölyesi</title>
+    <script type="module" crossorigin src="./assets/index-iA2S6gyh.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-D7dTYAXs.css">
+  </head>
+  <body>
+    <div id="kok"></div>
+  </body>
 </html>

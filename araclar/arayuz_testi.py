@@ -1,5 +1,6 @@
-"""Arayüzü Chrome'da açıp temel işlemleri dener ve ekran görüntüleri alır.
-Kullanım: python3 araclar/arayuz_testi.py [cikti_klasoru]"""
+"""Derlenmiş arayüzü (app/) Chrome'da açıp temel işlemleri dener ve ekran görüntüleri alır.
+Kullanım: python3 araclar/arayuz_testi.py [cikti_klasoru]
+Önce: cd arayuz && npm run build"""
 import functools, http.server, os, sys, threading, time
 from playwright.sync_api import sync_playwright
 
@@ -13,78 +14,142 @@ sunucu = http.server.ThreadingHTTPServer(("127.0.0.1", 0), isleyici)
 threading.Thread(target=sunucu.serve_forever, daemon=True).start()
 URL = f"http://127.0.0.1:{sunucu.server_port}/index.html?test=1"
 
-hatalar = []
+hatalar, sonuclar = [], []
+
+
+def kontrol(ad, kosul, ayrinti=""):
+    sonuclar.append((ad, bool(kosul)))
+    print(("  OK  " if kosul else "  !!  ") + ad + (f"  ({ayrinti})" if ayrinti else ""))
+
+
+def durum(s, ifade):
+    return s.evaluate(f"(() => {{ const d = window.__atolye.getState(); return {ifade}; }})()")
+
+
 with sync_playwright() as p:
     tarayici = p.chromium.launch(executable_path="/usr/bin/google-chrome", args=["--no-sandbox"])
-    s = tarayici.new_page(viewport={"width": 1440, "height": 860})
+    s = tarayici.new_page(viewport={"width": 1600, "height": 900})
     s.on("pageerror", lambda e: hatalar.append("sayfa: " + str(e)))
     s.on("console", lambda m: m.type == "error" and hatalar.append("konsol: " + m.text))
     s.goto(URL)
-    s.wait_for_selector("#ogeListesi li")
-    time.sleep(1.0)
-    s.screenshot(path=f"{CIKTI}/1_acilis.png")
 
-    # oyna: otomatik pilotla birkaç saniye
-    s.click("#oynaBtn")
-    for _ in range(90):
-        s.evaluate("""() => { const m = window.__atolye.motor; const [u,a] = m.sinir(m.kam+200);
-                      if (m.y > (u+a)/2 + 10 && m.vy > -50) m.bas(); }""")
-        time.sleep(1/30)
-    s.screenshot(path=f"{CIKTI}/2_oyun.png")
-    print("oyun durumu:", s.evaluate("window.__atolye.motor.durum"), "skor:", s.evaluate("window.__atolye.motor.skor"))
+    # 1) başlangıç ekranı
+    s.wait_for_selector("[data-testid=baslangic]")
+    s.screenshot(path=f"{CIKTI}/1_baslangic.png")
+    kontrol("başlangıç ekranında örnek proje var", s.locator("[data-testid=proje-karti]").count() >= 1)
 
-    # nesne seç ve ayarını değiştir
-    s.click("#ogeListesi li:has-text('Örümcek ağı')")
-    s.select_option("#ozellikler select >> nth=1", "kanat_zayiflat") if False else None
-    boyut = s.locator("#ozellikler .alan:has-text('Boyut') input[type=range]")
-    boyut.evaluate("(el) => { el.value = 45; el.dispatchEvent(new Event('input')); }")
-    etki = s.locator("#ozellikler .alan:has-text('Etki') select").first
-    etki.select_option("sersem")
-    yeni_boyut = s.evaluate("window.__atolye.oyun.nesneler.find(n => n.ad === 'Örümcek ağı').boyut")
-    yeni_etki = s.evaluate("window.__atolye.oyun.nesneler.find(n => n.ad === 'Örümcek ağı').etki.tip")
-    gorunen = s.locator("#ozellikler .alan:not(.gizli)").all_inner_texts()
-    print("ag boyutu:", yeni_boyut, "etki:", yeni_etki, "| guc alani gorunur:", any("Etki gücü" in g for g in gorunen))
-    s.screenshot(path=f"{CIKTI}/3_ozellik.png")
+    # 2) örnek projeyi aç
+    s.locator("[data-testid=proje-karti]").first.click()
+    s.wait_for_selector("[data-testid=sahne]")
+    time.sleep(0.6)
+    kontrol("editör açıldı", durum(s, "d.ekran") == "editor")
+    s.screenshot(path=f"{CIKTI}/2_editor.png")
 
-    # oyuncu ayarı, nesne ekleme, sürüm
-    s.click("#ogeListesi li:has-text('Oyuncu')")
-    s.locator("#ozellikler .alan:has-text('Şekil') select").select_option("kus")
-    s.click("button[data-ekle=toplanabilir]")
-    s.fill("#surumNotu", "ilk deneme")
-    s.click("#surumKaydetBtn")
+    # 3) sahne ağacından Kuş'u seç, özellikler paneli
+    s.click("[data-testid=sekme-agac]")
+    s.locator(".satir:has-text('Kuş')").last.click()
+    time.sleep(0.3)
+    kontrol("özelliklerde Dönüşüm kartı", s.locator("[data-testid=ozellikler] >> text=Dönüşüm").count() == 1)
+    kontrol("özelliklerde Davranışlar kartı", s.locator("[data-testid=ozellikler] >> text=Tuşla zıpla / uç").count() >= 1)
+    s.screenshot(path=f"{CIKTI}/3_secim.png")
+
+    # 4) sahnede tıklayarak seçim ve sürükleyerek taşıma
+    kus_id = durum(s, "d.secim.id")
+    ilk = durum(s, f"d.proje.sahneler[0].ornekler.find(o => o.id === '{kus_id}')")
+    s.keyboard.press("Escape")
+    s.evaluate("window.__atolye.getState().sec(null)")
+    kutu = s.locator("[data-testid=sahne]").bounding_box()
+    z = durum(s, "d.yakinlastirma")
+    # kamera sahneyi ortaladı: dünya (x,y) -> ekran
+    sx = kutu["x"] + kutu["width"] / 2 + (ilk["x"] - 480) * z
+    sy = kutu["y"] + kutu["height"] / 2 + (ilk["y"] - 270) * z
+    s.mouse.move(sx, sy); s.mouse.down(); s.mouse.move(sx + 80, sy + 40, steps=8); s.mouse.up()
+    son = durum(s, f"d.proje.sahneler[0].ornekler.find(o => o.id === '{kus_id}')")
+    kontrol("tıklayınca seçildi", durum(s, "d.secim && d.secim.id") == kus_id)
+    kontrol("sürükleyince taşındı", abs(son["x"] - ilk["x"] - 80 / z) < 3 and abs(son["y"] - ilk["y"] - 40 / z) < 3,
+            f"{ilk['x']},{ilk['y']} -> {son['x']},{son['y']}")
+
+    # 5) yeni nesne türü + bileşen ekle + listeden sahneye sürükle-bırak
+    s.click("[data-testid=sekme-nesneler]")
+    s.click("[data-testid=yeni-tur]")
+    s.select_option("[data-testid=bilesen-ekle]", "fizik")
+    kontrol("bileşen eklendi", s.locator("[data-testid=ozellikler] >> text=Yerçekimi").count() == 1)
+    once = durum(s, "d.proje.sahneler[0].ornekler.length")
+    s.locator(".satir:has-text('Yeni nesne')").drag_to(s.locator("[data-testid=sahne]"), target_position={"x": 300, "y": 200})
+    kontrol("sürükle-bırak ile sahneye eklendi", durum(s, "d.proje.sahneler[0].ornekler.length") == once + 1)
+
+    # 6) oynat: kuş düşmeli, boşluk ile zıplamalı, borular kaymalı
+    s.click("[data-testid=oynat]")
     time.sleep(0.5)
-    print("nesne sayisi:", s.evaluate("window.__atolye.oyun.nesneler.length"),
-          "| surum listesi:", s.locator("#surumListesi li").all_inner_texts())
+    s.locator("[data-testid=sahne]").focus()
+    for _ in range(4):
+        s.keyboard.press("Space"); time.sleep(0.15)
+    s.screenshot(path=f"{CIKTI}/4_oynatma.png")
+    kontrol("oynatma modunda", durum(s, "d.oynatma") == "oynuyor")
+    s.keyboard.press("Shift+F5")
+    kontrol("durdurunca düzenlemeye döndü", durum(s, "d.oynatma") == "duruyor")
+    kontrol("oynatma projeyi değiştirmedi", durum(s, f"d.proje.sahneler[0].ornekler.find(o => o.id === '{kus_id}').x") == son["x"])
 
-    # yeni proje
-    s.click("#yeniProjeBtn")
-    s.click("#yeniProjeOlustur")
-    print("bos ad hatasi:", s.inner_text("#yeniProjeHata"))
-    s.fill("#yeniProjeAdi", "Deneme Oyunu")
-    s.select_option("#yeniProjeSablon", "Kuş Uçuşu")
-    s.click("#yeniProjeOlustur")
-    time.sleep(0.8)
-    print("acik proje:", s.evaluate("window.__atolye.projeAdi"), "| projeler:", s.locator("#projeListesi option").all_inner_texts())
-    s.click("#oynaBtn")
-    for _ in range(45):
-        s.evaluate("""() => { const m = window.__atolye.motor; const [u,a] = m.sinir(m.kam+200);
-                      if (m.y > (u+a)/2 + 10 && m.vy > -50) m.bas(); }""")
-        time.sleep(1/30)
-    s.screenshot(path=f"{CIKTI}/4_kus.png")
+    # 7) olaylar sekmesi
+    s.click("[data-testid=sekme-olaylar]")
+    kontrol("olay sayfası kuralları gösteriyor", s.locator(".kural").count() == 5)
+    s.screenshot(path=f"{CIKTI}/5_olaylar.png")
+    s.click("[data-testid=sekme-sahne]")
 
-    # dışa aktar ve dışa aktarılan oyunu ayrı sayfada aç
-    s.click("#disaAktarBtn")
+    # 8) değişken ekle, sürüm kaydet
+    s.click("[data-testid=sekme-degiskenler]")
+    s.locator("[data-testid=degiskenler] thead button").click()
+    kontrol("değişken eklendi", durum(s, "d.proje.degiskenler.length") == 3)
+    s.click("[data-testid=sekme-surumler]")
+    s.fill("#surum-notu", "test sürümü")
+    s.click("[data-testid=surum-kaydet]")
+    time.sleep(0.3)
+    kontrol("sürüm listede", s.locator(".surum-satiri:has-text('test sürümü')").count() == 1)
+
+    # 9) komut paleti ile ızgarayı kapat
+    izgara = durum(s, "d.tercih.izgaraGoster")
+    s.locator("[data-testid=sahne]").focus()
+    s.keyboard.press("Control+k")
+    s.wait_for_selector("[data-testid=komut-paleti]")
+    s.keyboard.type("ızgara")
+    s.screenshot(path=f"{CIKTI}/6_komut_paleti.png")
+    s.keyboard.press("Enter")
+    kontrol("komut paleti çalıştı", durum(s, "d.tercih.izgaraGoster") != izgara)
+    s.keyboard.press("Control+k"); s.keyboard.type("ızgara"); s.keyboard.press("Enter")
+
+    # 10) kısayollar penceresi
+    s.keyboard.press("F1")
+    kontrol("kısayollar penceresi", s.locator("[role=dialog][aria-label='Klavye kısayolları']").count() == 1)
+    s.keyboard.press("Escape")
+
+    # 11) yeni proje penceresi: boş ad hatası, sonra oluştur
+    s.keyboard.press("Control+n")
+    s.click("[data-testid=olustur]")
+    kontrol("boş ad uyarısı", "ad yaz" in s.inner_text("[data-testid=hata]"))
+    s.fill("[data-testid=proje-adi]", "Uzay Kaçışı")
+    s.click("[data-testid=olustur]")
     time.sleep(0.5)
-    html = s.evaluate("window.__sonDisaAktarim")
-    print("disa aktarilan html:", len(html or ""), "karakter")
-    s2 = tarayici.new_page(viewport={"width": 960, "height": 540})
-    s2.on("pageerror", lambda e: hatalar.append("disa aktarilan: " + str(e)))
-    s2.set_content(html)
-    s2.mouse.click(400, 300)
-    time.sleep(1.0)
-    s2.screenshot(path=f"{CIKTI}/5_disa_aktarilan.png")
+    kontrol("yeni proje açıldı", durum(s, "d.projeAdi") == "Uzay Kaçışı")
+
+    # 12) v0.1 projesini açma (göç)
+    s.evaluate("""async () => { const d = window.__atolye.getState();
+      await d.depo.proje_kaydet('Eski Mağara', { ad: 'Eski Mağara', surum: 1, dunya: { arka_renk: '#241e34' },
+        oyuncu: { sekil: 'yarasa', renk: '#4a3a62', boyut: 14, yercekimi: 1580, kanat_gucu: 430, max_dusus: 800 },
+        nesneler: [{ id: 'a', ad: 'Sarkıt', sekil: 'ucgen', renk: '#777', boyut: 22, konum: 'tavan', etki: { tip: 'olum' } }] });
+      await d.projeyiAc('Eski Mağara'); }""")
+    time.sleep(0.4)
+    kontrol("eski proje dönüştürülerek açıldı", durum(s, "d.proje.nesneTurleri.length") == 2)
+
+    # 13) paneller gizlenip açılabiliyor
+    s.locator("[data-testid=sahne]").focus()
+    s.keyboard.press("Control+b")
+    kontrol("sol panel gizlendi", s.locator("[data-testid=sol-panel]").count() == 0)
+    s.keyboard.press("Control+b")
+    s.screenshot(path=f"{CIKTI}/7_eski_proje.png")
     tarayici.close()
 
 sunucu.shutdown()
+basarisiz = [a for a, k in sonuclar if not k]
+print(f"\n{len(sonuclar) - len(basarisiz)}/{len(sonuclar)} kontrol geçti")
 print("HATALAR:", hatalar or "yok")
-sys.exit(1 if hatalar else 0)
+sys.exit(1 if hatalar or basarisiz else 0)

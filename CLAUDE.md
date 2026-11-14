@@ -10,8 +10,12 @@ Harun'la her zaman **Türkçe**, teknik olmayan ve anlaşılır bir dille ileti�
 Genel amaçlı, kodsuz 2D oyun yapım ortamı. Ölçüt: Yankı araçta **kod yazmadan, sıfırdan,
 birebir** yapılabilmeli. Aşamalar ve kabul testleri `PLAN.md`'de. Arayüz güçlü ve modern olmalı.
 
-## Mimari (hedef)
+## Mimari
 - `arayuz/` — React + TypeScript + Vite kaynak kodu.
+  - `arayuz/src/depo/` — proje formatı (`proje.ts`, göç fonksiyonu `gocEt`), masaüstü köprüsü
+    (`api.ts`), editör durumu (`durum.ts`, zustand; bütün proje değişiklikleri `degistir()`'den geçer).
+  - `arayuz/src/editor/komutlar.ts` — bütün komutlar tek listede; menüler, komut paleti ve kısayollar
+    buradan beslenir. Yeni bir özellik ekleyince komutunu da buraya ekle.
   - `arayuz/src/motor/` — editörden **bağımsız** oyun çalışma zamanı (nesneler, bileşenler,
     davranışlar, olay kuralları). Dışa aktarılan oyunlar da bunu kullanır. DOM'a bağımlı olmayan
     mantığı birim testleriyle (vitest) doğrula.
@@ -42,8 +46,9 @@ Test için: `pip install playwright --break-system-packages` (yoksa); Chrome `/u
 4. **Test et:**
    - `cd arayuz && npm run build` hatasız olmalı; `npm test` (motor birim testleri)
    - `python3 araclar/api_testi.py` (Python dosya işleri)
-   - `python3 araclar/arayuz_testi.py /tmp/atolye_test` (arayüzü Chrome'da otomatik kullanır,
-     konsol hatası olmamalı). Yeni özellik eklediysen bu teste de adım ekle.
+   - `python3 araclar/arayuz_testi.py /tmp/atolye_test` (derlenmiş `app/`'i Chrome'da otomatik
+     kullanır; bütün kontroller geçmeli, konsol hatası olmamalı). Yeni özellik eklediysen bu teste
+     de kontrol ekle. Elemanlara `data-testid` ver.
    - Ekran görüntülerini **Read ile açıp gözünle kontrol et.**
 5. **Kaydet:** En iyi 1–3 görüntüyü `gunluk/YYYY-AA-GG/` altına koy.
 6. **Günlük:** `GUNLUK.md` en üstüne girdi ekle: ne yapıldı, nasıl denenir, görüntüler,
@@ -61,3 +66,6 @@ Test için: `pip install playwright --break-system-packages` (yoksa); Chrome `/u
 - `atolye.py`'ye yeni bir dosya işlemi eklersen yol güvenliğini koru (`guvenli_ad`, `basename`).
 - Büyük yön kararları Harun'undur; küçük belirsizliklerde makul olanı seç ve günlükte belirt.
 - Bir şey kırılırsa önce onu onar.
+- Henüz işlevi olmayan bir özelliği arayüzde gösteriyorsan, devre dışı bırak ve hangi aşamada
+  geleceğini rozetle belirt (`rozet yakinda`). İşlevi gelince rozeti kaldır, `OZELLIKLER.md`'yi güncelle.
+- `npm install` ile yeni paket eklersen `package-lock.json`'ı da commit'le.
