@@ -1,0 +1,9 @@
+# Python / paketleme
+__pycache__/
+build/
+dist/
+*.spec
+*.exe
+# Sistem
+.DS_Store
+Thumbs.db
