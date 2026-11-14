@@ -1,19 +1,27 @@
 // Sahne düzenleyici: ızgara, yakınlaştırma/kaydırma, seçme, taşıma, döndürme, ölçekleme,
-// listeden sürükle-bırak ile ekleme ve basit oynatma önizlemesi.
+// listeden sürükle-bırak ile ekleme ve oynatma (oyunu motor/Dunya çalıştırır, burası yalnızca çizer).
 import { useEffect, useRef } from "react";
 import { Minus, Plus, Maximize, Play } from "lucide-react";
 import { aktifSahne, useDurum } from "../depo/durum";
 import type { NesneTuru, Ornek } from "../depo/proje";
 import { sekilCiz } from "../motor/cizim";
+import { Dunya } from "../motor/dunya";
+import { carpismaAlani } from "../motor/carpisma";
+import { tusAdiBul, type CalisanNesne } from "../motor/tipler";
 import { sahneOlay } from "./komutlar";
 
-interface SimOrnek extends Ornek { vx: number; vy: number }
 type Surukleme =
   | { tur: "kaydir"; sx: number; sy: number; kx: number; ky: number }
   | { tur: "tasi"; id: string; bx: number; by: number; ox: number; oy: number }
   | { tur: "dondur"; id: string; ox: number; oy: number; ilkAci: number; ilkFare: number }
   | { tur: "olcekle"; id: string; ox: number; oy: number; ilkX: number; ilkY: number; ilkMesafe: number };
 
+/** Projedeki davranışların beklediği tuşlar (oynatma şeridinde ipucu olarak gösterilir). */
+const kullanilanTuslar = () => {
+  const tuslar = new Set<string>();
+  useDurum.getState().proje?.nesneTurleri.forEach(t => t.bilesenler.davranislar?.forEach(d => { if (typeof d.ayarlar.tus === "string") tuslar.add(d.ayarlar.tus); }));
+  return [...tuslar].join(", ");
+};
 const KATMAN_SIRASI = ["arka", "oyun", "arayuz"];
 const boyutlar = (t: NesneTuru | undefined) => ({ w: t?.bilesenler.gorunum?.genislik ?? 40, h: t?.bilesenler.gorunum?.yukseklik ?? 40 });
 
@@ -21,11 +29,12 @@ export function SahneGorunumu() {
   const kapRef = useRef<HTMLDivElement>(null);
   const cvRef = useRef<HTMLCanvasElement>(null);
   const kam = useRef({ x: 480, y: 270 });
-  const sim = useRef<SimOrnek[] | null>(null);
+  const dunya = useRef<Dunya | null>(null);
   const surukle = useRef<Surukleme | null>(null);
   const bosluk = useRef(false);
   const yakinlastirma = useDurum(d => d.yakinlastirma);
   const oynatma = useDurum(d => d.oynatma);
+  const carpismaGoster = useDurum(d => d.tercih.carpismaGoster);
   const sahneler = useDurum(d => d.proje?.sahneler);
   const aktifId = useDurum(d => d.aktifSahneId);
 
@@ -84,7 +93,7 @@ export function SahneGorunumu() {
       surukle.current = { tur: "kaydir", sx: e.clientX, sy: e.clientY, kx: kam.current.x, ky: kam.current.y };
       return;
     }
-    if (st.oynatma !== "duruyor") { zipla(); return; }
+    if (st.oynatma !== "duruyor") { if (e.button === 0 && st.oynatma === "oynuyor") dunya.current?.tusBas("Fare tıklaması"); return; }
     const o = isabet(w.x, w.y);
     if (!o) { st.sec(null); return; }
     st.sec({ tur: "ornek", id: o.id });
@@ -112,7 +121,7 @@ export function SahneGorunumu() {
       ornegiDegistir(s.id, o => { o.olcekX = Math.round(s.ilkX * k * 100) / 100; o.olcekY = Math.round(s.ilkY * k * 100) / 100; });
     }
   };
-  const birakildi = () => { surukle.current = null; };
+  const birakildi = () => { surukle.current = null; dunya.current?.tusBirak("Fare tıklaması"); };
   const tekerlek = (e: React.WheelEvent) => {
     const w = dunyaya(e.clientX, e.clientY);
     yakinlastir(useDurum.getState().yakinlastirma * Math.exp(-e.deltaY * 0.0015), { ...w, ex: e.clientX, ey: e.clientY });
@@ -127,35 +136,43 @@ export function SahneGorunumu() {
     useDurum.getState().ornekEkle(turId, yapis(w.x), yapis(w.y));
   };
 
-  // ---- oynatma önizlemesi (basit): fizik + tuşla zıpla + sabit kay + ekrandan çıkınca yok ol
-  const zipla = () => {
-    const st = useDurum.getState();
-    if (!sim.current || st.oynatma !== "oynuyor") return;
-    const turler = new Map(st.proje!.nesneTurleri.map(t => [t.id, t]));
-    for (const o of sim.current) {
-      const z = turler.get(o.turId)?.bilesenler.davranislar?.find(d => d.tur === "tusla_zipla");
-      if (z) o.vy = -Number(z.ayarlar.guc || 450);
-    }
-  };
+  // ---- oynatma: Oynat'a basınca projenin kopyasından bir Dunya kurulur, Durdur'da atılır
   useEffect(() => {
-    const st = useDurum.getState(), s = aktifSahne(st);
-    if (oynatma === "duruyor") { if (sim.current) st.log("Önizleme durduruldu."); sim.current = null; return; }
-    if (!sim.current && s) {
-      const turler = new Map(st.proje!.nesneTurleri.map(t => [t.id, t]));
-      sim.current = s.ornekler.map(o => {
-        const f = turler.get(o.turId)?.bilesenler.fizik;
-        return { ...o, vx: f?.hizX || 0, vy: f?.hizY || 0 };
-      });
-      st.log("Önizleme başladı (fizik, zıplama, kayma). Çarpışma ve kurallar sonraki aşamalarda.");
+    const st = useDurum.getState();
+    if (oynatma === "duruyor") {
+      if (dunya.current) st.log("Oyun durduruldu.");
+      dunya.current = null; (window as any).__dunya = null;
+      return;
+    }
+    if (!dunya.current && st.proje && st.aktifSahneId) {
+      dunya.current = new Dunya(st.proje, st.aktifSahneId);
+      (window as any).__dunya = dunya.current;   // otomatik testler için
+      st.log("Oyun başladı (fizik, çarpışma, davranışlar). Olay kuralları Aşama 2'de.");
       kapRef.current?.focus();
     }
   }, [oynatma]);
 
+  // oynarken klavye: tuşlar motora gider (yazı kutularında değilken)
+  useEffect(() => {
+    if (oynatma === "duruyor") return;
+    const yaziyor = (e: KeyboardEvent) => ["INPUT", "TEXTAREA", "SELECT"].includes((e.target as HTMLElement).tagName);
+    const bas = (e: KeyboardEvent) => {
+      const t = tusAdiBul(e.key);
+      if (!t || yaziyor(e) || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (useDurum.getState().oynatma !== "oynuyor") return;   // duraklatılmışken girdi biriktirme
+      e.preventDefault();
+      dunya.current?.tusBas(t);
+    };
+    const birak = (e: KeyboardEvent) => { const t = tusAdiBul(e.key); if (t) dunya.current?.tusBirak(t); };
+    addEventListener("keydown", bas); addEventListener("keyup", birak);
+    return () => { removeEventListener("keydown", bas); removeEventListener("keyup", birak); };
+  }, [oynatma]);
+
+  // düzenlerken Boşluk basılıyken sürükleme sahneyi kaydırır
   const tus = (e: React.KeyboardEvent, basildiMi: boolean) => {
-    if (e.key !== " ") return;
+    if (e.key !== " " || useDurum.getState().oynatma !== "duruyor") return;
     e.preventDefault();
-    if (useDurum.getState().oynatma !== "duruyor") { if (basildiMi && !e.repeat) zipla(); }
-    else bosluk.current = basildiMi;
+    bosluk.current = basildiMi;
   };
 
   // ---- çizim döngüsü
@@ -173,21 +190,8 @@ export function SahneGorunumu() {
       const c = cv.getContext("2d")!, z = st.yakinlastirma;
       const turler = new Map(st.proje.nesneTurleri.map(t => [t.id, t]));
 
-      // önizleme fiziği
-      if (sim.current && st.oynatma === "oynuyor") {
-        for (const s of sim.current) {
-          const t = turler.get(s.turId), f = t?.bilesenler.fizik;
-          if (f) { s.vy = Math.min(s.vy + f.yercekimi * dt, f.enYuksekHiz); s.x += s.vx * dt; s.y += s.vy * dt; }
-          const kay = t?.bilesenler.davranislar?.find(d => d.tur === "sabit_kay");
-          if (kay) s.x -= Number(kay.ayarlar.hiz || 0) * dt;
-        }
-        sim.current = sim.current.filter(s => {
-          const t = turler.get(s.turId);
-          if (!t?.bilesenler.davranislar?.some(d => d.tur === "ekrandan_cikinca_yok_ol")) return true;
-          const { w } = boyutlar(t);
-          return s.x > -w && s.y < sahne.yukseklik + 400;
-        });
-      }
+      // oyun dünyasını ilerlet
+      if (dunya.current && st.oynatma === "oynuyor") dunya.current.ilerle(dt);
 
       c.setTransform(o, 0, 0, o, 0, 0);
       c.fillStyle = "#0e1015";
@@ -217,7 +221,7 @@ export function SahneGorunumu() {
 
       // nesneler (katman sırasıyla)
       const katmanlar = new Map(sahne.katmanlar.map(k => [k.id, k]));
-      const liste = (sim.current || sahne.ornekler).slice().sort((a, b) => KATMAN_SIRASI.indexOf(a.katman) - KATMAN_SIRASI.indexOf(b.katman));
+      const liste: (Ornek | CalisanNesne)[] = (dunya.current?.nesneler || sahne.ornekler).slice().sort((a, b) => KATMAN_SIRASI.indexOf(a.katman) - KATMAN_SIRASI.indexOf(b.katman));
       for (const ornek of liste) {
         if (katmanlar.get(ornek.katman)?.gorunur === false) continue;
         const t = turler.get(ornek.turId), g = t?.bilesenler.gorunum;
@@ -226,6 +230,24 @@ export function SahneGorunumu() {
         if (g) { c.globalAlpha = g.saydamlik; sekilCiz(c, g.sekil, g.genislik, g.yukseklik, g.renk); }
         else { c.setLineDash([4 / z, 4 / z]); c.strokeStyle = "#888"; c.lineWidth = 1 / z; c.strokeRect(-20, -20, 40, 40); }
         c.restore();
+      }
+
+      // çarpışma alanları (Görünüm > Çarpışma alanlarını göster)
+      if (st.tercih.carpismaGoster) {
+        c.lineWidth = 1.5 / z;
+        for (const ornek of liste) {
+          const t = turler.get(ornek.turId);
+          if (!t?.bilesenler.carpisma || katmanlar.get(ornek.katman)?.gorunur === false) continue;
+          const n = "tur" in ornek ? ornek : { ...ornek, tur: t } as CalisanNesne;
+          const al = carpismaAlani(n); if (!al) continue;
+          const kati = t.bilesenler.carpisma.kati;
+          c.strokeStyle = kati ? "rgba(255,90,90,0.95)" : "rgba(90,230,140,0.95)";
+          c.fillStyle = kati ? "rgba(255,90,90,0.18)" : "rgba(90,230,140,0.18)";
+          c.beginPath();
+          if (al.bicim === "daire") c.arc(al.x, al.y, al.r, 0, Math.PI * 2);
+          else c.rect(al.x - al.yw, al.y - al.yh, al.yw * 2, al.yh * 2);
+          c.fill(); c.stroke();
+        }
       }
 
       // sahne çerçevesi
@@ -293,8 +315,8 @@ export function SahneGorunumu() {
         {oynatma !== "duruyor" && (
           <div className="yuzer" style={{ padding: "4px 10px", gap: 8 }}>
             <Play size={14} color="#4cc38a" />
-            <span>{oynatma === "oynuyor" ? "Oynuyor: BOŞLUK ya da tıkla" : "Duraklatıldı"}</span>
-            <span className="rozet yakinda">basit önizleme</span>
+            <span data-testid="oynatma-bilgi">{oynatma === "oynuyor" ? "Oynuyor" + (kullanilanTuslar() ? " · " + kullanilanTuslar() : "") : "Duraklatıldı"}</span>
+            {carpismaGoster && <span className="rozet">çarpışma alanları açık</span>}
           </div>
         )}
         <span style={{ flex: 1 }} />

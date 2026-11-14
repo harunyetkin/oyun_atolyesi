@@ -3,15 +3,6 @@
 Her madde yaklaşık bir günlük çalışmadır. Sıra önemlidir; üstten başla.
 
 ## Sırada (Aşama 1 — Çekirdek)
-- [ ] **Motor çekirdeği:** `arayuz/src/motor/` altında editörden bağımsız oyun çalışma zamanı
-      (Dunya/Oyun sınıfı: örnekleri kopyalar, her karede bileşenleri günceller). Fizik bileşeni
-      (yerçekimi, hız, en yüksek hız, sürtünme), çarpışma bileşeni (daire/kutu) ve çarpışma
-      algılama; katı nesnelerin içinden geçilmemesi. Sahne.tsx'teki "basit önizleme" kodunu bu
-      motora devret. Vitest ile fizik/çarpışma birim testleri.
-- [ ] **Hazır davranışlar (motor içinde, kayıt sistemiyle):** "Tuşla zıpla/uç" (tuş seçimi
-      gerçekten çalışsın: Boşluk, Yukarı ok, W, fare), "Sabit hızla kay", "Ekrandan çıkınca yok ol".
-      Yeni davranış eklemenin tek dosyalık bir kalıbı olsun. Oynatırken çarpışma alanlarını
-      gösterme seçeneği (Görünüm menüsü).
 - [ ] **Sahne düzenleyici tamamlama:** seçim kutusunun köşe tutamaçlarından sürükleyerek
       boyutlandırma, üstteki yuvarlak tutamaçtan döndürme (araç seçmeden), Shift ile çoklu seçim
       ve kutu seçimi, ok tuşlarıyla 1 px / Shift ile 10 px kaydırma, hizalama (Düzen menüsü).
@@ -31,6 +22,14 @@ Her madde yaklaşık bir günlük çalışmadır. Sıra önemlidir; üstten baş
 - [ ] Kabul testi: Kanat Çırp'ı araçta sıfırdan kur, `ornekler/kanat_cirp.json` olarak kaydet, otomatik testle oynat
 
 ## Tamamlandı
+- [x] 2026-11-14 (gece) — **Motor çekirdeği:** `src/motor/` altında editörden bağımsız `Dunya` (sabit
+      1/120 sn fizik adımı), fizik (yerçekimi, hız, en yüksek hız, sürtünme), daire/kutu çarpışma,
+      katı nesnelerden itme ("yerde" bilgisi), çarpışma listesi (Aşama 2 "çarpıştı" koşulu için).
+      Sahne.tsx'teki basit önizleme kaldırıldı; oynatma motoru kullanıyor. 20 birim testi.
+- [x] 2026-11-14 (gece) — **Hazır davranışlar (kayıt sistemiyle):** tek dosyalık kalıp
+      (`motor/davranislar/`), Tuşla zıpla/uç (11 tuş seçeneği + fare), Sabit hızla kay (4 yön),
+      Ekrandan çıkınca yok ol (kenar payı). Özellik paneli ayarları tanımdan otomatik çiziyor.
+      Görünüm > "Çarpışma alanlarını göster" (Ctrl+Shift+C). Oynarken W/E/R/H/V araç kısayolları kapalı.
 - [x] 2026-11-14 — **Arayüz iskeleti (v0.2):** React + TypeScript + Vite (`arayuz/` → `app/`); v0.1
       `eski_v01/`'e taşındı. Menü çubuğu, araç çubuğu, boyutlandırılabilir/gizlenebilir paneller,
       sekmeler (Sahne/Olaylar/Arayüz; Varlıklar/Değişkenler/Konsol/Sürümler), durum çubuğu,

@@ -14,6 +14,7 @@ export interface Komut {
 
 const d = () => useDurum.getState();
 const editorde = () => d().ekran === "editor";
+const duzenlemede = () => editorde() && d().oynatma === "duruyor";  // oynarken W/A/S/D oyuna gider
 const ctrl = (k: string, shift = false, alt = false) => (e: KeyboardEvent) =>
   (e.ctrlKey || e.metaKey) && e.shiftKey === shift && e.altKey === alt && e.key.toLowerCase() === k;
 const yalin = (k: string) => (e: KeyboardEvent) => !e.ctrlKey && !e.metaKey && !e.altKey && e.key.toLowerCase() === k;
@@ -44,11 +45,11 @@ export const KOMUTLAR: Komut[] = [
   { id: "ayarlar", ad: "Ayarlar…", kategori: "Düzen", kisayol: "Ctrl+,", tus: e => (e.ctrlKey || e.metaKey) && e.key === ",",
     calistir: () => d().set("pencere", "ayarlar") },
   // ---- Araçlar
-  { id: "aracSec", ad: "Araç: Seç", kategori: "Araç", kisayol: "V", tus: yalin("v"), etkin: editorde, calistir: () => d().set("arac", "sec") },
-  { id: "aracTasi", ad: "Araç: Taşı", kategori: "Araç", kisayol: "W", tus: yalin("w"), etkin: editorde, calistir: () => d().set("arac", "tasi") },
-  { id: "aracDondur", ad: "Araç: Döndür", kategori: "Araç", kisayol: "E", tus: yalin("e"), etkin: editorde, calistir: () => d().set("arac", "dondur") },
-  { id: "aracOlcek", ad: "Araç: Ölçekle", kategori: "Araç", kisayol: "R", tus: yalin("r"), etkin: editorde, calistir: () => d().set("arac", "olcekle") },
-  { id: "aracEl", ad: "Araç: Kaydır (el)", kategori: "Araç", kisayol: "H", tus: yalin("h"), etkin: editorde, calistir: () => d().set("arac", "el") },
+  { id: "aracSec", ad: "Araç: Seç", kategori: "Araç", kisayol: "V", tus: yalin("v"), etkin: duzenlemede, calistir: () => d().set("arac", "sec") },
+  { id: "aracTasi", ad: "Araç: Taşı", kategori: "Araç", kisayol: "W", tus: yalin("w"), etkin: duzenlemede, calistir: () => d().set("arac", "tasi") },
+  { id: "aracDondur", ad: "Araç: Döndür", kategori: "Araç", kisayol: "E", tus: yalin("e"), etkin: duzenlemede, calistir: () => d().set("arac", "dondur") },
+  { id: "aracOlcek", ad: "Araç: Ölçekle", kategori: "Araç", kisayol: "R", tus: yalin("r"), etkin: duzenlemede, calistir: () => d().set("arac", "olcekle") },
+  { id: "aracEl", ad: "Araç: Kaydır (el)", kategori: "Araç", kisayol: "H", tus: yalin("h"), etkin: duzenlemede, calistir: () => d().set("arac", "el") },
   // ---- Görünüm
   { id: "komut", ad: "Komut paleti", kategori: "Görünüm", kisayol: "Ctrl+K", tus: ctrl("k"), calistir: () => d().set("pencere", "komut") },
   { id: "solPanel", ad: "Sol paneli göster/gizle", kategori: "Görünüm", kisayol: "Ctrl+B", tus: ctrl("b"), calistir: () => d().duzenAyarla({ sol: !d().duzen.sol }) },
@@ -56,6 +57,8 @@ export const KOMUTLAR: Komut[] = [
   { id: "altPanel", ad: "Alt paneli göster/gizle", kategori: "Görünüm", kisayol: "Ctrl+J", tus: ctrl("j"), calistir: () => d().duzenAyarla({ alt: !d().duzen.alt }) },
   { id: "izgara", ad: "Izgarayı göster/gizle", kategori: "Görünüm", kisayol: "Ctrl+'", tus: e => (e.ctrlKey || e.metaKey) && e.key === "'",
     calistir: () => d().tercihAyarla({ izgaraGoster: !d().tercih.izgaraGoster }) },
+  { id: "carpismaGoster", ad: "Çarpışma alanlarını göster/gizle", kategori: "Görünüm", kisayol: "Ctrl+Shift+C", tus: ctrl("c", true),
+    calistir: () => d().tercihAyarla({ carpismaGoster: !d().tercih.carpismaGoster }) },
   { id: "miknatis", ad: "Izgaraya yapış (mıknatıs)", kategori: "Görünüm", kisayol: "Shift+M", tus: e => e.shiftKey && !e.ctrlKey && e.key.toLowerCase() === "m",
     calistir: () => d().tercihAyarla({ miknatis: !d().tercih.miknatis }) },
   { id: "yakinlas", ad: "Yakınlaştır", kategori: "Görünüm", kisayol: "Ctrl++", tus: e => (e.ctrlKey || e.metaKey) && (e.key === "+" || e.key === "="), calistir: () => sahneOlay("yakinlas") },

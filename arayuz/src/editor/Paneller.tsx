@@ -9,6 +9,9 @@ import { aktifSahne, useDurum } from "../depo/durum";
 import type { Bilesenler, NesneTuru, Ornek, Sekil, Degisken, Sahne } from "../depo/proje";
 import { yeniId } from "../depo/proje";
 import { SEKIL_ADLARI } from "../motor/cizim";
+import "../motor/davranislar";
+import { ayarlariTamamla, davranisBul, davranisListesi, varsayilanAyarlar, type AyarDegeri, type AyarTanimi } from "../motor/davranis";
+import { TUS_ADLARI } from "../motor/tipler";
 import { Kart, Kaydirici, OnIzleme, RenkGiris, SayiGiris } from "./Ortak";
 
 // ============================================================ Nesneler
@@ -117,15 +120,14 @@ const VARSAYILAN: Required<Pick<Bilesenler, "gorunum" | "fizik" | "carpisma" | "
   isik: { yaricap: 120, guc: 0.8, renk: "#fff2c0" },
   davranislar: [],
 };
-export const DAVRANISLAR: Record<string, { ad: string; ayarlar: Record<string, number | string>; yakinda?: string }> = {
-  tusla_zipla: { ad: "Tuşla zıpla / uç", ayarlar: { tus: "Boşluk", guc: 450 } },
-  sabit_kay: { ad: "Sabit hızla kay (sola)", ayarlar: { hiz: 200 } },
-  ekrandan_cikinca_yok_ol: { ad: "Ekrandan çıkınca yok ol", ayarlar: {} },
-  suzul: { ad: "Aşağı yukarı süzül", ayarlar: { genlik: 20 }, yakinda: "Aşama 3" },
-  platform: { ad: "Platform karakteri", ayarlar: {}, yakinda: "Aşama 5" },
-  ustten_hareket: { ad: "Yukarıdan bakış hareketi", ayarlar: {}, yakinda: "Aşama 5" },
-  ureteci: { ad: "Rastgele üretici", ayarlar: {}, yakinda: "Aşama 2" },
-};
+// Davranışlar motorun kayıt sisteminden gelir (motor/davranislar/). Burada yalnızca henüz
+// yapılmamış olanların "yakında" listesi var.
+const YAKINDA_DAVRANISLAR: { tur: string; ad: string; yakinda: string }[] = [
+  { tur: "ureteci", ad: "Rastgele üretici", yakinda: "Aşama 2" },
+  { tur: "suzul", ad: "Aşağı yukarı süzül", yakinda: "Aşama 3" },
+  { tur: "platform", ad: "Platform karakteri", yakinda: "Aşama 5" },
+  { tur: "ustten_hareket", ad: "Yukarıdan bakış hareketi", yakinda: "Aşama 5" },
+];
 
 export function Ozellikler() {
   const proje = useDurum(d => d.proje);
@@ -246,23 +248,32 @@ export function Ozellikler() {
         )}
         {b.davranislar && (
           <Kart baslik="Davranışlar" ikon={BILESEN_BILGI.davranislar.ikon} sag={kaldir("davranislar")}>
-            {b.davranislar.map((dv, i) => (
-              <div key={i} style={{ gridColumn: "1 / -1", background: "var(--z2)", borderRadius: 6, padding: 8 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: Object.keys(dv.ayarlar).length ? 8 : 0 }}>
-                  <Footprints size={13} /><b style={{ flex: 1 }}>{DAVRANISLAR[dv.tur]?.ad || dv.tur}</b>
-                  <button className="ikon-dugme" style={{ width: 22, height: 22 }} onClick={() => td(t => { t.bilesenler.davranislar!.splice(i, 1); })}><Trash2 size={13} /></button>
+            {b.davranislar.map((dv, i) => {
+              const tanim = davranisBul(dv.tur);
+              const ayarlar = tanim ? ayarlariTamamla(tanim, dv.ayarlar) : dv.ayarlar;
+              return (
+                <div key={i} data-testid={"davranis-" + dv.tur} style={{ gridColumn: "1 / -1", background: "var(--z2)", borderRadius: 6, padding: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: tanim?.ayarlar.length ? 8 : 0 }} title={tanim?.aciklama}>
+                    <Footprints size={13} /><b style={{ flex: 1 }}>{tanim?.ad || dv.tur}</b>
+                    {!tanim && <span className="rozet yakinda">tanınmıyor</span>}
+                    <button className="ikon-dugme" style={{ width: 22, height: 22 }} title="Davranışı kaldır" onClick={() => td(t => { t.bilesenler.davranislar!.splice(i, 1); })}><Trash2 size={13} /></button>
+                  </div>
+                  {tanim && tanim.ayarlar.length > 0 && (
+                    <div style={{ display: "grid", gridTemplateColumns: "90px 1fr", gap: 6, alignItems: "center" }}>
+                      {tanim.ayarlar.map(at => (
+                        <DavranisAyari key={at.ad} tanim={at} deger={ayarlar[at.ad]}
+                          degisti={nv => td(t => { t.bilesenler.davranislar![i].ayarlar = { ...ayarlar, [at.ad]: nv }; })} />
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "90px 1fr", gap: 6, alignItems: "center" }}>
-                  {Object.entries(dv.ayarlar).map(([k, v]) => (
-                    <FragmentAyar key={k} ad={k} deger={v} degisti={nv => td(t => { t.bilesenler.davranislar![i].ayarlar[k] = nv; })} />
-                  ))}
-                </div>
-              </div>
-            ))}
+              );
+            })}
             <select className="giris" style={{ gridColumn: "1 / -1" }} value="" data-testid="davranis-ekle"
-              onChange={e => { const k = e.target.value; if (k) td(t => { t.bilesenler.davranislar!.push({ tur: k, ayarlar: { ...DAVRANISLAR[k].ayarlar } }); }); }}>
+              onChange={e => { const t0 = davranisBul(e.target.value); if (t0) td(t => { t.bilesenler.davranislar!.push({ tur: t0.tur, ayarlar: varsayilanAyarlar(t0) }); }); }}>
               <option value="">+ Davranış ekle…</option>
-              {Object.entries(DAVRANISLAR).map(([k, v]) => <option key={k} value={k} disabled={!!v.yakinda}>{v.ad}{v.yakinda ? ` (${v.yakinda})` : ""}</option>)}
+              {davranisListesi().map(t => <option key={t.tur} value={t.tur}>{t.ad}</option>)}
+              {YAKINDA_DAVRANISLAR.map(t => <option key={t.tur} value="" disabled>{t.ad} ({t.yakinda})</option>)}
             </select>
           </Kart>
         )}
@@ -279,16 +290,24 @@ export function Ozellikler() {
   );
 }
 
-const AYAR_ADLARI: Record<string, string> = { tus: "Tuş", guc: "Güç", hiz: "Hız", genlik: "Genlik" };
-function FragmentAyar({ ad, deger, degisti }: { ad: string; deger: number | string | boolean; degisti: (v: number | string) => void }) {
-  return <>
-    <label className="soluk">{AYAR_ADLARI[ad] || ad}</label>
-    {typeof deger === "number"
-      ? <SayiGiris adim={5} deger={deger} degisti={degisti} />
-      : <select className="giris" value={String(deger)} onChange={e => degisti(e.target.value)}>
-          {["Boşluk", "Yukarı ok", "W", "Fare tıklaması"].map(t => <option key={t}>{t}</option>)}
-        </select>}
-  </>;
+/** Bir davranış ayarı için tanımına uygun giriş kutusu (sayı, tuş, seçim, onay). */
+function DavranisAyari({ tanim, deger, degisti }: { tanim: AyarTanimi; deger: AyarDegeri; degisti: (v: AyarDegeri) => void }) {
+  let giris: ReactNode;
+  switch (tanim.tur) {
+    case "sayi":
+      giris = <SayiGiris adim={tanim.adim ?? 1} min={tanim.min} deger={Number(deger)} degisti={degisti} />; break;
+    case "tus":
+      giris = <select className="giris" data-testid="davranis-tus" value={String(deger)} onChange={e => degisti(e.target.value)}>
+        {TUS_ADLARI.map(t => <option key={t}>{t}</option>)}
+      </select>; break;
+    case "secim":
+      giris = <select className="giris" value={String(deger)} onChange={e => degisti(e.target.value)}>
+        {tanim.secenekler.map(s => <option key={s.deger} value={s.deger}>{s.ad}</option>)}
+      </select>; break;
+    case "onay":
+      giris = <input type="checkbox" checked={!!deger} onChange={e => degisti(e.target.checked)} />; break;
+  }
+  return <><label className="soluk">{tanim.etiket}</label>{giris}</>;
 }
 
 // ============================================================ Olay kuralları

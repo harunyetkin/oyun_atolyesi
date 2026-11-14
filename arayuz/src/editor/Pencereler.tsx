@@ -154,6 +154,7 @@ export function AyarlarPenceresi() {
           {[8, 16, 24, 32, 48, 64].map(v => <option key={v} value={v}>{v} piksel</option>)}
         </select>
         <label>Izgara</label><label><input type="checkbox" checked={t.izgaraGoster} onChange={e => tercihAyarla({ izgaraGoster: e.target.checked })} /> Göster</label>
+        <label>Çarpışma alanları</label><label><input type="checkbox" checked={t.carpismaGoster} onChange={e => tercihAyarla({ carpismaGoster: e.target.checked })} /> Göster</label>
         <label>Mıknatıs</label><label><input type="checkbox" checked={t.miknatis} onChange={e => tercihAyarla({ miknatis: e.target.checked })} /> Nesneler ızgaraya yapışsın</label>
         <label>Otomatik kayıt</label><label><input type="checkbox" checked={t.otomatikKayit} onChange={e => tercihAyarla({ otomatikKayit: e.target.checked })} /> Her değişiklikte kaydet</label>
         <label>Arayüz ölçeği</label>

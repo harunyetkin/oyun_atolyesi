@@ -17,7 +17,7 @@ interface Duzen {
   sol: boolean; sag: boolean; alt: boolean;
   solGenislik: number; sagGenislik: number; altYukseklik: number;
 }
-interface Tercihler { izgaraBoyutu: number; izgaraGoster: boolean; miknatis: boolean; otomatikKayit: boolean; arayuzOlcek: number }
+interface Tercihler { izgaraBoyutu: number; izgaraGoster: boolean; carpismaGoster: boolean; miknatis: boolean; otomatikKayit: boolean; arayuzOlcek: number }
 
 const okuYerel = <T,>(anahtar: string, varsayilan: T): T => {
   try { const v = localStorage.getItem(anahtar); return v ? { ...varsayilan, ...JSON.parse(v) } : varsayilan; }
@@ -87,7 +87,7 @@ export const useDurum = create<Durum>((set, get) => ({
   solSekme: "nesneler",
   altSekme: "varliklar",
   duzen: okuYerel<Duzen>("atolye.duzen", { sol: true, sag: true, alt: true, solGenislik: 260, sagGenislik: 330, altYukseklik: 220 }),
-  tercih: okuYerel<Tercihler>("atolye.tercih", { izgaraBoyutu: 32, izgaraGoster: true, miknatis: false, otomatikKayit: true, arayuzOlcek: 1 }),
+  tercih: okuYerel<Tercihler>("atolye.tercih", { izgaraBoyutu: 32, izgaraGoster: true, carpismaGoster: false, miknatis: false, otomatikKayit: true, arayuzOlcek: 1 }),
   yakinlastirma: 1,
   imlec: null,
   oynatma: "duruyor",

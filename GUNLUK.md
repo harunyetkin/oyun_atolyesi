@@ -2,6 +2,50 @@
 
 En yeni girdi en üsttedir.
 
+## 2026-11-14 (gece) — Oyun motoru: fizik, çarpışma ve hazır davranışlar
+**Bu gece yapılanlar**
+- ▶ Oynat artık gerçek bir **oyun motoru** çalıştırıyor (önceki "basit önizleme" gitti). Bu motor
+  editörden ayrı; ileride dışa aktarılan oyunlar da aynısını kullanacak.
+  - **Fizik:** yerçekimi, başlangıç hızı, en yüksek hız ve sürtünme ayarları gerçekten çalışıyor.
+  - **Çarpışma:** nesnelerin daire ya da kutu biçimli çarpışma alanı var. "İçinden geçilemez"
+    işaretli nesnelerin içinden geçilmiyor: örnekte kuş artık zeminin üstünde duruyor, borulara
+    çarpınca itiliyor. (Çarpınca oyunun bitmesi gibi sonuçlar Aşama 2'deki olay kurallarıyla gelecek.)
+  - Oyun her bilgisayarda aynı hızda ilerliyor (ekranın kare hızından bağımsız).
+- **Hazır davranışlar** yenilendi ve ayarları gerçekten çalışıyor:
+  - **Tuşla zıpla / uç:** tuşu seçebiliyorsun (Boşluk, ok tuşları, W/A/S/D, Enter, fare tıklaması).
+  - **Sabit hızla kay:** hız ve artık **yön** de var (sola, sağa, yukarı, aşağı).
+  - **Ekrandan çıkınca yok ol:** sahnenin dışına çıkan nesne silinir; sahnenin dışında doğan
+    nesneler (ileride borular böyle doğacak) önce içeri girene kadar silinmez.
+  - Yeni davranış eklemek artık tek dosyalık iş (benim için; sana fark etmez ama ileride hızlanır).
+- **Görünüm > Çarpışma alanlarını göster** (Ctrl+Shift+C): kırmızı = içinden geçilemez,
+  yeşil = değince haber verir ama geçilir. Ayarlar penceresinde de var.
+- Oynarken üstteki şerit hangi tuşla oynandığını yazıyor ("Oynuyor · Boşluk").
+- Oynarken W/E/R/H/V tuşları artık araç değiştirmiyor (oyun tuşu olabilecekleri için).
+- Testler: 20 motor birim testi + Chrome'da 32 otomatik kontrol, hepsi geçiyor.
+
+**Nasıl denenir**
+- GitHub Desktop: **Fetch origin → Pull origin**, sonra `exe_yap.bat`, sonra `OyunAtolyesi.exe`.
+- "Örnek: Kanat Çırp"ı aç, ▶ Oynat (F5). Kuş zemine düşüp durmalı; Boşluk'la uçmalı; borular sola kaymalı.
+- Kuş'u seç → sağda Davranışlar → Tuş'u "Yukarı ok" yap, tekrar oynat: artık ok tuşuyla uçuyor.
+- Görünüm menüsünden "Çarpışma alanlarını göster"i aç, oynat ve çerçeveleri gör.
+- Boru'nun "Sabit hızla kay" yönünü "Sağa" yapmayı dene.
+
+**Ekran görüntüleri**
+![Oynarken çarpışma alanları](gunluk/2026-11-14/motor_carpisma_alanlari.png)
+![Davranış ayarları](gunluk/2026-11-14/motor_davranis_ayarlari.png)
+
+**Küçük kararlar (ben seçtim, istersen değiştiririz)**
+- Sürtünme 0–1 arası: her 0,1 saniyede yatay hızın bu oranı kaybolur (0,2 → 1 saniyede hız neredeyse biter).
+- Döndürülmüş kutu biçimli nesnelerde çarpışma alanı, nesneyi saran düz bir kutu olarak hesaplanıyor.
+  Eğik engeller için daha hassas çarpışma (çokgen) gerekirse sonra eklenir.
+
+**Senin kararın gereken konular**
+- Şimdilik yok.
+
+**Sıradaki adım**
+- Sahne düzenleyiciyi tamamlamak: köşelerden boyutlandırma, üstteki tutamaçtan döndürme, çoklu seçim,
+  ok tuşlarıyla kaydırma, hizalama. Ardından geri al / yinele.
+
 ## 2026-11-14 (akşam) — v0.2: yeni arayüz
 **Bugün yapılanlar** (Harun'la birlikte)
 - Araç, genel amaçlı bir oyun yapım ortamı olacak şekilde **baştan kuruldu**. Yeni, modern arayüz:

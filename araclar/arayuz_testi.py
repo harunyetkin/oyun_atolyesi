@@ -78,17 +78,56 @@ with sync_playwright() as p:
     s.locator(".satir:has-text('Yeni nesne')").drag_to(s.locator("[data-testid=sahne]"), target_position={"x": 300, "y": 200})
     kontrol("sürükle-bırak ile sahneye eklendi", durum(s, "d.proje.sahneler[0].ornekler.length") == once + 1)
 
-    # 6) oynat: kuş düşmeli, boşluk ile zıplamalı, borular kaymalı
+    # 6) oynat: motor çalışmalı — kuş düşmeli, boşluk ile zıplamalı, borular kaymalı
+    kus_dunya = f"window.__dunya && window.__dunya.nesneler.find(n => n.id === '{kus_id}')"
     s.click("[data-testid=oynat]")
-    time.sleep(0.5)
-    s.locator("[data-testid=sahne]").focus()
-    for _ in range(4):
-        s.keyboard.press("Space"); time.sleep(0.15)
+    time.sleep(0.15)
+    kontrol("oyun dünyası kuruldu", s.evaluate("!!window.__dunya"))
+    boru_x0 = s.evaluate("window.__dunya.nesneler.find(n => n.turId === 'tur_boru').x")
+    kus_y0 = s.evaluate(f"{kus_dunya}.y")
+    kontrol("kuş yerçekimiyle düşüyor", kus_y0 > son["y"] + 3, f"{son['y']} -> {kus_y0:.0f}")
+    s.keyboard.press("Space"); time.sleep(0.03)
+    kontrol("Boşluk ile kuş zıpladı", s.evaluate(f"{kus_dunya}.vy") < 0)
+    for _ in range(3):
+        time.sleep(0.2); s.keyboard.press("Space")
+    kontrol("borular sola kaydı", s.evaluate("window.__dunya.nesneler.find(n => n.turId === 'tur_boru').x") < boru_x0 - 50)
+    kontrol("oynatma şeridinde tuş ipucu", "Boşluk" in s.inner_text("[data-testid=oynatma-bilgi]"))
     s.screenshot(path=f"{CIKTI}/4_oynatma.png")
     kontrol("oynatma modunda", durum(s, "d.oynatma") == "oynuyor")
+    # oynarken W tuşu aracı değiştirmemeli (oyun tuşu olabilir)
+    arac0 = durum(s, "d.arac"); s.keyboard.press("w")
+    kontrol("oynarken W aracı değiştirmedi", durum(s, "d.arac") == arac0)
+    # kuş zemine düşünce zeminin içinden geçmemeli
+    time.sleep(2.2)
+    kus_y = s.evaluate(f"{kus_dunya}.y")
+    kontrol("kuş katı zeminin içinden geçmedi", kus_y < 450, f"y={kus_y:.0f}")
     s.keyboard.press("Shift+F5")
     kontrol("durdurunca düzenlemeye döndü", durum(s, "d.oynatma") == "duruyor")
     kontrol("oynatma projeyi değiştirmedi", durum(s, f"d.proje.sahneler[0].ornekler.find(o => o.id === '{kus_id}').x") == son["x"])
+
+    # 6b) tuş seçimi: Kuş'un tuşunu "Yukarı ok" yap, artık Boşluk zıplatmamalı
+    s.evaluate(f"window.__atolye.getState().sec({{ tur: 'ornek', id: '{kus_id}' }})")
+    time.sleep(0.2)
+    s.select_option("[data-testid=davranis-tusla_zipla] [data-testid=davranis-tus]", "Yukarı ok")
+    kontrol("tuş ayarı kaydedildi", durum(s, "d.proje.nesneTurleri.find(t => t.id === 'tur_kus').bilesenler.davranislar[0].ayarlar.tus") == "Yukarı ok")
+    s.keyboard.press("F5"); time.sleep(0.3)
+    s.keyboard.press("Space"); time.sleep(0.03)
+    kontrol("Boşluk artık zıplatmıyor", s.evaluate(f"{kus_dunya}.vy") > 0)
+    s.keyboard.press("ArrowUp"); time.sleep(0.03)
+    kontrol("Yukarı ok zıplatıyor", s.evaluate(f"{kus_dunya}.vy") < 0)
+    s.keyboard.press("Shift+F5")
+    s.select_option("[data-testid=davranis-tusla_zipla] [data-testid=davranis-tus]", "Boşluk")
+
+    # 6c) çarpışma alanlarını göster (Görünüm komutu), oynarken ekran görüntüsü
+    s.locator("[data-testid=sahne]").focus()
+    s.keyboard.press("Control+Shift+C")
+    kontrol("çarpışma alanları açıldı", durum(s, "d.tercih.carpismaGoster") is True)
+    s.keyboard.press("F5"); time.sleep(0.5)
+    s.keyboard.press("Space"); time.sleep(0.25)
+    s.screenshot(path=f"{CIKTI}/4b_carpisma_alanlari.png")
+    s.keyboard.press("Shift+F5")
+    s.keyboard.press("Control+Shift+C")
+    kontrol("çarpışma alanları kapandı", durum(s, "d.tercih.carpismaGoster") is False)
 
     # 7) olaylar sekmesi
     s.click("[data-testid=sekme-olaylar]")

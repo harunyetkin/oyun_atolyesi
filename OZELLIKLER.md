@@ -35,7 +35,7 @@ Durum: ✅ var · 🧩 arayüzü var, işlevi sonra · 🔜 planlı (aşama numa
 |---|---|
 | Izgara, yakınlaştırma, kaydırma, oyun ekranı çerçevesi | ✅ |
 | Nesneyi seçme, sürükleyerek taşıma | ✅ |
-| Sürükle-bırak ile sahneye nesne ekleme | 🔜1 |
+| Sürükle-bırak ile sahneye nesne ekleme | ✅ |
 | Boyutlandırma ve döndürme tutamaçları, çoklu seçim, hizalama | 🔜1 |
 | Katmanlar (arka plan, oyun, arayüz), görünürlük ve kilit | 🧩 |
 | Birden fazla sahne (menü, oyun, bitiş) | 🧩 |
@@ -46,8 +46,8 @@ Durum: ✅ var · 🧩 arayüzü var, işlevi sonra · 🔜 planlı (aşama numa
 |---|---|
 | Nesne türleri ve sahnedeki örnekleri (tür değişince hepsi değişir) | ✅ |
 | Görünüm: şekil, renk, boyut, çizim/resim, animasyon | 🧩 (çizim 🔜5) |
-| Fizik: hız, yerçekimi, sürtünme, en yüksek hız | 🧩 → 🔜1 |
-| Çarpışma alanı: daire, kutu, çokgen | 🧩 → 🔜1 |
+| Fizik: hız, yerçekimi, sürtünme, en yüksek hız | ✅ |
+| Çarpışma alanı: daire, kutu, çokgen | ✅ (çokgen 🔜) |
 | Işık kaynağı: yarıçap, güç, renk | 🔜3 |
 | Parçacık yayıcı | 🔜3 |
 | Ses kaynağı | 🔜4 |
@@ -57,12 +57,12 @@ Durum: ✅ var · 🧩 arayüzü var, işlevi sonra · 🔜 planlı (aşama numa
 ## 5. Hazır davranışlar
 | Davranış | Durum |
 |---|---|
-| Tuşla zıpla / uç (tek tuş) | 🔜1 |
+| Tuşla zıpla / uç (tuş seçilebilir) | ✅ |
 | Platform karakteri (sağ-sol + zıpla) | 🔜5 |
 | Yukarıdan bakış hareketi (4/8 yön) | 🔜5 |
-| Sabit hızla kay / ekranla kay | 🔜1 |
+| Sabit hızla kay (4 yön) / ekranla kay | ✅ (ekranla kay 🔜2) |
 | Süzül (dalga), yaklaşınca düş, hedefe doğru uç | 🔜3 |
-| Ekrandan çıkınca yok ol | 🔜1 |
+| Ekrandan çıkınca yok ol | ✅ |
 | Rastgele üretici (spawner) | 🔜2 |
 | Yanıp sönme, solma, büyüyüp küçülme | 🔜3 |
 
@@ -117,7 +117,7 @@ Durum: ✅ var · 🧩 arayüzü var, işlevi sonra · 🔜 planlı (aşama numa
 ## 13. Test ve hata ayıklama
 | Özellik | Durum |
 |---|---|
-| Editörün içinde oynatma, duraklatma, kare kare ilerleme | 🧩 → 🔜1 |
+| Editörün içinde oynatma, duraklatma, kare kare ilerleme | ✅ (kare kare 🔜) |
 | Ölümsüz test modu, yavaş çekim | 🔜2 |
 | Konsol / çıktı paneli | ✅ |
-| Çarpışma alanlarını gösterme | 🔜1 |
+| Çarpışma alanlarını gösterme | ✅ |
