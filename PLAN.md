@@ -1,23 +1,35 @@
 # Oyun Atölyesi — Plan
 
 ## Amaç
-Harun'un oyun geliştirme aşamalarını tek bir masaüstü uygulamasından yönetmesi: tasarım
-(karakterler, şekiller, engeller ve etkileri) arayüzden düzenlenir, oyun anında önizlenir,
-sürümler saklanır, bitmiş oyun dışa aktarılır. Sohbet şimdilik claude.ai üzerinden (Claude ile)
-yürür; uygulama içi yapay zekâ sohbeti ileride eklenebilir.
+Genel amaçlı, kod gerektirmeyen bir **2D oyun yapım ortamı**. Ölçüt şu:
+Yankı'yı hiç görmemiş biri, bu araçla **kod yazmadan, sıfırdan** Yankı'nın birebir aynısını
+yapabilmeli. Arayüz güçlü ve modern olmalı (Godot/Figma tarzı koyu tema, paneller).
 
-## Kilometre taşları
-1. **v0.1 — Temel editör** ✅ (2026-11-14)
-   Proje yönetimi, canlı önizleme, dünya/oyuncu/nesne panelleri, 7 etki tipi, karanlık + ışık
-   dalgası, mağara, sürüm geçmişi, HTML olarak dışa aktarma, .exe paketi.
-2. **v0.2 — Tasarım araçları**
-   Nesneleri ve oyuncuyu çizme (piksel/şekil editörü) veya resim yükleme; oyuncu animasyonu.
-3. **v0.3 — Kural editörü**
-   "Dokununca / süre dolunca / şu kadar puanda → şu olsun" gibi kurallar; enerji, can, kalkan;
-   bölümler ve yol ayrımları; özel yetenekler (büyük sonar gibi).
-4. **v0.4 — Ses ve his**
-   Kodla ses efektleri üretme, ekran sarsıntısı/parçacık ayarları, müzik.
-5. **v0.5 — Yeni oyun türleri**
-   Platform (zıplama), yukarıdan bakış; şablonlar.
-6. **İleride** — dışa aktarılan oyunu .exe yapma, uygulama içi yapay zekâ sohbeti (isteğe bağlı),
-   3D önizleme.
+Yapı taşları: nesneler ve bileşenler (görünüm, fizik, çarpışma, ışık), hazır davranışlar,
+**olay kuralları** ("ne zaman → ne olsun", GDevelop/Construct'taki olay sayfası fikri),
+değişkenler, dünya üretici (tünel, parça, yol ayrımı), bölümler, efektler (ışık/karanlık,
+parçacık, sarsıntı), ses üretici, arayüz (HUD) editörü, sürümler, dışa aktarma.
+
+Sohbet şimdilik claude.ai üzerinden yürür; uygulama içi yapay zekâ sonra eklenebilir.
+
+## Aşamalar ve kabul testleri
+Her aşama, sonundaki oyun araçta **sıfırdan ve kodsuz** kurulabildiğinde biter. Kabul testi
+olarak kurulan oyun `ornekler/` altına proje olarak kaydedilir ve otomatik testle oynatılır.
+
+1. **Çekirdek** — modern arayüz iskeleti, proje formatı v2, sahne editörü (sürükle-bırak,
+   seç, taşı, yakınlaştır), nesne türleri ve örnekleri, özellik paneli, motor çekirdeği
+   (döngü, fizik, çarpışma), oynat/durdur, ilk hazır davranışlar, geri al/yinele.
+2. **Kurallar** — olay kuralları sayfası (koşullar + eylemler), değişkenler, skor/yazı arayüzü,
+   rastgele nesne üretici (spawner), kamera takibi/kaydırma, yeniden başlatma, rekor kaydı.
+   *Kabul: Kanat Çırp.*
+3. **Dünya ve efektler** — tünel/mağara üretici, karanlık ve ışık kaynakları, parçacık
+   sistemi, ekran sarsıntısı, çarpışma etkileri (geçici yavaşlatma vb.).
+   *Kabul: Yankı ilk sürüm (sonar, ateş böcekleri).*
+4. **Derinlik** — basılı tutma ve zamanlayıcı koşulları, çubuk (bar) arayüz öğesi, bölümler
+   ve renk geçişleri, yol ayrımı parçaları, ses üretici.
+   *Kabul: Yankı son hal (büyük sonar, ölümcül olmayan tehlikeler, Mor/Buz/Lav, yol ayrımları).*
+5. **Paylaşım ve tasarım** — oyunu .exe/HTML dışa aktarma, şablon kütüphanesi, piksel çizim
+   editörü, resim yükleme.
+
+## Notlar
+- v0.1 (yarasa türüne özel ayar paneli) yeni çekirdek gelince `eski_v01/` altına taşınır.

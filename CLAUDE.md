@@ -6,25 +6,29 @@ nesne/engel düzenleme, sürüm geçmişi ve oyunu dışa aktarma bir arada.
 yön verir ve `GERI_BILDIRIM.md` üzerinden yorum bırakır.
 Harun'la her zaman **Türkçe**, teknik olmayan ve anlaşılır bir dille iletişim kur.
 
-## Mimari
-- `app/` — arayüz (saf HTML/CSS/JS, derleme adımı yok)
-  - `motor.js`: oyun motoru. Bir "oyun tanımını" (JSON) okuyup oynatır; tanım her karede
-    okunduğu için editör değişiklikleri anında yansır. Dışa aktarılan oyunlar da bunu kullanır.
-  - `sablonlar.js`: hazır şablonlar, yeni nesne ayarları ve **özellik paneli tanımları (ALANLAR)**.
-    Yeni bir ayar eklemek = motorda kullan + ALANLAR'a satır ekle.
-  - `editor.js`: liste, özellik paneli, önizleme, sürümler, projeler, dışa aktarma.
-- `atolye.py` — masaüstü kabuğu (pywebview). Pencereyi açar; dosya işlerini yapar.
-  Veriler: `Belgeler/OyunAtolyesi/projeler/<ad>/oyun.json` ve `surumler/`.
-- `exe_yap.bat` — Harun'un bilgisayarında çift tıklayınca `OyunAtolyesi.exe` üretir.
-- Yapay zekâ sohbeti uygulamanın içinde **yok** (Harun kullandıkça ödemeli API istemedi).
-  İleride eklenebilir; tasarımı buna kapalı yapma.
+## Hedef
+Genel amaçlı, kodsuz 2D oyun yapım ortamı. Ölçüt: Yankı araçta **kod yazmadan, sıfırdan,
+birebir** yapılabilmeli. Aşamalar ve kabul testleri `PLAN.md`'de. Arayüz güçlü ve modern olmalı.
 
-## Oyun tanımı (oyun.json) — kısa şema
-`{ ad, surum, dunya:{hiz, hiz_artisi, arka_renk, duvar_renk, magara, bosluk, kivrim, daralma,
-duvar_olumcul, karanlik, isik_yaricapi, kanat_isigi, dalga_yaricapi}, oyuncu:{sekil, renk, boyut,
-yercekimi, kanat_gucu, max_dusus}, nesneler:[{id, ad, aktif, sekil, renk, boyut, siklik, konum,
-hareket, genlik, hiz, parlar, etki:{tip, guc, sure, tek_kullanim}}] }`
-Şemayı değiştirirsen **eski projeler bozulmamalı**: eksik alanlara motor ve editörde varsayılan ver.
+## Mimari (hedef)
+- `arayuz/` — React + TypeScript + Vite kaynak kodu.
+  - `arayuz/src/motor/` — editörden **bağımsız** oyun çalışma zamanı (nesneler, bileşenler,
+    davranışlar, olay kuralları). Dışa aktarılan oyunlar da bunu kullanır. DOM'a bağımlı olmayan
+    mantığı birim testleriyle (vitest) doğrula.
+  - `arayuz/src/editor/` — editör arayüzü (paneller, sahne, özellikler, kurallar).
+  - Derleme: `cd arayuz && npm ci && npm run build` → çıktı **`app/`** klasörüne yazılır ve
+    **commit edilir** (Harun'un bilgisayarında Node gerekmez; `exe_yap.bat` `app/`'i paketler).
+- `atolye.py` — masaüstü kabuğu (pywebview); pencere + dosya işleri. Arayüz yeni dosya işi
+  isterse buraya, yol güvenliğine dikkat ederek ekle.
+- `exe_yap.bat` — Harun'un bilgisayarında `OyunAtolyesi.exe` üretir.
+- `ornekler/` — kabul testlerinde araçla kurulan oyun projeleri.
+- `eski_v01/` — ilk deneme (yarasa türüne özel ayar paneli); yalnızca başvuru için.
+- Proje dosyası (`proje.json`) bir `surum` alanı taşır; şema değişince **göç fonksiyonu** yaz,
+  eski projeler açılabilir kalsın.
+- Uygulama içinde yapay zekâ sohbeti **yok** (Harun kullandıkça ödemeli API istemedi). İleride
+  eklenebilir; tasarımı buna kapalı yapma.
+- Tarayıcıda test için arayüz `?test=1` ile açılınca bellekte çalışan sahte depo kullanır;
+  bu davranışı koru.
 
 ## Her çalışmanın başında
 Sırayla oku: `GERI_BILDIRIM.md` (önce bu!), `PLAN.md`, `YAPILACAKLAR.md`, `GUNLUK.md`'nin son girdisi.
@@ -36,6 +40,7 @@ Test için: `pip install playwright --break-system-packages` (yoksa); Chrome `/u
 2. **İş seçimi:** "Sırada"nın başından, bir oturumda bitip test edilebilecek kadar iş (1–3).
 3. **Uygula:** Temiz, Türkçe yorumlu kod. Araç her commit'te açılabilir ve çalışır olmalı.
 4. **Test et:**
+   - `cd arayuz && npm run build` hatasız olmalı; `npm test` (motor birim testleri)
    - `python3 araclar/api_testi.py` (Python dosya işleri)
    - `python3 araclar/arayuz_testi.py /tmp/atolye_test` (arayüzü Chrome'da otomatik kullanır,
      konsol hatası olmamalı). Yeni özellik eklediysen bu teste de adım ekle.
