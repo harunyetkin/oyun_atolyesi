@@ -69,6 +69,75 @@ with sync_playwright() as p:
     kontrol("sürükleyince taşındı", abs(son["x"] - ilk["x"] - 80 / z) < 3 and abs(son["y"] - ilk["y"] - 40 / z) < 3,
             f"{ilk['x']},{ilk['y']} -> {son['x']},{son['y']}")
 
+    # 4c) geri al / yinele: sürükleme tek adım sayılır
+    def kus():
+        return durum(s, f"d.proje.sahneler[0].ornekler.find(o => o.id === '{kus_id}')")
+    def ekran(x, y):
+        return kutu["x"] + kutu["width"] / 2 + (x - 480) * z, kutu["y"] + kutu["height"] / 2 + (y - 270) * z
+    s.locator("[data-testid=sahne]").focus()
+    s.keyboard.press("Control+z")
+    k = kus()
+    kontrol("Ctrl+Z sürüklemeyi tek adımda geri aldı", k["x"] == ilk["x"] and k["y"] == ilk["y"], f"{k['x']},{k['y']}")
+    s.keyboard.press("Control+y")
+    k = kus()
+    kontrol("Ctrl+Y yeniden yaptı", k["x"] == son["x"] and k["y"] == son["y"])
+
+    # 4d) ok tuşlarıyla 1 px / Shift ile 10 px kaydırma; art arda basışlar tek adım
+    s.keyboard.press("ArrowRight"); s.keyboard.press("ArrowRight"); s.keyboard.press("Shift+ArrowDown")
+    k = kus()
+    kontrol("ok tuşlarıyla kaydırıldı", k["x"] == son["x"] + 2 and k["y"] == son["y"] + 10, f"{k['x']},{k['y']}")
+    s.keyboard.press("Control+z")
+    k = kus()
+    kontrol("ok tuşu kaydırması tek adımda geri alındı", k["x"] == son["x"] and k["y"] == son["y"])
+
+    # 4e) köşe tutamacından boyutlandırma (karşı köşe sabit) ve üst tutamaçtan döndürme
+    kx, ky = ekran(son["x"] + 17, son["y"] + 17)
+    s.mouse.move(kx, ky); s.mouse.down(); s.mouse.move(kx + 34 * z, ky + 34 * z, steps=6); s.mouse.up()
+    k = kus()
+    kontrol("köşeden boyutlandırıldı", abs(k["olcekX"] - 2) < 0.1 and abs(k["olcekY"] - 2) < 0.1, f"{k['olcekX']}x{k['olcekY']}")
+    kontrol("karşı köşe yerinde kaldı", abs((k["x"] - 17 * k["olcekX"]) - (son["x"] - 17)) <= 1.5)
+    s.screenshot(path=f"{CIKTI}/3b_boyutlandirma.png")
+    tx, ty = ekran(k["x"], k["y"])
+    ty -= 17 * k["olcekY"] * z + 26
+    s.mouse.move(tx, ty); s.mouse.down()
+    cx, cy = ekran(k["x"], k["y"])
+    s.keyboard.down("Shift"); s.mouse.move(cx + 120, cy + 4, steps=8); s.mouse.up(); s.keyboard.up("Shift")
+    k = kus()
+    kontrol("üst tutamaçtan döndürüldü (Shift ile 15°)", k["aci"] == 90, f"aci={k['aci']}")
+    s.keyboard.press("Control+z"); s.keyboard.press("Control+z")
+    k = kus()
+    kontrol("döndürme ve boyutlandırma geri alındı", k["aci"] == 0 and k["olcekX"] == 1 and k["x"] == son["x"])
+
+    # 4f) kutu seçimi, Shift ile ekleme, hizalama, toplu silme ve geri alma
+    s.click("[data-testid=sekme-agac]")
+    x0, y0 = ekran(-40, -40); x1, y1 = ekran(1000, 580)
+    s.mouse.move(x0, y0); s.mouse.down(); s.mouse.move(x1, y1, steps=6)
+    s.screenshot(path=f"{CIKTI}/3c_kutu_secimi.png")
+    s.mouse.up()
+    toplam = durum(s, "d.proje.sahneler[0].ornekler.length")
+    kontrol("kutu seçimi hepsini seçti", durum(s, "1 + (d.secim.digerleri || []).length") == toplam)
+    s.keyboard.press("Escape")
+    kontrol("Esc seçimi kaldırdı", durum(s, "d.secim") is None)
+    borular = durum(s, "d.proje.sahneler[0].ornekler.filter(o => o.turId === 'tur_boru').map(o => o.id)")
+    bx, by = ekran(560, 110); s.mouse.click(bx, by)
+    bx, by = ekran(840, 150); s.keyboard.down("Shift"); s.mouse.click(bx, by); s.keyboard.up("Shift")
+    kontrol("Shift+tık seçime ekledi", durum(s, "1 + (d.secim.digerleri || []).length") == 2)
+    s.click("[data-testid=hizala-ust]")
+    ustler = durum(s, "d.proje.sahneler[0].ornekler.filter(o => o.turId === 'tur_boru').slice(0, 3).map(o => Math.round(o.y - 110 * o.olcekY))")
+    kontrol("üste hizalandı", ustler[0] == ustler[2], str(ustler))
+    s.screenshot(path=f"{CIKTI}/3d_hizalama.png")
+    s.keyboard.press("Control+z")
+    s.locator("[data-testid=sahne]").focus()
+    s.keyboard.press("Control+a")
+    s.keyboard.press("Delete")
+    kontrol("toplu silindi", durum(s, "d.proje.sahneler[0].ornekler.length") == 0)
+    s.keyboard.press("Control+z")
+    kontrol("toplu silme geri alındı", durum(s, "d.proje.sahneler[0].ornekler.length") == toplam)
+    k = kus()
+    kontrol("kuş son konumunda", k["x"] == son["x"] and k["y"] == son["y"])
+    s.evaluate("window.__atolye.getState().sec(null)")
+    time.sleep(0.8)
+
     # 5) yeni nesne türü + bileşen ekle + listeden sahneye sürükle-bırak
     s.click("[data-testid=sekme-nesneler]")
     s.click("[data-testid=yeni-tur]")

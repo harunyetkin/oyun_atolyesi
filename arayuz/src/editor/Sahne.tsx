@@ -1,8 +1,9 @@
-// Sahne düzenleyici: ızgara, yakınlaştırma/kaydırma, seçme, taşıma, döndürme, ölçekleme,
-// listeden sürükle-bırak ile ekleme ve oynatma (oyunu motor/Dunya çalıştırır, burası yalnızca çizer).
+// Sahne düzenleyici: ızgara, yakınlaştırma/kaydırma, seçme (Shift ile çoklu, boş alanda sürükleyerek kutu),
+// taşıma, köşe tutamaçlarıyla boyutlandırma, üst tutamaçla döndürme, ölçekleme, listeden sürükle-bırak ile ekleme ve oynatma (oyunu motor/Dunya çalıştırır, burası yalnızca çizer).
 import { useEffect, useRef } from "react";
 import { Minus, Plus, Maximize, Play } from "lucide-react";
-import { aktifSahne, useDurum } from "../depo/durum";
+import { aktifSahne, seciliOrnekler, useDurum, type Secim } from "../depo/durum";
+import { koseBoyutlandir, kutularKesisir, ornekKutusu } from "../depo/hizalama";
 import type { NesneTuru, Ornek } from "../depo/proje";
 import { sekilCiz } from "../motor/cizim";
 import { Dunya } from "../motor/dunya";
@@ -12,7 +13,9 @@ import { sahneOlay } from "./komutlar";
 
 type Surukleme =
   | { tur: "kaydir"; sx: number; sy: number; kx: number; ky: number }
-  | { tur: "tasi"; id: string; bx: number; by: number; ox: number; oy: number }
+  | { tur: "tasi"; bx: number; by: number; baslar: Map<string, { x: number; y: number }> }
+  | { tur: "boyutlandir"; ilk: Ornek; w: number; h: number; kose: [number, number] }
+  | { tur: "kutu"; bx: number; by: number; x: number; y: number; ekle: boolean; onceki: string[] }
   | { tur: "dondur"; id: string; ox: number; oy: number; ilkAci: number; ilkFare: number }
   | { tur: "olcekle"; id: string; ox: number; oy: number; ilkX: number; ilkY: number; ilkMesafe: number };
 
@@ -24,6 +27,9 @@ const kullanilanTuslar = () => {
 };
 const KATMAN_SIRASI = ["arka", "oyun", "arayuz"];
 const boyutlar = (t: NesneTuru | undefined) => ({ w: t?.bilesenler.gorunum?.genislik ?? 40, h: t?.bilesenler.gorunum?.yukseklik ?? 40 });
+const KOSELER: [number, number][] = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+/** Kimlik listesinden seçim nesnesi (ilk eleman asıl seçili). */
+const secimYap = (idler: string[]): Secim => (idler.length ? { tur: "ornek", id: idler[0], digerleri: idler.slice(1) } : null);
 
 export function SahneGorunumu() {
   const kapRef = useRef<HTMLDivElement>(null);
@@ -84,6 +90,22 @@ export function SahneGorunumu() {
     return t.miknatis ? Math.round(v / (t.izgaraBoyutu / 2)) * (t.izgaraBoyutu / 2) : Math.round(v);
   };
 
+  /** Tek nesne seçiliyken tutamaç isabeti: döndürme yuvarlağı ya da köşe kareleri. */
+  const tutamacBul = (wx: number, wy: number): null | { tur: "dondur" } | { tur: "kose"; kose: [number, number] } => {
+    const st = useDurum.getState(), s = aktifSahne(st), sec = st.secim;
+    if (!s || sec?.tur !== "ornek" || sec.digerleri?.length) return null;
+    const o = s.ornekler.find(x => x.id === sec.id); if (!o) return null;
+    const k = s.katmanlar.find(x => x.id === o.katman); if (k && (k.kilitli || !k.gorunur)) return null;
+    const z = st.yakinlastirma, { w, h } = boyutlar(st.proje!.nesneTurleri.find(t => t.id === o.turId));
+    const bw = w * Math.abs(o.olcekX), bh = h * Math.abs(o.olcekY);
+    const a = (-o.aci * Math.PI) / 180, dx = wx - o.x, dy = wy - o.y;
+    const lx = dx * Math.cos(a) - dy * Math.sin(a), ly = dx * Math.sin(a) + dy * Math.cos(a);
+    const tol = 8 / z;
+    if (Math.hypot(lx, ly - (-bh / 2 - 26 / z)) <= tol) return { tur: "dondur" };
+    for (const kose of KOSELER) if (Math.abs(lx - (kose[0] * bw) / 2) <= tol && Math.abs(ly - (kose[1] * bh) / 2) <= tol) return { tur: "kose", kose };
+    return null;
+  };
+
   // ---- fare
   const basildi = (e: React.PointerEvent) => {
     kapRef.current?.focus();
@@ -94,24 +116,72 @@ export function SahneGorunumu() {
       return;
     }
     if (st.oynatma !== "duruyor") { if (e.button === 0 && st.oynatma === "oynuyor") dunya.current?.tusBas("Fare tıklaması"); return; }
+    if (e.button !== 0) return;
+    const sahne = aktifSahne(st)!;
+
+    // 1) tutamaçlar (araç seçmeden döndürme ve köşeden boyutlandırma)
+    const tm = tutamacBul(w.x, w.y);
+    if (tm && st.secim?.tur === "ornek") {
+      const o = sahne.ornekler.find(x => x.id === st.secim!.id)!;
+      st.islemBaslat();
+      if (tm.tur === "dondur") surukle.current = { tur: "dondur", id: o.id, ox: o.x, oy: o.y, ilkAci: o.aci, ilkFare: Math.atan2(w.y - o.y, w.x - o.x) };
+      else { const { w: bw, h: bh } = boyutlar(st.proje!.nesneTurleri.find(t => t.id === o.turId)); surukle.current = { tur: "boyutlandir", ilk: { ...o }, w: bw, h: bh, kose: tm.kose }; }
+      return;
+    }
+
     const o = isabet(w.x, w.y);
-    if (!o) { st.sec(null); return; }
-    st.sec({ tur: "ornek", id: o.id });
+    const secili = seciliOrnekler(st.secim);
+    // 2) boş alan: kutu seçimi (Shift ile mevcut seçime ekler)
+    if (!o) {
+      if (st.arac === "sec" || st.arac === "tasi") {
+        surukle.current = { tur: "kutu", bx: w.x, by: w.y, x: w.x, y: w.y, ekle: e.shiftKey, onceki: e.shiftKey ? secili : [] };
+        if (!e.shiftKey) st.sec(null);
+      } else st.sec(null);
+      return;
+    }
+    // 3) Shift+tık: seçime ekle / seçimden çıkar
+    if (e.shiftKey) {
+      st.sec(secimYap(secili.includes(o.id) ? secili.filter(id => id !== o.id) : [...secili, o.id]));
+      return;
+    }
+    // 4) zaten seçili gruptaysa grubu koru (hepsi birlikte taşınır), değilse yalnız onu seç
+    let grup = secili;
+    if (!secili.includes(o.id)) { grup = [o.id]; st.sec({ tur: "ornek", id: o.id }); }
+    st.islemBaslat();
     if (st.arac === "dondur") {
+      st.sec({ tur: "ornek", id: o.id });
       surukle.current = { tur: "dondur", id: o.id, ox: o.x, oy: o.y, ilkAci: o.aci, ilkFare: Math.atan2(w.y - o.y, w.x - o.x) };
     } else if (st.arac === "olcekle") {
+      st.sec({ tur: "ornek", id: o.id });
       surukle.current = { tur: "olcekle", id: o.id, ox: o.x, oy: o.y, ilkX: o.olcekX, ilkY: o.olcekY, ilkMesafe: Math.max(4, Math.hypot(w.x - o.x, w.y - o.y)) };
     } else {
-      surukle.current = { tur: "tasi", id: o.id, bx: w.x, by: w.y, ox: o.x, oy: o.y };
+      const baslar = new Map<string, { x: number; y: number }>();
+      for (const x of sahne.ornekler) if (grup.includes(x.id)) baslar.set(x.id, { x: x.x, y: x.y });
+      surukle.current = { tur: "tasi", bx: w.x, by: w.y, baslar };
     }
   };
   const hareket = (e: React.PointerEvent) => {
-    const w = dunyaya(e.clientX, e.clientY);
-    useDurum.getState().set("imlec", { x: Math.round(w.x), y: Math.round(w.y) });
-    const s = surukle.current; if (!s) return;
-    const z = useDurum.getState().yakinlastirma;
+    const st = useDurum.getState(), w = dunyaya(e.clientX, e.clientY);
+    st.set("imlec", { x: Math.round(w.x), y: Math.round(w.y) });
+    const s = surukle.current;
+    if (!s) {
+      // tutamaç üzerindeyken imleci değiştir
+      if (st.oynatma === "duruyor" && kapRef.current && st.arac !== "el") {
+        const tm = tutamacBul(w.x, w.y);
+        kapRef.current.style.cursor = !tm ? "default" : tm.tur === "dondur" ? "grab" : (tm.kose[0] * tm.kose[1] > 0 ? "nwse-resize" : "nesw-resize");
+      }
+      return;
+    }
+    const z = st.yakinlastirma;
     if (s.tur === "kaydir") kam.current = { x: s.kx - (e.clientX - s.sx) / z, y: s.ky - (e.clientY - s.sy) / z };
-    else if (s.tur === "tasi") ornegiDegistir(s.id, o => { o.x = yapis(s.ox + w.x - s.bx); o.y = yapis(s.oy + w.y - s.by); });
+    else if (s.tur === "tasi") {
+      // asıl tutulan nesne ızgaraya yapışır, diğerleri aynı kadar kayar
+      const ilk = s.baslar.values().next().value!;
+      const dx = yapis(ilk.x + w.x - s.bx) - ilk.x, dy = yapis(ilk.y + w.y - s.by) - ilk.y;
+      st.degistir(p => p.sahneler.forEach(sh => sh.ornekler.forEach(o => {
+        const b = s.baslar.get(o.id); if (b) { o.x = b.x + dx; o.y = b.y + dy; }
+      })));
+    }
     else if (s.tur === "dondur") {
       let a = s.ilkAci + ((Math.atan2(w.y - s.oy, w.x - s.ox) - s.ilkFare) * 180) / Math.PI;
       if (e.shiftKey) a = Math.round(a / 15) * 15;
@@ -119,9 +189,25 @@ export function SahneGorunumu() {
     } else if (s.tur === "olcekle") {
       const k = Math.hypot(w.x - s.ox, w.y - s.oy) / s.ilkMesafe;
       ornegiDegistir(s.id, o => { o.olcekX = Math.round(s.ilkX * k * 100) / 100; o.olcekY = Math.round(s.ilkY * k * 100) / 100; });
+    } else if (s.tur === "boyutlandir") {
+      const r = koseBoyutlandir(s.ilk, s.w, s.h, s.kose, w, e.shiftKey);
+      ornegiDegistir(s.ilk.id, o => { o.x = r.x; o.y = r.y; o.olcekX = r.olcekX; o.olcekY = r.olcekY; });
+    } else if (s.tur === "kutu") {
+      s.x = w.x; s.y = w.y;
+      const sahne = aktifSahne(st); if (!sahne) return;
+      const kutu = { x0: Math.min(s.bx, s.x), y0: Math.min(s.by, s.y), x1: Math.max(s.bx, s.x), y1: Math.max(s.by, s.y) };
+      const turler = new Map(st.proje!.nesneTurleri.map(t => [t.id, t]));
+      const kapali = new Set(sahne.katmanlar.filter(k => k.kilitli || !k.gorunur).map(k => k.id));
+      const icindekiler = sahne.ornekler.filter(o => !kapali.has(o.katman) && kutularKesisir(kutu, ornekKutusu(o, turler.get(o.turId)))).map(o => o.id);
+      st.sec(secimYap([...s.onceki, ...icindekiler.filter(id => !s.onceki.includes(id))]));
     }
   };
-  const birakildi = () => { surukle.current = null; dunya.current?.tusBirak("Fare tıklaması"); };
+  const birakildi = () => {
+    const s = surukle.current;
+    surukle.current = null;
+    if (s && s.tur !== "kaydir" && s.tur !== "kutu") useDurum.getState().islemBitir();
+    dunya.current?.tusBirak("Fare tıklaması");
+  };
   const tekerlek = (e: React.WheelEvent) => {
     const w = dunyaya(e.clientX, e.clientY);
     yakinlastir(useDurum.getState().yakinlastirma * Math.exp(-e.deltaY * 0.0015), { ...w, ex: e.clientX, ey: e.clientY });
@@ -185,6 +271,7 @@ export function SahneGorunumu() {
       if (simdi - fpsZaman > 1000) { (window as any).__fps = fpsSay; fpsSay = 0; fpsZaman = simdi; }
       const st = useDurum.getState(), sahne = aktifSahne(st), cv = cvRef.current, kap = kapRef.current;
       if (!cv || !kap || !sahne || !st.proje) return;
+      const surukleme = surukle.current;
       const o = window.devicePixelRatio || 1, W = kap.clientWidth, H = kap.clientHeight;
       if (cv.width !== Math.round(W * o) || cv.height !== Math.round(H * o)) { cv.width = Math.round(W * o); cv.height = Math.round(H * o); }
       const c = cv.getContext("2d")!, z = st.yakinlastirma;
@@ -257,30 +344,48 @@ export function SahneGorunumu() {
       c.strokeRect(0, 0, sahne.genislik, sahne.yukseklik);
       c.setLineDash([]);
 
-      // seçim kutusu ve tutamaçlar
-      const sec = st.secim;
-      if (sec?.tur === "ornek" && st.oynatma === "duruyor") {
-        const so = sahne.ornekler.find(x => x.id === sec.id);
-        if (so) {
-          const { w, h } = boyutlar(turler.get(so.turId));
-          const bw = w * Math.abs(so.olcekX), bh = h * Math.abs(so.olcekY);
-          c.save(); c.translate(so.x, so.y); c.rotate((so.aci * Math.PI) / 180);
-          c.strokeStyle = "#4f9cf7"; c.lineWidth = 1.5 / z;
-          c.strokeRect(-bw / 2, -bh / 2, bw, bh);
+      // seçim kutuları; tek nesne seçiliyse köşe tutamaçları ve döndürme tutamacı
+      const seciliIdler = st.oynatma === "duruyor" ? seciliOrnekler(st.secim) : [];
+      const tekSecim = seciliIdler.length === 1;
+      for (const id of seciliIdler) {
+        const so = sahne.ornekler.find(x => x.id === id);
+        if (!so) continue;
+        const { w, h } = boyutlar(turler.get(so.turId));
+        const bw = w * Math.abs(so.olcekX), bh = h * Math.abs(so.olcekY);
+        c.save(); c.translate(so.x, so.y); c.rotate((so.aci * Math.PI) / 180);
+        c.strokeStyle = id === st.secim?.id ? "#4f9cf7" : "rgba(79,156,247,0.75)"; c.lineWidth = 1.5 / z;
+        c.strokeRect(-bw / 2, -bh / 2, bw, bh);
+        if (tekSecim) {
           const t = 8 / z;
           c.fillStyle = "#fff";
-          for (const [hx, hy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+          for (const [hx, hy] of KOSELER) {
             c.fillRect((hx * bw) / 2 - t / 2, (hy * bh) / 2 - t / 2, t, t);
             c.strokeRect((hx * bw) / 2 - t / 2, (hy * bh) / 2 - t / 2, t, t);
           }
           c.beginPath(); c.moveTo(0, -bh / 2); c.lineTo(0, -bh / 2 - 22 / z); c.stroke();
           c.beginPath(); c.arc(0, -bh / 2 - 26 / z, 4 / z, 0, Math.PI * 2); c.fill(); c.stroke();
-          c.restore();
         }
+        c.restore();
+      }
+      // birden fazla seçiliyse hepsini saran kesikli kutu
+      if (seciliIdler.length > 1) {
+        const kutular = sahne.ornekler.filter(o => seciliIdler.includes(o.id)).map(o => ornekKutusu(o, turler.get(o.turId)));
+        if (kutular.length) {
+          const x0 = Math.min(...kutular.map(k => k.x0)), y0 = Math.min(...kutular.map(k => k.y0));
+          const x1 = Math.max(...kutular.map(k => k.x1)), y1 = Math.max(...kutular.map(k => k.y1));
+          c.setLineDash([4 / z, 3 / z]); c.strokeStyle = "rgba(79,156,247,0.9)"; c.lineWidth = 1 / z;
+          c.strokeRect(x0 - 4 / z, y0 - 4 / z, x1 - x0 + 8 / z, y1 - y0 + 8 / z); c.setLineDash([]);
+        }
+      }
+      // kutu seçimi dikdörtgeni
+      if (surukleme?.tur === "kutu") {
+        const x0 = Math.min(surukleme.bx, surukleme.x), y0 = Math.min(surukleme.by, surukleme.y);
+        c.fillStyle = "rgba(79,156,247,0.12)"; c.strokeStyle = "rgba(79,156,247,0.9)"; c.lineWidth = 1 / z;
+        c.fillRect(x0, y0, Math.abs(surukleme.x - surukleme.bx), Math.abs(surukleme.y - surukleme.by));
+        c.strokeRect(x0, y0, Math.abs(surukleme.x - surukleme.bx), Math.abs(surukleme.y - surukleme.by));
       }
       c.restore();
 
-      // sahne adı
       // sahne adı (çerçevenin altında, sol üstteki seçicinin altında kalmasın)
       const sx = (0 - kam.current.x) * z + W / 2, sy = (sahne.yukseklik - kam.current.y) * z + H / 2;
       c.font = "12px 'Segoe UI', system-ui"; c.fillStyle = "rgba(228,231,238,0.6)";

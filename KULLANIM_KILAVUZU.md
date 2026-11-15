@@ -4,7 +4,7 @@ Bu kılavuz, Oyun Atölyesi'ndeki **her ekranı, her düğmeyi ve her menüyü**
 **hangi adımlarla geliştirildiğini** anlatır. Claude her çalışmada kılavuzu günceller.
 Yeni bir düğme eklenince, değişince ya da bir özellik "yakında" olmaktan çıkınca burası da değişir.
 
-> Son güncelleme: 2026-11-15 · Araç sürümü: 0.2 (Aşama 1 — Çekirdek, devam ediyor)
+> Son güncelleme: 2026-11-15 (gece) · Araç sürümü: 0.3 (Aşama 1 — Çekirdek tamamlandı)
 
 **İçindekiler**
 1. [Temel kavramlar](#1-temel-kavramlar)
@@ -90,11 +90,25 @@ Menüdeki her komut **komut paletinde** (Ctrl+K) de aranabilir.
 **Düzen**
 | Komut | Kısayol | Ne yapar |
 |---|---|---|
-| Geri al / Yinele | Ctrl+Z / Ctrl+Y | <kbd>Aşama 1</kbd> — sıradaki işlerden |
-| Çoğalt | Ctrl+D | Seçili örneği ya da nesne türünü kopyalar |
-| Sil | Delete | Seçili örneği siler; nesne türü seçiliyse türü ve bütün örneklerini siler |
+| Geri al | Ctrl+Z | Son değişikliği geri alır. Bir sürükleme, bir yazı kutusuna yazılan kelime ya da art arda ok tuşu basışları tek adım sayılır. En fazla 200 adım geriye gidilir. Proje kapanınca geçmiş sıfırlanır. |
+| Yinele | Ctrl+Y (ya da Ctrl+Shift+Z) | Geri alınanı yeniden yapar. Geri aldıktan sonra yeni bir değişiklik yaparsan yinelenecek adımlar silinir. |
+| Sahnedeki her şeyi seç | Ctrl+A | Açık sahnedeki bütün nesneleri seçer (gizli ya da kilitli katmandakiler hariç) |
+| Seçimi kaldır | Esc | Seçili nesneleri bırakır |
+| Çoğalt | Ctrl+D | Seçili örnekleri (birden fazlaysa hepsini) ya da nesne türünü kopyalar; kopyalar seçili olur |
+| Sil | Delete | Seçili örnekleri siler; nesne türü seçiliyse türü ve bütün örneklerini siler |
 | Yeni nesne türü | Ctrl+Shift+N | Listeye yeni bir mavi kare ekler |
 | Ayarlar… | Ctrl+, | Ayarlar penceresi |
+
+**Düzen → Hizala bölümü** (en az bir nesne seçiliyken; sağ paneldeki **Hizala** kartında düğme olarak da var)
+| Komut | Kısayol | Ne yapar |
+|---|---|---|
+| Sola hizala / Yatay ortala / Sağa hizala | Alt+A / Alt+H / Alt+D | Birden fazla nesne seçiliyse sol kenarlarını, ortalarını ya da sağ kenarlarını aynı hizaya getirir. **Tek nesne** seçiliyse sahneye göre hizalar (ör. Yatay ortala → sahnenin tam ortasına). |
+| Üste hizala / Dikey ortala / Alta hizala | Alt+W / Alt+V / Alt+S | Aynısı, yukarı-aşağı yönde |
+| Yatay eşit dağıt / Dikey eşit dağıt | — | En az 3 nesne seçiliyken: en soldaki ve en sağdaki (ya da en üst/alttaki) yerinde kalır, aradaki boşluklar eşitlenir |
+
+Hizalamada döndürülmüş nesnelerin kapladığı alan hesaba katılır.
+
+![Hizalama](kilavuz/hizalama.png)
 
 **Görünüm**
 | Komut | Kısayol | Ne yapar |
@@ -126,8 +140,10 @@ Menüdeki her komut **komut paletinde** (Ctrl+K) de aranabilir.
 Soldan sağa:
 | Düğme | Ne yapar |
 |---|---|
-| 🖱 Seç (V) | Nesneye tıklayıp seçer, sürükleyerek taşır |
-| ✥ Taşı (W) | Sürükleyerek taşır |
+| ↶ Geri al (Ctrl+Z) | Son değişikliği geri alır; geri alınacak bir şey yoksa soluk görünür |
+| ↷ Yinele (Ctrl+Y) | Geri alınanı yeniden yapar |
+| 🖱 Seç (V) | Nesneye tıklayıp seçer, sürükleyerek taşır; boş alanda sürükleyince kutu seçimi yapar |
+| ✥ Taşı (W) | Sürükleyerek taşır (Seç gibi kutu seçimi de yapar) |
 | ↻ Döndür (E) | Nesneyi tutup çevirerek döndürür; Shift ile 15°'lik adımlar |
 | ⤢ Ölçekle (R) | Nesneyi tutup merkezden uzaklaştırarak büyütür/küçültür |
 | ✋ Kaydır (H) | Sahne görüntüsünü kaydırır (Boşluk basılı tutup sürüklemek ya da orta fare tuşu da aynı işi yapar) |
@@ -152,6 +168,7 @@ Aktif olan düğme mavi çerçeveli görünür. Üstüne gelince adı ve kısayo
 - **Sahneler** listesi ve yanındaki **+** (yeni sahne). "başlangıç" rozeti oyunun açıldığı sahneyi gösterir.
 - **Katmanlar ve nesneler:** her katmanın yanında 👁 (gizle/göster) ve 🔒 (kilitle: o katmandaki
   nesneler tıklanıp taşınamaz). Altında o katmandaki örnekler ve konumları; tıklayınca seçilir.
+  **Shift ya da Ctrl ile tıklarsan** seçime eklenir/çıkarılır. Seçili satırlar mavi görünür.
 
 ## 7. Orta alan: Sahne, Olaylar, Arayüz
 
@@ -160,8 +177,18 @@ Aktif olan düğme mavi çerçeveli görünür. Üstüne gelince adı ve kısayo
 - **Fare tekerleği:** imlecin olduğu yere yakınlaşır/uzaklaşır.
 - **Sol üst:** sahne seçici (açılır liste). Oynarken yanında "Oynuyor · <tuşlar>" şeridi çıkar.
 - **Sağ üst:** − / yüzde / + / ⛶ (sığdır).
-- Seçili nesnenin etrafında mavi kutu, köşelerde beyaz tutamaçlar ve üstte yuvarlak döndürme
-  tutamacı görünür (tutamaçla boyutlandırma/döndürme sıradaki işlerden).
+- **Seçme:** nesneye tıkla. **Shift+tık** seçime ekler ya da seçimden çıkarır. **Boş bir yerden
+  sürüklersen** mavi bir kutu çizilir; kutuya değen bütün nesneler seçilir (Shift basılıysa eskilerin
+  üstüne eklenir). Gizli ya da kilitli katmandaki nesneler seçilmez.
+  ![Kutu seçimi](kilavuz/kutu_secimi.png)
+- **Tek nesne seçiliyken** etrafında mavi kutu, köşelerde beyaz kareler ve üstte yuvarlak bir tutamaç görünür:
+  - **Köşe karesini sürükle** → boyutlandırır; karşı köşe yerinde kalır. **Shift** basılıysa en-boy oranı korunur.
+  - **Üstteki yuvarlağı sürükle** → döndürür (Döndür aracını seçmeye gerek yok). **Shift** ile 15°'lik adımlar.
+  - Fare tutamaçların üstüne gelince imleç şekil değiştirir.
+- **Birden fazla nesne seçiliyken** her birinin çerçevesi ve hepsini saran kesikli bir kutu görünür.
+  Herhangi birini sürüklersen **hepsi birlikte taşınır**. Koyu mavi çerçeveli olan "asıl seçili" nesnedir;
+  sağ panel onun ayarlarını gösterir.
+- **Ok tuşları** seçili nesneleri 1 piksel, **Shift + ok** 10 piksel kaydırır (yazı kutusundayken değil).
 - Sahnenin altında sahne adı ve boyutu yazar.
 
 **Olaylar sekmesi** ![Olaylar](kilavuz/olaylar.png)
@@ -179,6 +206,10 @@ Ne seçiliyse onun ayarları görünür. Her kart başlığına tıklayınca kat
 
 **Üst kısım:** nesnenin küçük resmi, adı (yazarak değiştirilebilir), "Sahnedeki örnek" ya da
 "Nesne türü · sahnede N örnek", **Çoğalt** ve **Sil** düğmeleri.
+
+**Hizala** (sahnedeki bir örnek seçiliyse): 8 düğme — sola, yatay ortaya, sağa, üste, dikey ortaya,
+alta hizala, yatay ve dikey eşit dağıt. Başlıkta kaç nesne seçili olduğu yazar ("sahneye göre" yazıyorsa
+tek nesne seçilidir ve sahnenin kenarlarına göre hizalanır). Ayrıntı: Düzen → Hizala.
 
 **Dönüşüm** (yalnızca sahnedeki bir örnek seçiliyse): Konum X/Y, Açı, Ölçek X/Y, Katman.
 Bunlar yalnızca o örneği etkiler. Altındaki kartlar türün bütün örneklerini etkiler.
@@ -271,6 +302,10 @@ sahne adı · nesne sayısı · tür sayısı. Sağda: imlecin sahnedeki konumu 
 | Ctrl+O | Proje aç | F6 | Duraklat / devam |
 | Ctrl+S | Kaydet | Shift+F5 | Durdur |
 | Ctrl+Shift+S | Sürüm kaydet | Ctrl+K | Komut paleti |
+| Ctrl+Z | Geri al | Ctrl+Y / Ctrl+Shift+Z | Yinele |
+| Ctrl+A | Sahnedeki her şeyi seç | Esc | Seçimi kaldır |
+| Oklar / Shift+oklar | Seçileni 1 / 10 px kaydır | Shift+tık | Seçime ekle / çıkar |
+| Alt+A / Alt+H / Alt+D | Sola / yatay orta / sağa hizala | Alt+W / Alt+V / Alt+S | Üste / dikey orta / alta hizala |
 | Ctrl+D | Çoğalt | F1 | Kısayollar |
 | Delete | Sil | Ctrl+, | Ayarlar |
 | Ctrl+Shift+N | Yeni nesne türü | Ctrl+B / Ctrl+Alt+B / Ctrl+J | Sol / sağ / alt panel |
@@ -278,6 +313,7 @@ sahne adı · nesne sayısı · tür sayısı. Sağda: imlecin sahnedeki konumu 
 | Shift+M | Mıknatıs | Ctrl+Shift+C | Çarpışma alanları |
 | Ctrl++ / Ctrl+- / Ctrl+0 | Yakınlaştır / uzaklaştır / sığdır | Ctrl+1/2/3 | Sahne / Olaylar / Arayüz |
 | Boşluk + sürükle | Sahneyi kaydır | Fare tekerleği | Yakınlaştır |
+| Boş alanda sürükle | Kutu ile seç | Shift (köşe / döndürme tutamacında) | Oranı koru / 15° adım |
 
 ## 15. Adım adım: ilk oyununu kur
 
@@ -301,6 +337,7 @@ Her satır bir çalışma oturumudur; ayrıntılar GUNLUK.md'de.
 | 2026-11-14 akşam | **v0.2** — yeni arayüz | Genel amaçlı oyun aracına geçiş: menüler, araç çubuğu, paneller, sahne düzenleyici, nesne türleri ve bileşenler, olaylar önizlemesi, değişkenler, sürümler, komut paleti, ayarlar, eski projeleri dönüştürme. |
 | 2026-11-14 gece | **Oyun motoru** | Gerçek fizik (yerçekimi, hız sınırı, sürtünme), daire/kutu çarpışma, içinden geçilemeyen nesneler; tuşu seçilebilen "Tuşla zıpla", yönlü "Sabit hızla kay", "Ekrandan çıkınca yok ol"; çarpışma alanlarını gösterme. |
 | 2026-11-15 | Kılavuz | Bu kullanım kılavuzu başlatıldı. |
+| 2026-11-15 gece | **v0.3** — Aşama 1 tamam | Köşe tutamaçlarıyla boyutlandırma, üst tutamaçla döndürme, çoklu seçim (Shift+tık, kutu seçimi, Ctrl+A), toplu taşıma/silme/çoğaltma, ok tuşlarıyla kaydırma, Düzen → Hizala (6 hizalama + 2 eşit dağıtma), geri al / yinele (araç çubuğunda da). |
 
-**Sıradaki adımlar:** sahne düzenleyiciyi tamamlama (tutamaçlarla boyutlandırma/döndürme, çoklu seçim,
-ok tuşlarıyla kaydırma, hizalama) → geri al/yinele → Aşama 2: olay kuralları.
+**Sıradaki adımlar:** Aşama 2 — 3D görünüm (3D Harita sekmesi, yörünge kamerası, glTF modeller,
+taşı/döndür/ölçekle tutamaçları, ışık ve gökyüzü önizlemesi).

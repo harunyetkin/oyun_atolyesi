@@ -2,6 +2,104 @@
 
 En yeni girdi en üsttedir.
 
+## 2026-11-15 (gece) — Sahne düzenleyici tamam, geri al / yinele geldi (Aşama 1 bitti)
+**Bu gece yapılanlar**
+- **Geri al / yinele** artık çalışıyor: **Ctrl+Z** geri alır, **Ctrl+Y** yeniden yapar. Araç çubuğunun
+  en solunda iki ok düğmesi de var. Bir nesneyi sürüklemek, bir kutuya bir kelime yazmak ya da ok tuşuna
+  art arda basmak **tek adım** sayılıyor; yani tek Ctrl+Z ile hepsi geri geliyor. 200 adım geriye gidebilirsin.
+  Bir sürümü geri yüklemek de geri alınabiliyor.
+- **Tutamaçlar:** Bir nesne seçince köşelerdeki beyaz kareleri sürükleyerek **boyutlandırabiliyorsun**
+  (karşı köşe yerinde kalır; Shift basılıysa oranı korunur). Üstteki yuvarlağı sürükleyerek
+  **döndürebiliyorsun**; Döndür aracını seçmen gerekmiyor (Shift ile 15°'lik adımlar).
+- **Çoklu seçim:** **Shift+tık** ile nesne ekle/çıkar, **boş bir yerden sürükleyerek kutu** çiz,
+  **Ctrl+A** ile hepsini seç, **Esc** ile bırak. Seçili nesneleri birlikte taşıyabilir, silebilir,
+  çoğaltabilirsin. Sol paneldeki sahne ağacında da Shift/Ctrl ile çoklu seçim var.
+- **Ok tuşları:** seçili nesneleri 1 piksel, Shift ile 10 piksel kaydırır.
+- **Hizalama:** Düzen menüsünde yeni **Hizala** bölümü ve sağ panelde **Hizala** kartı (8 düğme):
+  sola/ortaya/sağa, üste/ortaya/alta hizala, yatay/dikey eşit dağıt. Tek nesne seçiliyse sahneye göre
+  hizalar (ör. "Yatay ortala" nesneyi sahnenin tam ortasına koyar).
+- Menülerdeki "Aşama 1" rozetleri kalktı. Böylece **Aşama 1 (Çekirdek) tamamlandı.**
+- Testler: 25 birim testi + Chrome'da 47 otomatik kontrol (15'i bu gece eklendi), hepsi geçiyor.
+
+**Nasıl denenir**
+- GitHub Desktop: **Fetch origin → Pull origin**, sonra `exe_yap.bat`, sonra `OyunAtolyesi.exe`.
+- "Örnek: Kanat Çırp"ı aç. Kuş'a tıkla, sağ alt köşedeki beyaz kareyi dışarı sürükle → kuş büyür.
+  Üstteki yuvarlağı çevir → kuş döner. Sonra **Ctrl+Z**'ye iki kez bas → ikisi de geri gelir.
+- Sahnenin dışındaki koyu alandan başlayıp bütün sahneyi kapsayan bir kutu çiz → her şey seçilir.
+  **Delete** → hepsi silinir. **Ctrl+Z** → hepsi geri gelir.
+- İki boruya Shift ile tıkla, sağdaki **Hizala** kartından "Üste hizala"yı dene.
+- Bir nesne seçip ok tuşlarıyla (ve Shift+ok ile) oynat.
+
+**Ekran görüntüleri**
+![Kutu seçimi](gunluk/2026-11-15/kutu_secimi.png)
+![Hizalama](gunluk/2026-11-15/hizalama.png)
+![Tutamaçlar](gunluk/2026-11-15/tutamaclar.png)
+
+**Küçük kararlar (ben seçtim, istersen değiştiririz)**
+- Hizalama kısayolları **Alt+A/H/D** (sol/orta/sağ) ve **Alt+W/V/S** (üst/orta/alt). W/A/S/D yön tuşlarına benzesin diye seçtim.
+- Birden fazla nesne seçiliyken sağ panel yalnızca "asıl seçili" (ilk tıkladığın, koyu mavi çerçeveli)
+  nesnenin ayarlarını gösteriyor. Hepsinin ayarını birlikte değiştirmek gerekirse sonra eklerim.
+- Kutu seçimi, kutuya **değen** nesneleri seçiyor (tamamen içinde olmasına gerek yok).
+- Geri al geçmişi proje kapanınca sıfırlanıyor (kalıcı yedek için Sürümler var).
+
+**Senin kararın gereken konular**
+- Aşağıdaki haftalık incelemedeki sorulara bakabilirsin.
+
+**Sıradaki adım**
+- Aşama 2: aracın ortasına **3D Harita** sekmesi (three.js ile döndürülebilir 3D görünüm, ızgara zemin).
+
+## Haftalık inceleme (9–15 Kasım 2026)
+*(Bu inceleme Pazar gecesi çalışmasında yazıldı; İstanbul saatiyle gece yarısını biraz geçmişti.)*
+
+**Bu hafta neler eklendi**
+- **v0.1:** yarasa oyununa özel ilk ayar paneli (artık `eski_v01/` altında duruyor).
+- **v0.2:** baştan yeni, modern arayüz — menüler, araç çubuğu, paneller, komut paleti (Ctrl+K),
+  nesne türleri ve bileşenler (Görünüm, Fizik, Çarpışma, Işık, Davranışlar), sürümler, değişkenler.
+- **Oyun motoru:** gerçek fizik, çarpışma, içinden geçilemeyen nesneler; 3 hazır davranış
+  (tuşla zıpla, sabit hızla kay, ekrandan çıkınca yok ol); çarpışma alanlarını gösterme.
+- **Yön kararı (senin):** araç, **3D hikâye oyununun içerik editörü** olacak; 2D hedefi ertelendi.
+  Oyun bu hafta Unreal Engine'e geçti; içerik yine aynı JSON dosyalarında, yani araç için yol değişmedi.
+- **Bu gece:** sahne düzenleyici tamamlandı ve geri al / yinele geldi → **Aşama 1 bitti.**
+
+**Bu hafta denemen gereken 5 şey**
+1. **Güncelle:** GitHub Desktop → Fetch origin → Pull origin → `exe_yap.bat` → `OyunAtolyesi.exe`.
+2. **Geri al:** Örnek projede birkaç nesneyi sürükle, sil, rengini değiştir; sonra Ctrl+Z'ye art arda
+   basıp her şeyin sırayla geri geldiğini gör, Ctrl+Y ile ileri al.
+3. **Tutamaçlar:** Bir boruyu seç, köşesinden uzat, üstteki yuvarlakla eğ. Shift basılıyken tekrar dene.
+4. **Çoklu seçim + hizalama:** Bulutları kutu ile seç (boş yerden sürükle), sağdaki Hizala kartından
+   "Üste hizala" ve "Yatay eşit dağıt"ı dene.
+5. **Oyna:** F5 ile oyunu başlat, Boşluk ile kuşu uçur; Görünüm → "Çarpışma alanlarını göster"i açıp tekrar oyna.
+
+**Ekran görüntüsü serisi**
+![Başlangıç](gunluk/2026-11-15/hafta_1_baslangic.png)
+![Editör](gunluk/2026-11-15/hafta_2_editor.png)
+![Düzen menüsü ve çoklu seçim](gunluk/2026-11-15/duzen_menusu.png)
+![Oynarken çarpışma alanları](gunluk/2026-11-15/hafta_3_oynatma.png)
+![Komut paleti](gunluk/2026-11-15/hafta_4_komut_paleti.png)
+
+**Tasarım ve yön soruları** (birini seçmen yeterli; sohbette ya da GERI_BILDIRIM.md'ye yazabilirsin)
+1. **3D görünüm nerede dursun?**
+   a) Ortadaki sekmelere "3D Harita" diye yeni bir sekme (Sahne/Olaylar/Arayüz'ün yanına) — *benim önerim*
+   b) 3D projeler açılınca 2D sahne tamamen 3D görünümle yer değiştirsin
+   c) Ekran ikiye bölünsün: solda üstten 2D harita, sağda 3D görünüm
+2. **3D'de kamera nasıl dönsün?**
+   a) Unreal gibi: sağ tık basılıyken fareyle bak, W/A/S/D ile uç — *oyun Unreal'de olduğu için önerim*
+   b) Blender/Godot gibi: orta tuşla bir noktanın etrafında dön
+   c) İkisi de olsun, Ayarlar'dan seçilsin
+3. **İlk hangi içerik editörü gelsin?** (3D görünüm hazır olunca)
+   a) Harita: modelleri yerleştirme, ışık ve gökyüzü
+   b) Karakter oluşturma ekranının seçenekleri (kaydırıcılar, sorular, puanlar)
+   c) Konuşma ağacı (diyalog) düzenleyici
+4. **Araç oyunun dosyalarına nasıl bağlansın?**
+   a) Araçta "Oyun klasörünü seç" düğmesi; araç doğrudan oyunun `icerik/` klasörünü düzenler — *önerim*
+   b) Araç kendi kopyasında çalışsın, "Oyuna gönder" deyince dosyaları oyuna kopyalasın
+
+**Gelecek haftanın planı**
+- 3D Harita sekmesi: döndürülebilir kamera, ızgara zemin, eksen göstergesi.
+- glTF/GLB modelleri yükleyip gösterme; varlık listesinde 3D küçük resimler.
+- 3D'de seçme ve taşı/döndür/ölçekle tutamaçları (bu gece yapılan geri al ve çoklu seçim altyapısı kullanılacak).
+- Fırsat kalırsa: güneş yönü, gökyüzü rengi ve sis önizlemesi.
+
 ## 2026-11-14 (gece) — Oyun motoru: fizik, çarpışma ve hazır davranışlar
 **Bu gece yapılanlar**
 - ▶ Oynat artık gerçek bir **oyun motoru** çalıştırıyor (önceki "basit önizleme" gitti). Bu motor

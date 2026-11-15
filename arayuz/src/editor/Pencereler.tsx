@@ -106,7 +106,7 @@ export function KomutPaleti() {
   const [secili, setSecili] = useState(0);
   const liste = useMemo(() => {
     const a = ara.toLocaleLowerCase("tr");
-    return KOMUTLAR.filter(k => (k.kategori + " " + k.ad).toLocaleLowerCase("tr").includes(a));
+    return KOMUTLAR.filter(k => !k.menudeGizli && (k.kategori + " " + k.ad).toLocaleLowerCase("tr").includes(a));
   }, [ara]);
   const calistir = (i: number) => {
     const k = liste[i]; if (!k || !kullanilabilir(k)) return;
@@ -192,7 +192,7 @@ export function ProjeAyarlari() {
 
 // ============================================================ Kısayollar ve hakkında
 export function KisayollarPenceresi() {
-  const kategoriler = ["Dosya", "Düzen", "Araç", "Görünüm", "Oyun", "Yardım"] as const;
+  const kategoriler = ["Dosya", "Düzen", "Hizala", "Araç", "Görünüm", "Oyun", "Yardım"] as const;
   return (
     <Pencere baslik="Klavye kısayolları" genislik={640}>
       <div style={{ maxHeight: "60vh", overflow: "auto" }}>
@@ -202,7 +202,8 @@ export function KisayollarPenceresi() {
             <div className="kisayol-tablosu" style={{ paddingTop: 8 }}>
               {KOMUTLAR.filter(k => k.kategori === kat && k.kisayol).map(k => <Satir key={k.id} ad={k.ad} kisayol={k.kisayol!} />)}
               {kat === "Görünüm" && <><Satir ad="Sahneyi kaydır" kisayol="Boşluk + sürükle" /><Satir ad="Yakınlaştır / uzaklaştır" kisayol="Fare tekerleği" /></>}
-              {kat === "Araç" && <Satir ad="Döndürürken 15° adımla" kisayol="Shift" />}
+              {kat === "Araç" && <><Satir ad="Döndürürken 15° adımla" kisayol="Shift" /><Satir ad="Köşeden boyutlandırırken oranı koru" kisayol="Shift" />
+                <Satir ad="Seçime ekle / çıkar" kisayol="Shift + tık" /><Satir ad="Kutu ile seç" kisayol="Boş alanda sürükle" /></>}
             </div>
           </div>
         ))}

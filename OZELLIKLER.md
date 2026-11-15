@@ -27,7 +27,7 @@ Durum: ✅ var · 🧩 arayüzü var, işlevi sonra · 🔜 planlı (aşama numa
 | Komut paleti (Ctrl+K) ve klavye kısayolları | ✅ |
 | Bildirimler, durum çubuğu (yakınlaştırma, imleç konumu, kayıt, FPS) | ✅ |
 | Ayarlar penceresi (ızgara, otomatik kayıt, arayüz ölçeği) | ✅ |
-| Geri al / yinele | 🔜1 |
+| Geri al / yinele (sürükleme tek adım, 200 adım geçmiş) | ✅ |
 | Açık/koyu tema | 🔜 |
 
 ## 3. Sahne düzenleyici
@@ -36,7 +36,10 @@ Durum: ✅ var · 🧩 arayüzü var, işlevi sonra · 🔜 planlı (aşama numa
 | Izgara, yakınlaştırma, kaydırma, oyun ekranı çerçevesi | ✅ |
 | Nesneyi seçme, sürükleyerek taşıma | ✅ |
 | Sürükle-bırak ile sahneye nesne ekleme | ✅ |
-| Boyutlandırma ve döndürme tutamaçları, çoklu seçim, hizalama | 🔜1 |
+| Köşe tutamaçlarıyla boyutlandırma (Shift: oranı koru), üst tutamaçla döndürme | ✅ |
+| Çoklu seçim (Shift+tık, kutu seçimi, Ctrl+A), toplu taşı/sil/çoğalt | ✅ |
+| Ok tuşlarıyla 1 px / Shift ile 10 px kaydırma | ✅ |
+| Hizalama (sol/orta/sağ/üst/orta/alt) ve eşit dağıtma | ✅ |
 | Katmanlar (arka plan, oyun, arayüz), görünürlük ve kilit | 🧩 |
 | Birden fazla sahne (menü, oyun, bitiş) | 🧩 |
 | Kamera ayarları: takip, sınırlar, kaydırma | 🔜2 |

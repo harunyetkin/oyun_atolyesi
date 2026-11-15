@@ -2,23 +2,21 @@
 
 Her madde yaklaşık bir günlük çalışmadır. Sıra önemlidir; üstten başla.
 
-## Sırada - [ ] Not (2026-11-15): Oyun Unreal Engine 5.8'e geçti (`hikaye_oyun/unreal`). İçerik biçimi aynı (`icerik/*.json`, BICIM.md); araç yine bu dosyaları düzenler. Godot'ya özel alanları (ör. `tur: mh` görünüm parçaları) yeni iş olarak ekleme; MetaHuman görünüm alanları BICIM.md'ye eklenince araca taşı.
-(Aşama 1 — Çekirdek)
-- [ ] **Sahne düzenleyici tamamlama:** seçim kutusunun köşe tutamaçlarından sürükleyerek
-      boyutlandırma, üstteki yuvarlak tutamaçtan döndürme (araç seçmeden), Shift ile çoklu seçim
-      ve kutu seçimi, ok tuşlarıyla 1 px / Shift ile 10 px kaydırma, hizalama (Düzen menüsü).
-- [ ] **Geri al / yinele** (Ctrl+Z / Ctrl+Y): `degistir()` üzerinden geçmiş yığını; sürüklemeler
-      tek adım sayılsın. Menüdeki "Aşama 1" rozetlerini kaldır.
-- [ ] Aşama 1 değerlendirmesi: GUNLUK'ta Harun için "neler yapılabiliyor" özeti ve ekran
-      görüntüsü serisi; OZELLIKLER.md durumlarını güncelle.
+> Not (2026-11-15): Oyun Unreal Engine 5.8'e geçti (`hikaye_oyun/unreal`). İçerik biçimi aynı (`icerik/*.json`, BICIM.md); araç yine bu dosyaları düzenler. Godot'ya özel alanları (ör. `tur: mh` görünüm parçaları) yeni iş olarak ekleme; MetaHuman görünüm alanları BICIM.md'ye eklenince araca taşı.
 
-## Sonra (Aşama 2 — 3D görünüm)
+## Sırada (Aşama 2 — 3D görünüm)
 - [ ] Merkezde "3D Harita" sekmesi: three.js (npm paketi, lockfile commit), yörünge kamerası
       (sağ tık döndür, orta tık kaydır, tekerlek yakınlaştır), ızgara zemin, eksen göstergesi
 - [ ] glTF/GLB model yükleme ve varlık tarayıcısında 3D küçük resim
 - [ ] 3D seçme ve taşı/döndür/ölçekle tutamaçları; özellik panelinde 3D dönüşüm
+      (2D'deki geri al/yinele, çoklu seçim ve hizalama altyapısını kullan)
 - [ ] Ortam: güneş ışığı yönü, gökyüzü rengi/HDR, sis önizlemesi
 - [ ] Oyunun `icerik/BICIM.md` biçimine göre 3D harita proje tipi (oyun tarafı biçimi yazınca)
+
+## Küçük iyileştirmeler (fırsat buldukça)
+- [ ] Kopyala / yapıştır (Ctrl+C / Ctrl+V), sahneler arası da çalışsın
+- [ ] Geri al geçmişini Düzen menüsünde adım adım listeleme ("Geçmiş" paneli)
+- [ ] Mıknatıs açıkken boyutlandırma ve döndürmede de ızgaraya yapışma
 
 ## Oyunun içerik türleri (hikaye_oyun/icerik/BICIM.md sürüm 1) — Aşama 3–4'te karşılıkları
 Oyun 2026-11-15'te bu içerik türleriyle oynanabilir oldu; araçta her biri için düzenleyici gerekecek:
@@ -50,6 +48,15 @@ Oyun 2026-11-15'te bu içerik türleriyle oynanabilir oldu; araçta her biri iç
 - [ ] Kabul testi: Kanat Çırp'ı araçta sıfırdan kur, `ornekler/kanat_cirp.json` olarak kaydet, otomatik testle oynat
 
 ## Tamamlandı
+- [x] 2026-11-15 (gece) — **Sahne düzenleyici tamamlandı:** köşe tutamaçlarıyla boyutlandırma (karşı köşe
+      sabit, Shift oranı korur), üst tutamaçla döndürme (araç seçmeden, Shift 15°), Shift+tık ve kutu
+      seçimi, Ctrl+A / Esc, toplu taşı/sil/çoğalt, ok tuşlarıyla 1/10 px, Düzen → Hizala (6 hizalama +
+      2 eşit dağıtma, Alt kısayolları, sağ panelde Hizala kartı). `depo/hizalama.ts` + 5 birim testi.
+- [x] 2026-11-15 (gece) — **Geri al / yinele:** `degistir()` üzerinden 200 adımlık geçmiş; sürükleme,
+      aynı yazı kutusuna yazma ve art arda ok tuşları tek adım; sürüm geri yükleme de geri alınabilir;
+      araç çubuğunda düğmeler. "Aşama 1" rozetleri kaldırıldı.
+- [x] 2026-11-15 (gece) — **Aşama 1 değerlendirmesi:** GUNLUK'ta haftalık inceleme ve ekran görüntüsü
+      serisi, OZELLIKLER.md güncellendi. Arayüz testi 47 kontrol.
 - [x] 2026-11-14 (gece) — **Motor çekirdeği:** `src/motor/` altında editörden bağımsız `Dunya` (sabit
       1/120 sn fizik adımı), fizik (yerçekimi, hız, en yüksek hız, sürtünme), daire/kutu çarpışma,
       katı nesnelerden itme ("yerde" bilgisi), çarpışma listesi (Aşama 2 "çarpıştı" koşulu için).

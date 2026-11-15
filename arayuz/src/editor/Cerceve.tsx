@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   MousePointer2, Move, RotateCw, Scaling, Hand, Play, Pause, Square, Grid3x3, Magnet, Command, PanelLeft, PanelRight,
-  PanelBottom, Boxes, ListTree, SlidersHorizontal, Clapperboard, Workflow, LayoutDashboard, Image, Variable, Terminal, History, Save,
+  PanelBottom, Undo2, Redo2, Boxes, ListTree, SlidersHorizontal, Clapperboard, Workflow, LayoutDashboard, Image, Variable, Terminal, History, Save,
 } from "lucide-react";
 import { aktifSahne, useDurum, type AltSekme, type MerkezSekme, type SolSekme } from "../depo/durum";
 import { KOMUTLAR, komut, kullanilabilir, type Komut } from "./komutlar";
@@ -14,7 +14,7 @@ import { AyarlarPenceresi, BaslangicEkrani, Hakkinda, KisayollarPenceresi, Komut
 
 // ============================================================ Menü çubuğu
 const MENULER: { ad: string; kategoriler: Komut["kategori"][] }[] = [
-  { ad: "Dosya", kategoriler: ["Dosya"] }, { ad: "Düzen", kategoriler: ["Düzen"] }, { ad: "Görünüm", kategoriler: ["Görünüm", "Araç"] },
+  { ad: "Dosya", kategoriler: ["Dosya"] }, { ad: "Düzen", kategoriler: ["Düzen", "Hizala"] }, { ad: "Görünüm", kategoriler: ["Görünüm", "Araç"] },
   { ad: "Oyun", kategoriler: ["Oyun"] }, { ad: "Yardım", kategoriler: ["Yardım"] },
 ];
 
@@ -22,7 +22,7 @@ function MenuCubugu() {
   const [acik, setAcik] = useState<string | null>(null);
   const kayit = useDurum(d => d.kayit);
   const projeAdi = useDurum(d => d.projeAdi);
-  useDurum(d => d.secim); useDurum(d => d.oynatma); useDurum(d => d.duzen); useDurum(d => d.tercih);  // menü durumları için yeniden çiz
+  useDurum(d => d.secim); useDurum(d => d.oynatma); useDurum(d => d.geriYigini); useDurum(d => d.ileriYigini); useDurum(d => d.duzen); useDurum(d => d.tercih);  // menü durumları için yeniden çiz
   useEffect(() => {
     if (!acik) return;
     const kapat = (e: PointerEvent) => { if (!(e.target as Element).closest(".menu-oge")) setAcik(null); };
@@ -39,7 +39,7 @@ function MenuCubugu() {
               {m.kategoriler.map((kat, i) => (
                 <div key={kat}>
                   {i > 0 && <hr />}
-                  {KOMUTLAR.filter(k => k.kategori === kat).map(k => (
+                  {KOMUTLAR.filter(k => k.kategori === kat && !k.menudeGizli).map(k => (
                     <button key={k.id} disabled={!kullanilabilir(k)} onClick={() => { setAcik(null); k.calistir(); }}>
                       {k.ad}{k.yakinda && <span className="rozet yakinda">{k.yakinda}</span>}<span className="kisayol">{k.kisayol}</span>
                     </button>
@@ -65,7 +65,7 @@ function MenuCubugu() {
 function AracDugmesi({ id, ikon, aktif }: { id: string; ikon: ReactNode; aktif?: boolean }) {
   const k = komut(id);
   return <button className={"ikon-dugme" + (aktif ? " aktif" : "")} title={`${k.ad}${k.kisayol ? " (" + k.kisayol + ")" : ""}`}
-    disabled={!kullanilabilir(k)} onClick={k.calistir} data-testid={"arac-" + id}>{ikon}</button>;
+    disabled={!kullanilabilir(k)} onClick={() => k.calistir()} data-testid={"arac-" + id}>{ikon}</button>;
 }
 
 function AracCubugu() {
@@ -73,8 +73,12 @@ function AracCubugu() {
   const oynatma = useDurum(d => d.oynatma);
   const tercih = useDurum(d => d.tercih);
   const duzen = useDurum(d => d.duzen);
+  useDurum(d => d.geriYigini); useDurum(d => d.ileriYigini); useDurum(d => d.secim);  // düğmelerin etkinliği için
   return (
     <div className="arac-cubugu" style={{ position: "relative" }}>
+      <AracDugmesi id="geri" ikon={<Undo2 size={16} />} />
+      <AracDugmesi id="yinele" ikon={<Redo2 size={16} />} />
+      <span className="ayirici" />
       <AracDugmesi id="aracSec" ikon={<MousePointer2 size={16} />} aktif={arac === "sec"} />
       <AracDugmesi id="aracTasi" ikon={<Move size={16} />} aktif={arac === "tasi"} />
       <AracDugmesi id="aracDondur" ikon={<RotateCw size={16} />} aktif={arac === "dondur"} />

@@ -1,13 +1,16 @@
 // Bütün komutlar tek yerde: menüler, komut paleti ve klavye kısayolları buradan beslenir.
-import { useDurum } from "../depo/durum";
+import { aktifSahne, seciliOrnekler, useDurum } from "../depo/durum";
+import { HIZALAMA_ADLARI, hizala, type HizalamaModu } from "../depo/hizalama";
 
 export interface Komut {
   id: string;
   ad: string;
-  kategori: "Dosya" | "Düzen" | "Görünüm" | "Oyun" | "Yardım" | "Araç";
+  kategori: "Dosya" | "Düzen" | "Hizala" | "Görünüm" | "Oyun" | "Yardım" | "Araç";
   kisayol?: string;          // görünen metin, ör. "Ctrl+S"
   tus?: (e: KeyboardEvent) => boolean;  // kısayol eşleşmesi
-  calistir: () => void;
+  calistir: (e?: KeyboardEvent) => void;
+  menudeGizli?: boolean;     // menülerde ve komut paletinde gösterme (yalnız kısayol)
+  yaziyorkenDegil?: boolean; // yazı kutusundayken kısayol tarayıcıya kalsın (ör. Ctrl+A)
   etkin?: () => boolean;
   yakinda?: string;          // henüz yoksa hangi aşamada geleceği
 }
@@ -18,6 +21,26 @@ const duzenlemede = () => editorde() && d().oynatma === "duruyor";  // oynarken 
 const ctrl = (k: string, shift = false, alt = false) => (e: KeyboardEvent) =>
   (e.ctrlKey || e.metaKey) && e.shiftKey === shift && e.altKey === alt && e.key.toLowerCase() === k;
 const yalin = (k: string) => (e: KeyboardEvent) => !e.ctrlKey && !e.metaKey && !e.altKey && e.key.toLowerCase() === k;
+
+const ornekSecili = () => duzenlemede() && seciliOrnekler(d().secim).length > 0;
+
+/** Seçili örnekleri hizalar: tek nesne sahneye göre, birden fazla nesne birbirine göre. */
+function hizalaCalistir(mod: HizalamaModu) {
+  const st = d(), sahne = aktifSahne(st);
+  if (!sahne || !st.proje) return;
+  const idler = seciliOrnekler(st.secim);
+  const ornekler = sahne.ornekler.filter(o => idler.includes(o.id));
+  const turler = new Map(st.proje.nesneTurleri.map(t => [t.id, t]));
+  const yeni = hizala(ornekler, turler, mod, { x0: 0, y0: 0, x1: sahne.genislik, y1: sahne.yukseklik });
+  if (!yeni.size) { if (mod.endsWith("Dagit")) st.bildir("Eşit dağıtmak için en az 3 nesne seç (Shift ile)"); return; }
+  st.degistir(p => p.sahneler.find(s => s.id === sahne.id)!.ornekler.forEach(o => {
+    const k = yeni.get(o.id); if (k) { o.x = k.x; o.y = k.y; }
+  }));
+}
+const HIZALAMA_KISAYOL: Partial<Record<HizalamaModu, string>> = {
+  sol: "Alt+A", yatayOrta: "Alt+H", sag: "Alt+D", ust: "Alt+W", dikeyOrta: "Alt+V", alt: "Alt+S",
+};
+const altTus = (k: string) => (e: KeyboardEvent) => e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && e.key.toLowerCase() === k;
 
 export const sahneOlay = (ad: "sigdir" | "yakinlas" | "uzaklas") => window.dispatchEvent(new CustomEvent("sahne-" + ad));
 
@@ -34,8 +57,24 @@ export const KOMUTLAR: Komut[] = [
   { id: "disaHtml", ad: "Dışa aktar: HTML oyun", kategori: "Dosya", calistir: () => {}, yakinda: "Aşama 5" },
   { id: "disaExe", ad: "Dışa aktar: Windows .exe", kategori: "Dosya", calistir: () => {}, yakinda: "Aşama 5" },
   // ---- Düzen
-  { id: "geri", ad: "Geri al", kategori: "Düzen", kisayol: "Ctrl+Z", calistir: () => {}, yakinda: "Aşama 1" },
-  { id: "yinele", ad: "Yinele", kategori: "Düzen", kisayol: "Ctrl+Y", calistir: () => {}, yakinda: "Aşama 1" },
+  { id: "geri", ad: "Geri al", kategori: "Düzen", kisayol: "Ctrl+Z", tus: ctrl("z"),
+    etkin: () => duzenlemede() && d().geriYigini.length > 0, calistir: () => d().geriAl() },
+  { id: "yinele", ad: "Yinele", kategori: "Düzen", kisayol: "Ctrl+Y", tus: e => ctrl("y")(e) || ctrl("z", true)(e),
+    etkin: () => duzenlemede() && d().ileriYigini.length > 0, calistir: () => d().yinele() },
+  { id: "tumunuSec", ad: "Sahnedeki her şeyi seç", kategori: "Düzen", kisayol: "Ctrl+A", tus: ctrl("a"), yaziyorkenDegil: true,
+    etkin: duzenlemede, calistir: () => d().tumunuSec() },
+  { id: "secimiKaldir", ad: "Seçimi kaldır", kategori: "Düzen", kisayol: "Esc", tus: e => e.key === "Escape" && !e.ctrlKey && !e.altKey,
+    yaziyorkenDegil: true, etkin: () => duzenlemede() && !!d().secim && !d().pencere, calistir: () => d().sec(null) },
+  { id: "okKaydir", ad: "Seçileni 1 px kaydır (Shift ile 10 px)", kategori: "Düzen", kisayol: "Ok tuşları", menudeGizli: true, yaziyorkenDegil: true,
+    tus: e => !e.ctrlKey && !e.metaKey && !e.altKey && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key),
+    etkin: ornekSecili,
+    calistir: e => {
+      if (!e) return;
+      const adim = e.shiftKey ? 10 : 1;
+      const dx = e.key === "ArrowLeft" ? -adim : e.key === "ArrowRight" ? adim : 0;
+      const dy = e.key === "ArrowUp" ? -adim : e.key === "ArrowDown" ? adim : 0;
+      d().secileniKaydir(dx, dy);
+    } },
   { id: "cogalt", ad: "Çoğalt", kategori: "Düzen", kisayol: "Ctrl+D", tus: ctrl("d"), etkin: () => editorde() && !!d().secim,
     calistir: () => d().secileniCogalt() },
   { id: "sil", ad: "Sil", kategori: "Düzen", kisayol: "Delete", tus: e => e.key === "Delete", etkin: () => editorde() && !!d().secim,
@@ -44,6 +83,13 @@ export const KOMUTLAR: Komut[] = [
     calistir: () => d().turEkle() },
   { id: "ayarlar", ad: "Ayarlar…", kategori: "Düzen", kisayol: "Ctrl+,", tus: e => (e.ctrlKey || e.metaKey) && e.key === ",",
     calistir: () => d().set("pencere", "ayarlar") },
+  // ---- Hizala (Düzen menüsünde ayrı bölüm)
+  ...(Object.keys(HIZALAMA_ADLARI) as HizalamaModu[]).map((mod): Komut => ({
+    id: "hizala_" + mod, ad: HIZALAMA_ADLARI[mod], kategori: "Hizala",
+    kisayol: HIZALAMA_KISAYOL[mod], tus: HIZALAMA_KISAYOL[mod] ? altTus(HIZALAMA_KISAYOL[mod]!.slice(-1).toLowerCase()) : undefined,
+    etkin: mod.endsWith("Dagit") ? () => duzenlemede() && seciliOrnekler(d().secim).length >= 3 : ornekSecili,
+    calistir: () => hizalaCalistir(mod),
+  })),
   // ---- Araçlar
   { id: "aracSec", ad: "Araç: Seç", kategori: "Araç", kisayol: "V", tus: yalin("v"), etkin: duzenlemede, calistir: () => d().set("arac", "sec") },
   { id: "aracTasi", ad: "Araç: Taşı", kategori: "Araç", kisayol: "W", tus: yalin("w"), etkin: duzenlemede, calistir: () => d().set("arac", "tasi") },
@@ -91,10 +137,10 @@ export function kisayollariBagla() {
     for (const k of KOMUTLAR) {
       if (!k.tus || !k.tus(e)) continue;
       const tekTus = !e.ctrlKey && !e.metaKey && !e.altKey && !k.kisayol?.startsWith("F") && k.id !== "sil";
-      if (yaziyor && (tekTus || k.id === "sil")) return;
+      if (yaziyor && (tekTus || k.id === "sil" || k.yaziyorkenDegil)) return;
       if (!kullanilabilir(k)) return;
       e.preventDefault();
-      k.calistir();
+      k.calistir(e);
       return;
     }
   };

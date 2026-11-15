@@ -4,8 +4,11 @@ import {
   Plus, Search, Eye, EyeOff, Lock, Unlock, Trash2, Copy, Box, Layers, Clapperboard, Palette, Atom, Shapes,
   Lightbulb, Footprints, Image, Music, Type, PenTool, Zap, MousePointerClick, Timer, Variable, Sparkles, Flag,
   Volume2, Skull, PlusCircle, Workflow, LayoutDashboard, History, RotateCcw,
+  AlignStartVertical, AlignCenterVertical, AlignEndVertical, AlignStartHorizontal, AlignCenterHorizontal, AlignEndHorizontal,
+  AlignHorizontalDistributeCenter, AlignVerticalDistributeCenter, AlignLeft,
 } from "lucide-react";
-import { aktifSahne, useDurum } from "../depo/durum";
+import { komut, kullanilabilir } from "./komutlar";
+import { aktifSahne, seciliOrnekler, useDurum } from "../depo/durum";
 import type { Bilesenler, NesneTuru, Ornek, Sekil, Degisken, Sahne } from "../depo/proje";
 import { yeniId } from "../depo/proje";
 import { SEKIL_ADLARI } from "../motor/cizim";
@@ -87,8 +90,14 @@ export function SahneAgaci() {
             {sahne.ornekler.filter(o => o.katman === k.id).map(o => {
               const t = turler.get(o.turId);
               return (
-                <div key={o.id} className={"satir" + (secim?.tur === "ornek" && secim.id === o.id ? " secili" : "")} style={{ paddingLeft: 30 }}
-                  onClick={() => sec({ tur: "ornek", id: o.id })}>
+                <div key={o.id} className={"satir" + (seciliOrnekler(secim).includes(o.id) ? " secili" : "")} style={{ paddingLeft: 30 }}
+                  onClick={e => {
+                    // Shift ya da Ctrl ile tıklayınca seçime ekle / çıkar
+                    const idler = seciliOrnekler(secim);
+                    if (!(e.shiftKey || e.ctrlKey)) { sec({ tur: "ornek", id: o.id }); return; }
+                    const yeni = idler.includes(o.id) ? idler.filter(x => x !== o.id) : [...idler, o.id];
+                    sec(yeni.length ? { tur: "ornek", id: yeni[0], digerleri: yeni.slice(1) } : null);
+                  }}>
                   {t ? <OnIzleme tur={t} boyut={18} /> : <Box size={15} />}
                   <span className="ad">{t?.ad || "?"}</span>
                   <span className="cok-soluk" style={{ fontSize: 11 }}>{Math.round(o.x)}, {Math.round(o.y)}</span>
@@ -128,6 +137,29 @@ const YAKINDA_DAVRANISLAR: { tur: string; ad: string; yakinda: string }[] = [
   { tur: "platform", ad: "Platform karakteri", yakinda: "Aşama 5" },
   { tur: "ustten_hareket", ad: "Yukarıdan bakış hareketi", yakinda: "Aşama 5" },
 ];
+
+/** Hizalama düğmeleri: tek nesne sahneye göre, birden fazla nesne birbirine göre hizalanır. */
+function HizalamaKarti() {
+  const secim = useDurum(d => d.secim);
+  const sayi = seciliOrnekler(secim).length;
+  const dugmeler: [string, ReactNode][] = [
+    ["sol", <AlignStartVertical size={15} />], ["yatayOrta", <AlignCenterVertical size={15} />], ["sag", <AlignEndVertical size={15} />],
+    ["ust", <AlignStartHorizontal size={15} />], ["dikeyOrta", <AlignCenterHorizontal size={15} />], ["alt", <AlignEndHorizontal size={15} />],
+    ["yatayDagit", <AlignHorizontalDistributeCenter size={15} />], ["dikeyDagit", <AlignVerticalDistributeCenter size={15} />],
+  ];
+  return (
+    <Kart baslik={sayi > 1 ? `Hizala · ${sayi} nesne seçili` : "Hizala · sahneye göre"} ikon={<AlignLeft size={14} />}>
+      <div style={{ gridColumn: "1 / -1", display: "flex", flexWrap: "wrap", gap: 2 }} data-testid="hizalama">
+        {dugmeler.map(([mod, ikon]) => {
+          const k = komut("hizala_" + mod);
+          return <button key={mod} className="ikon-dugme" disabled={!kullanilabilir(k)} data-testid={"hizala-" + mod}
+            title={k.ad + (k.kisayol ? ` (${k.kisayol})` : "")} onClick={() => k.calistir()}>{ikon}</button>;
+        })}
+      </div>
+      {sayi > 1 && <div className="soluk" style={{ gridColumn: "1 / -1", fontSize: 12 }}>Aşağıdaki ayarlar asıl seçili nesneye (koyu mavi çerçeveli) aittir. Taşıma, silme, çoğaltma ve hizalama seçili hepsine uygulanır.</div>}
+    </Kart>
+  );
+}
 
 export function Ozellikler() {
   const proje = useDurum(d => d.proje);
@@ -181,6 +213,8 @@ export function Ozellikler() {
         <button className="ikon-dugme" title="Çoğalt (Ctrl+D)" onClick={() => useDurum.getState().secileniCogalt()}><Copy size={15} /></button>
         <button className="ikon-dugme" title="Sil (Delete)" onClick={() => useDurum.getState().secileniSil()}><Trash2 size={15} /></button>
       </div>
+
+      {ornek && <HizalamaKarti />}
 
       {ornek && (
         <Kart baslik="Dönüşüm" ikon={<Box size={14} />}>
