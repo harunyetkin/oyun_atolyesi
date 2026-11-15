@@ -19,6 +19,16 @@ Her madde yaklaşık bir günlük çalışmadır. Sıra önemlidir; üstten baş
 - [ ] Ortam: güneş ışığı yönü, gökyüzü rengi/HDR, sis önizlemesi
 - [ ] Oyunun `icerik/BICIM.md` biçimine göre 3D harita proje tipi (oyun tarafı biçimi yazınca)
 
+## Oyunun içerik türleri (hikaye_oyun/icerik/BICIM.md sürüm 1) — Aşama 3–4'te karşılıkları
+Oyun 2026-11-15'te bu içerik türleriyle oynanabilir oldu; araçta her biri için düzenleyici gerekecek:
+- [ ] Ölçekler (`oyun.json` → `olcekler`): ekle/sil/adlandır
+- [ ] Karakter oluşturma adımları ve seçenekleri: soru, seçenek adı, görünüm (renkler, aksesuar), puanlar
+- [ ] Harita: ortam (gökyüzü, güneş, sis), yol, başlangıç/bitiş, dekor yerleştirme (3D görünümde)
+- [ ] Kişiler (NPC): görünüm, dolaşma alanı (haritada daire olarak sürüklenebilir), hız, bağlı konuşma
+- [ ] Kapı seçimleri: konum, soru, kapılar (etiket, renk, puan, ödül, mesaj)
+- [ ] Konuşma ağacı düzenleyici: düğümler ve seçenekler, puanlar, ödüller (düğüm grafiği görünümü)
+- [ ] Puan önizleme: bir haritadaki bütün kararların hangi ölçeklere ne verdiğini tek tabloda gösterme
+
 ## Daha sonra (Aşama 3 — Oyun projesine bağlanma)
 - [ ] Godot oyun klasörünü seçme (atolye.py, yol güvenliği), `icerik/` okuma/yazma, varlıkları listeleme
 - [ ] "Oyunda dene": oyunu seçili haritadan başlatma
