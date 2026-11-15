@@ -22,7 +22,8 @@ Her madde yaklaşık bir günlük çalışmadır. Sıra önemlidir; üstten baş
 ## Oyunun içerik türleri (hikaye_oyun/icerik/BICIM.md sürüm 1) — Aşama 3–4'te karşılıkları
 Oyun 2026-11-15'te bu içerik türleriyle oynanabilir oldu; araçta her biri için düzenleyici gerekecek:
 - [ ] Ölçekler (`oyun.json` → `olcekler`): ekle/sil/adlandır
-- [ ] Karakter oluşturma adımları ve seçenekleri: soru, seçenek adı, görünüm (renkler, aksesuar), puanlar
+- [ ] Karakter oluşturma (biçim sürüm 2): kategoriler/sekmeler, kaydırıcılar (min/max/varsayılan), seçimler
+      (cinsiyete göre süzme, puanlar), renk listeleri, sorular (adimlar) ve puanları; 3D önizlemede MakeHuman karakteri
 - [ ] Harita: ortam (gökyüzü, güneş, sis), yol, başlangıç/bitiş, dekor yerleştirme (3D görünümde)
 - [ ] Kişiler (NPC): görünüm, dolaşma alanı (haritada daire olarak sürüklenebilir), hız, bağlı konuşma
 - [ ] Kapı seçimleri: konum, soru, kapılar (etiket, renk, puan, ödül, mesaj)
