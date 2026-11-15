@@ -7,6 +7,10 @@ yön verir ve `GERI_BILDIRIM.md` üzerinden yorum bırakır.
 Harun'la her zaman **Türkçe**, teknik olmayan ve anlaşılır bir dille iletişim kur.
 
 ## Hedef
+**Ana yön (2026-11-15):** Araç, Harun'un 3D oyununun (`harunyetkin/hikaye_oyun`, Godot) içerik
+editörüdür: karakter, grafik, harita, hikâye/diyalog, eşya, görev. Oyunda yapılabilen her içerik
+değişikliği araçta da yapılabilmeli; oyuna yeni bir içerik türü eklenince araca karşılığını ekle.
+Ortak içerik biçimi oyundaki `icerik/BICIM.md`'de tanımlıdır, ona uy. Ayrıntı: `PLAN.md` "Ana yön".
 Genel amaçlı, kodsuz 2D oyun yapım ortamı. Ölçüt: Yankı araçta **kod yazmadan, sıfırdan,
 birebir** yapılabilmeli. Aşamalar ve kabul testleri `PLAN.md`'de. Arayüz güçlü ve modern olmalı.
 

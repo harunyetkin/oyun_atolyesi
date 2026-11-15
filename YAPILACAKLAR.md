@@ -11,7 +11,20 @@ Her madde yaklaşık bir günlük çalışmadır. Sıra önemlidir; üstten baş
 - [ ] Aşama 1 değerlendirmesi: GUNLUK'ta Harun için "neler yapılabiliyor" özeti ve ekran
       görüntüsü serisi; OZELLIKLER.md durumlarını güncelle.
 
-## Sonra (Aşama 2 — Kurallar)
+## Sonra (Aşama 2 — 3D görünüm)
+- [ ] Merkezde "3D Harita" sekmesi: three.js (npm paketi, lockfile commit), yörünge kamerası
+      (sağ tık döndür, orta tık kaydır, tekerlek yakınlaştır), ızgara zemin, eksen göstergesi
+- [ ] glTF/GLB model yükleme ve varlık tarayıcısında 3D küçük resim
+- [ ] 3D seçme ve taşı/döndür/ölçekle tutamaçları; özellik panelinde 3D dönüşüm
+- [ ] Ortam: güneş ışığı yönü, gökyüzü rengi/HDR, sis önizlemesi
+- [ ] Oyunun `icerik/BICIM.md` biçimine göre 3D harita proje tipi (oyun tarafı biçimi yazınca)
+
+## Daha sonra (Aşama 3 — Oyun projesine bağlanma)
+- [ ] Godot oyun klasörünü seçme (atolye.py, yol güvenliği), `icerik/` okuma/yazma, varlıkları listeleme
+- [ ] "Oyunda dene": oyunu seçili haritadan başlatma
+- [ ] Kabul: oyunun ilk haritasını araçta aç, nesne ekle, kaydet, oyunda gör
+
+## Ertelenen (2D hattı — Kurallar)
 - [ ] Olay kuralları sayfasını düzenlenebilir yap (koşul/eylem seçici pencereleri, sürükle-bırak sıralama, gruplar)
 - [ ] Koşullar: tuşa basıldı/basılı/bırakıldı, çarpıştı (etiketle), değişken karşılaştır, her X saniyede, sahne başladı
 - [ ] Eylemler: değişkeni değiştir, nesne oluştur/yok et, özellik değiştir, oyunu bitir/yeniden başlat, yazı göster
