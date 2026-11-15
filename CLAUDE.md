@@ -53,7 +53,11 @@ Test için: `pip install playwright --break-system-packages` (yoksa); Chrome `/u
 5. **Kaydet:** En iyi 1–3 görüntüyü `gunluk/YYYY-AA-GG/` altına koy.
 6. **Günlük:** `GUNLUK.md` en üstüne girdi ekle: ne yapıldı, nasıl denenir, görüntüler,
    "Senin kararın gereken konular", sıradaki adım. Harun'un anlayacağı dille.
-7. **Takip:** YAPILACAKLAR güncelle.
+7. **Takip:** YAPILACAKLAR güncelle. **`KULLANIM_KILAVUZU.md`'yi de güncelle** (Harun'un isteği):
+   eklenen/değişen her ekran, düğme, menü komutu, kısayol ve ayarı ilgili bölüme işle; "yakında"
+   rozeti kalkan özellikleri düzelt; "Geliştirme adımları" tablosuna o günün satırını ekle; görseller
+   eskidiyse `kilavuz/` altındaki ekran görüntülerini yenile. Kılavuzu her seferinde Harun'a ayrıca
+   gönderme ve günlükte/özet mesajda öne çıkarma; Harun en sonunda isteyince teslim edilecek.
 8. **Commit ve push:** `main` dalına, Türkçe mesajla: `git -c push.negotiate=true push origin main`
 
 ## Kurallar
