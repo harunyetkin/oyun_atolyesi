@@ -2,7 +2,8 @@
 
 Her madde yaklaşık bir günlük çalışmadır. Sıra önemlidir; üstten başla.
 
-## Sırada (Aşama 1 — Çekirdek)
+## Sırada - [ ] Not (2026-11-15): Oyun Unreal Engine 5.8'e geçti (`hikaye_oyun/unreal`). İçerik biçimi aynı (`icerik/*.json`, BICIM.md); araç yine bu dosyaları düzenler. Godot'ya özel alanları (ör. `tur: mh` görünüm parçaları) yeni iş olarak ekleme; MetaHuman görünüm alanları BICIM.md'ye eklenince araca taşı.
+(Aşama 1 — Çekirdek)
 - [ ] **Sahne düzenleyici tamamlama:** seçim kutusunun köşe tutamaçlarından sürükleyerek
       boyutlandırma, üstteki yuvarlak tutamaçtan döndürme (araç seçmeden), Shift ile çoklu seçim
       ve kutu seçimi, ok tuşlarıyla 1 px / Shift ile 10 px kaydırma, hizalama (Düzen menüsü).
