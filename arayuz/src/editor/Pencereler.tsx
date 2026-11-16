@@ -1,8 +1,9 @@
 // Başlangıç ekranı ve açılır pencereler: yeni proje, komut paleti, ayarlar, proje ayarları, kısayollar, hakkında.
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { X, FilePlus, FolderOpen, Keyboard, Gamepad2, Sparkles, Bird, Moon, Footprints, Map as Harita, Search } from "lucide-react";
+import { X, FilePlus, FolderOpen, Keyboard, Gamepad2, Sparkles, Bird, Moon, Footprints, Map as Harita, Search, Clapperboard } from "lucide-react";
 import { useDurum } from "../depo/durum";
 import { KOMUTLAR, kullanilabilir } from "./komutlar";
+import { oyunIceriginiAc } from "../oyun/ac";
 
 function Pencere({ baslik, children, alt, genislik }: { baslik: string; children: ReactNode; alt?: ReactNode; genislik?: number }) {
   const kapat = () => useDurum.getState().set("pencere", null);
@@ -39,10 +40,12 @@ export function BaslangicEkrani() {
         <h1><span className="isaret" style={{ width: 26, height: 26, borderRadius: 7, background: "linear-gradient(135deg,#4f9cf7,#a78bfa)" }} /> Oyun Atölyesi</h1>
         <div className="soluk" style={{ marginBottom: 16 }}>Kod yazmadan oyun tasarla, anında oyna.</div>
         <button className="dugme birincil" onClick={() => set("pencere", "yeniProje")} data-testid="yeni-proje"><FilePlus size={15} /> Yeni proje</button>
+        <button className="dugme" onClick={() => oyunIceriginiAc()} data-testid="oyun-icerigi-ac"><Clapperboard size={15} /> Oyun içeriğini aç</button>
+        <div className="cok-soluk" style={{ fontSize: 12, marginTop: -4 }}>3D hikâye oyununun karakterleri, haritaları ve eşyaları</div>
         <button className="dugme" onClick={() => useDurum.getState().depo?.klasoru_ac()}><FolderOpen size={15} /> Proje klasörünü aç</button>
         <button className="dugme hayalet" onClick={() => set("pencere", "kisayollar")}><Keyboard size={15} /> Klavye kısayolları</button>
         <span style={{ flex: 1 }} />
-        <div className="cok-soluk" style={{ fontSize: 12 }}>Sürüm 0.2 · arayüz iskeleti</div>
+        <div className="cok-soluk" style={{ fontSize: 12 }}>Sürüm 0.4 · oyun içeriği düzenleyicisi</div>
       </aside>
       <main>
         <h2>Projelerin</h2>
@@ -219,7 +222,7 @@ export function Hakkinda() {
   return (
     <Pencere baslik="Oyun Atölyesi hakkında">
       <div style={{ padding: 20, lineHeight: 1.7 }}>
-        <div style={{ display: "flex", gap: 10, alignItems: "center", fontSize: 16, fontWeight: 600 }}><Sparkles size={18} /> Oyun Atölyesi 0.2</div>
+        <div style={{ display: "flex", gap: 10, alignItems: "center", fontSize: 16, fontWeight: 600 }}><Sparkles size={18} /> Oyun Atölyesi 0.4</div>
         <p className="soluk">Kod yazmadan 2D oyun tasarlama ortamı. Fikir ve yön: Harun. Kodlama, tasarım ve test: Claude.</p>
         <p className="soluk">Hedef: Yankı'yı bu araçla, kod yazmadan, sıfırdan birebir yapabilmek.</p>
       </div>

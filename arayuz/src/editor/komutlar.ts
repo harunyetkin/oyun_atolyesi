@@ -1,11 +1,13 @@
 // Bütün komutlar tek yerde: menüler, komut paleti ve klavye kısayolları buradan beslenir.
 import { aktifSahne, seciliOrnekler, useDurum } from "../depo/durum";
+import { useOyun } from "../oyun/durum";
+import { oyunIceriginiAc } from "../oyun/ac";
 import { HIZALAMA_ADLARI, hizala, type HizalamaModu } from "../depo/hizalama";
 
 export interface Komut {
   id: string;
   ad: string;
-  kategori: "Dosya" | "Düzen" | "Hizala" | "Görünüm" | "Oyun" | "Yardım" | "Araç";
+  kategori: "Dosya" | "Düzen" | "Hizala" | "Görünüm" | "Oyun" | "Oyun içeriği" | "Yardım" | "Araç";
   kisayol?: string;          // görünen metin, ör. "Ctrl+S"
   tus?: (e: KeyboardEvent) => boolean;  // kısayol eşleşmesi
   calistir: (e?: KeyboardEvent) => void;
@@ -21,6 +23,17 @@ const duzenlemede = () => editorde() && d().oynatma === "duruyor";  // oynarken 
 const ctrl = (k: string, shift = false, alt = false) => (e: KeyboardEvent) =>
   (e.ctrlKey || e.metaKey) && e.shiftKey === shift && e.altKey === alt && e.key.toLowerCase() === k;
 const yalin = (k: string) => (e: KeyboardEvent) => !e.ctrlKey && !e.metaKey && !e.altKey && e.key.toLowerCase() === k;
+
+/** Oyun içeriği ekranındayız (3D oyunun JSON dosyaları). */
+const oyunda = () => d().ekran === "oyun";
+const o = () => useOyun.getState();
+
+/** Oyun içeriğindeki değişiklikleri kaydeder ve sonucu bildirir. */
+async function oyunuKaydet() {
+  const n = await o().kaydet();
+  if (n < 0) d().bildir("Kaydedilemedi! Dosya açık ya da salt okunur olabilir.", "hata");
+  else d().bildir(n ? `${n} dosya kaydedildi. Oyunu yeniden başlatınca görünür.` : "Kaydedilecek değişiklik yok.", n ? "basari" : "bilgi");
+}
 
 const ornekSecili = () => duzenlemede() && seciliOrnekler(d().secim).length > 0;
 
@@ -48,8 +61,12 @@ export const KOMUTLAR: Komut[] = [
   // ---- Dosya
   { id: "yeni", ad: "Yeni proje…", kategori: "Dosya", kisayol: "Ctrl+N", tus: ctrl("n"), calistir: () => d().set("pencere", "yeniProje") },
   { id: "ac", ad: "Proje aç…", kategori: "Dosya", kisayol: "Ctrl+O", tus: ctrl("o"), calistir: () => d().baslangicaDon() },
-  { id: "kaydet", ad: "Kaydet", kategori: "Dosya", kisayol: "Ctrl+S", tus: ctrl("s"), etkin: editorde,
-    calistir: () => d().degistir(() => {}, true) },
+  { id: "kaydet", ad: "Kaydet", kategori: "Dosya", kisayol: "Ctrl+S", tus: ctrl("s"), etkin: () => editorde() || oyunda(),
+    calistir: () => {
+      if (!oyunda()) { d().degistir(() => {}, true); return; }
+      (document.activeElement as HTMLElement | null)?.blur?.();  // yazılmakta olan kutu önce işlensin
+      void oyunuKaydet();
+    } },
   { id: "surum", ad: "Sürüm kaydet…", kategori: "Dosya", kisayol: "Ctrl+Shift+S", tus: ctrl("s", true), etkin: editorde,
     calistir: () => { d().duzenAyarla({ alt: true }); d().set("altSekme", "surumler"); setTimeout(() => document.getElementById("surum-notu")?.focus(), 50); } },
   { id: "projeAyar", ad: "Proje ayarları…", kategori: "Dosya", etkin: editorde, calistir: () => d().set("pencere", "projeAyarlari") },
@@ -58,9 +75,11 @@ export const KOMUTLAR: Komut[] = [
   { id: "disaExe", ad: "Dışa aktar: Windows .exe", kategori: "Dosya", calistir: () => {}, yakinda: "Aşama 5" },
   // ---- Düzen
   { id: "geri", ad: "Geri al", kategori: "Düzen", kisayol: "Ctrl+Z", tus: ctrl("z"),
-    etkin: () => duzenlemede() && d().geriYigini.length > 0, calistir: () => d().geriAl() },
+    etkin: () => (oyunda() ? o().geri.length > 0 : duzenlemede() && d().geriYigini.length > 0),
+    calistir: () => { if (oyunda()) { (document.activeElement as HTMLElement | null)?.blur?.(); o().geriAl(); } else d().geriAl(); } },
   { id: "yinele", ad: "Yinele", kategori: "Düzen", kisayol: "Ctrl+Y", tus: e => ctrl("y")(e) || ctrl("z", true)(e),
-    etkin: () => duzenlemede() && d().ileriYigini.length > 0, calistir: () => d().yinele() },
+    etkin: () => (oyunda() ? o().ileri.length > 0 : duzenlemede() && d().ileriYigini.length > 0),
+    calistir: () => { if (oyunda()) { (document.activeElement as HTMLElement | null)?.blur?.(); o().yinele(); } else d().yinele(); } },
   { id: "tumunuSec", ad: "Sahnedeki her şeyi seç", kategori: "Düzen", kisayol: "Ctrl+A", tus: ctrl("a"), yaziyorkenDegil: true,
     etkin: duzenlemede, calistir: () => d().tumunuSec() },
   { id: "secimiKaldir", ad: "Seçimi kaldır", kategori: "Düzen", kisayol: "Esc", tus: e => e.key === "Escape" && !e.ctrlKey && !e.altKey,
@@ -120,6 +139,19 @@ export const KOMUTLAR: Komut[] = [
     calistir: () => d().set("oynatma", d().oynatma === "oynuyor" ? "duraklatildi" : "oynuyor") },
   { id: "durdur", ad: "Durdur", kategori: "Oyun", kisayol: "Shift+F5", tus: e => e.key === "F5" && e.shiftKey, etkin: () => d().oynatma !== "duruyor",
     calistir: () => d().set("oynatma", "duruyor") },
+  // ---- Oyun içeriği (3D hikâye oyunu: hikaye_oyun/icerik/*.json)
+  { id: "oyunIcerigi", ad: "Oyun içeriğini aç…", kategori: "Oyun içeriği", kisayol: "Ctrl+Shift+O", tus: ctrl("o", true),
+    calistir: () => void oyunIceriginiAc() },
+  { id: "oyunKlasoru", ad: "Oyun klasörünü değiştir…", kategori: "Oyun içeriği",
+    calistir: () => {
+      if (oyunda() && o().degisenler().length) { d().bildir("Önce değişiklikleri kaydet (Ctrl+S) ya da at.", "hata"); return; }
+      void oyunIceriginiAc(true);
+    } },
+  { id: "oyunYenile", ad: "Oyun içeriğini dosyalardan yeniden oku", kategori: "Oyun içeriği", etkin: oyunda,
+    calistir: () => {
+      if (o().degisenler().length) { d().bildir("Önce değişiklikleri kaydet (Ctrl+S) ya da at.", "hata"); return; }
+      const st = o(); if (st.depo) void st.yukle(st.depo, st.klasor).then(() => d().bildir("Dosyalar yeniden okundu."));
+    } },
   { id: "olumsuz", ad: "Ölümsüz test modu", kategori: "Oyun", calistir: () => {}, yakinda: "Aşama 2" },
   // ---- Yardım
   { id: "kisayollar", ad: "Klavye kısayolları", kategori: "Yardım", kisayol: "F1", tus: e => e.key === "F1", calistir: () => d().set("pencere", "kisayollar") },

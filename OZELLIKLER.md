@@ -124,3 +124,18 @@ Durum: ✅ var · 🧩 arayüzü var, işlevi sonra · 🔜 planlı (aşama numa
 | Ölümsüz test modu, yavaş çekim | 🔜2 |
 | Konsol / çıktı paneli | ✅ |
 | Çarpışma alanlarını gösterme | ✅ |
+
+## 14. 3D oyun içeriği (hikaye_oyun/icerik)
+| Özellik | Durum |
+|---|---|
+| Oyun klasörünü seçme ve hatırlama, içerik dosyalarını listeleme | ✅ |
+| Kaydetmeden önce yedek, biçimi (girinti, sıra) koruyan yazma, bilinmeyen alanlara dokunmama | ✅ |
+| Karakterler: oyuncunun bütün ayarları (beden, kontrol biçimi, hareket, kamera, dövüş, doğallık, çanta, animasyonlar) | ✅ |
+| Kişilerin (npc) MetaHuman bedenleri: ekle/sil/yeniden adlandır, haritadan öneri | ✅ |
+| Harita ayarları: Unreal zemin/yol/model açısı, yol, ışık ve gökyüzü, başlangıç/bitiş | ✅ |
+| Eşyalar: ekle/çoğalt/sil, konum, renk, mesaj, puanlar, elde duruşu; sürüklenebilir kroki | ✅ |
+| Uyarılar (kimlik kuralı, tekrar eden kimlik, bilinmeyen ölçek, yanlış Unreal yolu) | ✅ |
+| Kişiler (npc) haritada: dolaşma alanı, hız, konuşma bağlantısı | 🔜4 |
+| Kapı seçimleri, dekor yerleştirme (3D görünümde) | 🔜2, 🔜4 |
+| Konuşma ağacı, karakter oluşturma, ölçek düzenleyicileri | 🔜4 |
+| "Oyunda dene" | 🔜3 |

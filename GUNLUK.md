@@ -2,6 +2,58 @@
 
 En yeni girdi en üsttedir.
 
+## 2026-11-16 (gece) — Oyununun içeriği artık Atölye'de düzenlenebiliyor
+**Bu gece yapılanlar**
+- Başlangıç ekranına yeni bir düğme geldi: **Oyun içeriğini aç**. Bu, 3D hikâye oyununun (hikaye_oyun)
+  dosyalarını açan yepyeni bir ekran. İlk seferde senden oyunun klasörünü seçmeni istiyor (GitHub Desktop'un
+  indirdiği `hikaye_oyun` klasörü); sonra hatırlıyor.
+- **Karakterler → Oyuncu:** Oyuncunun bütün ayarları kartlar halinde: MetaHuman bedeni ve animasyon yolları,
+  **Kontrol biçimi** (yeni "Kameraya göre yürü" anahtarı ve dönüş hızı/çevikliği/ivmesi), hareket hızları, kaçınma,
+  kamera, dövüş, doğallık (beden dili), etkileşim anları, çanta ve bütün animasyon yolları. Her sayının yanında birimi
+  (cm/sn, °, sn) ve kısa bir açıklama var. Oyuna ileride yeni bir ayar eklersem, açıklamasını yazmasam bile ilgili kartta
+  "yeni" rozetiyle görünür ve değiştirilebilir.
+- **Karakterler → Kişilerin bedenleri:** Haritadaki her kişinin (Yolcu, Bekleyen kişi, Gezginler) MetaHuman bedenini
+  seçtiğin yer. Haritada olup bedeni olmayan kişiler için hazır "+ ekle" düğmeleri çıkıyor.
+- **Harita → Eşyalar:** Yerdeki alınabilir eşyalar (defter, çiçek…). Üstte haritanın **krokisi** var: yol, kapılar, kişilerin
+  dolaşma alanları ve eşyalar üstten görünüyor; **bir eşyayı fareyle sürükleyerek yerini değiştirebiliyorsun**.
+  Her eşyanın adı, rengi, mesajı, puanları (ölçek seç + sayı) ve isteğe bağlı "elde duruşu" düzenleniyor. Eşya ekle, çoğalt, sil.
+- **Harita → Harita ayarları:** Unreal'deki model açı düzeltmesi, zemin ve yol malzeme klasörleri ve karo boyları,
+  yolun boyu/genişliği/renkleri, ışık ve gökyüzü, başlangıç ve bitiş.
+- Yanlış yazılan bir şey (ör. `/Game/` ile başlamayan bir Unreal yolu ya da Türkçe harfli bir kimlik) sarı uyarıyla gösteriliyor.
+- **Güvenlik:** Hiçbir şey kendiliğinden kaydedilmiyor; **Kaydet** (Ctrl+S) değişen dosyaları birden yazıyor ve her kayıttan önce
+  eski hâli `Belgeler\OyunAtolyesi\icerik_yedekleri` klasörüne kopyalıyor. Dosyada bu ekranda görünmeyen şeylere (ör. 83 dekor
+  nesnesi) dokunulmuyor. Ctrl+Z / Ctrl+Y burada da çalışıyor. Kaydetmeden çıkmaya kalkarsan bir kez daha soruyor.
+- Diyaloglar ve diğer dosyalar şimdilik yalnızca okunuyor (düzenleyicileri Aşama 4'te).
+- Testler: 35 birim testi + Chrome'da 74 otomatik kontrol (27'si bu gece eklendi) ve dosya işleri testi; hepsi geçiyor.
+
+**Nasıl denenir**
+1. GitHub Desktop: **Fetch origin → Pull origin** (hem `oyun_atolyesi` hem `hikaye_oyun` için), sonra `exe_yap.bat`, sonra `OyunAtolyesi.exe`.
+2. Başlangıç ekranında **Oyun içeriğini aç** → açılan pencerede `hikaye_oyun` klasörünü seç.
+3. **Karakterler → Kontrol biçimi**'nde "Kameraya göre yürü" anahtarını kapat, **Kaydet**. Unreal'de oyunu başlat:
+   A/D artık karakteri döndürmeli (eski biçim). Sonra anahtarı yeniden aç ve kaydet.
+4. **Deneme yolu → Eşyalar**: krokide "Eski bir defter"i yolun öbür yanına sürükle, adını değiştir, **+ Puan ekle** de, kaydet.
+   Oyunda defter yeni yerinde ve yeni adıyla ("[F] Al: …") görünmeli.
+5. GitHub Desktop'ta `hikaye_oyun` deposunda yalnızca değiştirdiğin satırların değiştiğini görebilirsin.
+
+**Ekran görüntüleri**
+![Oyuncu ayarları](gunluk/2026-11-16/oyun_karakterler.png)
+![Eşyalar ve kroki](gunluk/2026-11-16/oyun_esyalar.png)
+![Kişilerin bedenleri ve uyarı](gunluk/2026-11-16/oyun_kisiler.png)
+
+**Küçük kararlar (ben seçtim, istersen değiştiririz)**
+- Oyun içeriği **otomatik kaydedilmiyor** (2D projelerden farklı): oyunun dosyalarına sen "Kaydet" demeden yazmak istemedim.
+- Kroki **yaklaşık** bir üstten görünüş; yol soldan sağa ilerliyor. Gerçek 3D görünüm Aşama 2'de gelecek.
+- Bir kutuyu boş bırakmak "oyunun varsayılanını kullan" demek (alan dosyadan silinir).
+- Sayıların biçimi: dosyada `1.0` yazan bir değer kaydedince `1` olarak yazılıyor; oyun ikisini aynı okuyor.
+
+**Senin kararın gereken konular**
+- Sırada iki seçenek var, hangisini önce istersin?
+  **(A)** Aynı ekranda kişilerin dolaşma alanlarını ve kapı seçimlerini krokiden düzenlemek (hızlı, hemen işe yarar), ya da
+  **(B)** doğrudan 3D görünüme (Aşama 2) geçmek. Bir şey demezsen önce (A)'yı yapacağım.
+
+**Sıradaki adım**
+- Oyun içeriği ekranında kişiler (dolaşma alanı, hız, konuşma) ve kapı seçimleri.
+
 ## 2026-11-15 (gece) — Sahne düzenleyici tamam, geri al / yinele geldi (Aşama 1 bitti)
 **Bu gece yapılanlar**
 - **Geri al / yinele** artık çalışıyor: **Ctrl+Z** geri alır, **Ctrl+Y** yeniden yapar. Araç çubuğunun

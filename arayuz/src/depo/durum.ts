@@ -39,7 +39,8 @@ const BIRLESME_SURESI = 1200;
 
 interface Durum {
   depo: Depo | null;
-  ekran: "yukleniyor" | "baslangic" | "editor";
+  /** "oyun": 3D oyunun içerik dosyalarını düzenleme ekranı (oyun/OyunIcerigi.tsx). */
+  ekran: "yukleniyor" | "baslangic" | "editor" | "oyun";
   projeler: string[];
   projeAdi: string | null;
   proje: Proje | null;

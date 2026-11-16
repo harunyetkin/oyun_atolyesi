@@ -4,7 +4,7 @@ Bu kılavuz, Oyun Atölyesi'ndeki **her ekranı, her düğmeyi ve her menüyü**
 **hangi adımlarla geliştirildiğini** anlatır. Claude her çalışmada kılavuzu günceller.
 Yeni bir düğme eklenince, değişince ya da bir özellik "yakında" olmaktan çıkınca burası da değişir.
 
-> Son güncelleme: 2026-11-15 (gece) · Araç sürümü: 0.3 (Aşama 1 — Çekirdek tamamlandı)
+> Son güncelleme: 2026-11-16 (gece) · Araç sürümü: 0.4 (Oyun içeriği düzenleyicisi: karakterler, kişiler, harita, eşyalar)
 
 **İçindekiler**
 1. [Temel kavramlar](#1-temel-kavramlar)
@@ -22,7 +22,8 @@ Yeni bir düğme eklenince, değişince ya da bir özellik "yakında" olmaktan �
 13. [Oyunu oynatmak](#13-oyunu-oynatmak)
 14. [Klavye kısayolları](#14-klavye-kısayolları)
 15. [Adım adım: ilk oyununu kur](#15-adım-adım-ilk-oyununu-kur)
-16. [Geliştirme adımları (sürüm geçmişi)](#16-geliştirme-adımları-sürüm-geçmişi)
+16. [Oyun içeriği (3D hikâye oyunu)](#16-oyun-içeriği-3d-hikâye-oyunu)
+17. [Geliştirme adımları (sürüm geçmişi)](#17-geliştirme-adımları-sürüm-geçmişi)
 
 Rozetler: <kbd>Aşama N</kbd> yazan, soluk görünen bir düğme henüz çalışmaz; o aşamada gelecektir.
 
@@ -51,6 +52,8 @@ Rozetler: <kbd>Aşama N</kbd> yazan, soluk görünen bir düğme henüz çalış
 Uygulama açılınca gelir.
 - **Projelerin:** kayıtlı projelerin kartları. Bir karta tıkla → proje editörde açılır.
 - **Yeni proje:** Yeni proje penceresini açar (ad yaz, boş ya da şablondan başla).
+- **Oyun içeriğini aç:** 3D hikâye oyununun (hikaye_oyun) karakterlerini, haritalarını ve eşyalarını
+  düzenleme ekranına geçer. İlk seferde oyun klasörünü seçmeni ister. Ayrıntı: [Bölüm 16](#16-oyun-içeriği-3d-hikâye-oyunu).
 - **Proje klasörünü aç:** projelerin saklandığı klasörü Windows Gezgini'nde açar.
 - İlk açılışta "Örnek: Kanat Çırp" projesi kendiliğinden oluşturulur.
 - Eski (v0.1) projeler açılınca yeni biçime otomatik dönüştürülür; konsola bir not düşülür.
@@ -130,6 +133,13 @@ Hizalamada döndürülmüş nesnelerin kapladığı alan hesaba katılır.
 | Duraklat / devam | F6 | Oyunu dondurur / sürdürür |
 | Durdur | Shift+F5 | Oyunu bitirip düzenlemeye döner (oyun projeyi değiştirmez) |
 | Ölümsüz test modu | — | <kbd>Aşama 2</kbd> |
+
+**Oyun → Oyun içeriği bölümü** (3D hikâye oyunu; [Bölüm 16](#16-oyun-içeriği-3d-hikâye-oyunu))
+| Komut | Kısayol | Ne yapar |
+|---|---|---|
+| Oyun içeriğini aç… | Ctrl+Shift+O | Oyun içeriği ekranına geçer (klasör daha önce seçildiyse doğrudan açar) |
+| Oyun klasörünü değiştir… | — | Başka bir oyun klasörü seçtirir (kaydedilmemiş değişiklik varsa önce kaydetmeni ister) |
+| Oyun içeriğini dosyalardan yeniden oku | — | Dosyaları diskten yeniden okur (ör. GitHub Desktop'ta Pull yaptıktan sonra) |
 
 **Yardım:** Klavye kısayolları (F1), Oyun Atölyesi hakkında.
 
@@ -299,6 +309,7 @@ sahne adı · nesne sayısı · tür sayısı. Sağda: imlecin sahnedeki konumu 
 | Kısayol | İş | Kısayol | İş |
 |---|---|---|---|
 | Ctrl+N | Yeni proje | F5 | Oynat |
+| Ctrl+Shift+O | Oyun içeriğini aç | | |
 | Ctrl+O | Proje aç | F6 | Duraklat / devam |
 | Ctrl+S | Kaydet | Shift+F5 | Durdur |
 | Ctrl+Shift+S | Sürüm kaydet | Ctrl+K | Komut paleti |
@@ -327,7 +338,67 @@ sahne adı · nesne sayısı · tür sayısı. Sağda: imlecin sahnedeki konumu 
 7. Nesneleri soldan sahneye sürükle: Top sola, Zemin alta, birkaç Engel sağa.
 8. **F5** ile oyna, Boşluk ile zıpla. Beğendiğin hali **Ctrl+Shift+S** ile sürüm olarak kaydet.
 
-## 16. Geliştirme adımları (sürüm geçmişi)
+## 16. Oyun içeriği (3D hikâye oyunu)
+
+Oyun Atölyesi, 3D hikâye oyununun (`hikaye_oyun`) **içerik dosyalarını** kod yazmadan düzenler.
+Oyun bu dosyaları her açılışta okur; yani burada değiştirip **kaydedince**, oyunu yeniden başlatman yeter
+(Unreal'de derleme gerekmez).
+
+**Nasıl açılır:** Başlangıç ekranında **Oyun içeriğini aç** (ya da Oyun menüsü → Oyun içeriğini aç…, **Ctrl+Shift+O**).
+İlk seferde bir klasör seçme penceresi açılır: oyunun ana klasörünü seç (GitHub Desktop'un indirdiği
+`hikaye_oyun` klasörü; içinde `icerik` klasörü olan). Seçim hatırlanır.
+
+![Oyun içeriği: karakterler](kilavuz/oyun_karakterler.png)
+
+**Ekranın bölümleri**
+| Yer | Ne var |
+|---|---|
+| Üst çubuk | Geri al / Yinele, **Kaydet (n)** (n = kaydedilmemiş dosya sayısı), **Değişiklikleri at**, **Klasörü değiştir**, **Başlangıç** |
+| Sol | **İçerik dosyaları**: Karakterler, Haritalar, Diyaloglar, Diğer. Sarı nokta = kaydedilmemiş değişiklik var |
+| Orta | Seçili dosyanın düzenleyicisi |
+| Alt | Oyun klasörü ve açık dosya |
+
+**Karakterler → Oyuncu sekmesi.** Kartlar halinde bütün oyuncu ayarları (başlığa tıklayınca açılır/kapanır):
+- **Beden ve animasyon:** MetaHuman bedeninin, Animation Blueprint'in ve hareket karışımının Unreal yolları (`/Game/...`), hız çarpanı.
+- **Kontrol biçimi:** *Kameraya göre yürü* anahtarı (açık = W/A/S/D kameranın baktığı yöne göre yürütür, karakter gittiği yöne döner;
+  kapalı = eski biçim, A/D karakteri döndürür) ve serbest dönüş hızı / çevikliği / ivmesi.
+- **Hareket**, **Kaçınma**, **Kamera**, **Animasyon geçişi**, **Dövüş**, **Doğallık**, **Etkileşim anları** (0–1 arası; kaydırıcı da var),
+  **Çanta** (göster, konum, boyut, renk), **Animasyonlar** (her hareketin Unreal yolu), **Animasyon yuvaları**.
+- Her sayının yanında birimi yazar (cm/sn, °, sn…). Kutuyu **boş bırakırsan** oyun kendi varsayılanını kullanır.
+  Virgül de nokta da olur. Kutudayken **↑/↓** tuşları değeri bir adım artırıp azaltır (Shift ile 10 adım).
+- Oyuna sonradan eklenen ve henüz açıklaması yazılmamış bir ayar da ilgili kartta **yeni** rozetiyle görünür ve düzenlenebilir.
+- Yanlış yazılmış bir Unreal yolu (ör. `/Game/` ile başlamıyor) kutunun altında sarı uyarıyla gösterilir.
+
+**Karakterler → Kişilerin bedenleri sekmesi.** Haritalardaki her kişinin (npc) MetaHuman bedeni:
+kimlik, beden yolu, isteğe bağlı Animation Blueprint. Kartın sağ üstündeki çöp kutusu kişiyi siler.
+Altta, haritada olup bedeni seçilmemiş kişiler için hazır **+ ekle** düğmeleri çıkar. Kimlik yalnız küçük harf, rakam ve `_` olabilir;
+haritada olmayan bir kimlik yazarsan üstteki **Dikkat** kutusu uyarır.
+
+**Harita → Eşyalar sekmesi.** Yerdeki alınabilir eşyalar (oyunda yaklaşınca “[F] Al”).
+
+![Oyun içeriği: eşyalar ve kroki](kilavuz/oyun_esyalar.png)
+
+- Üstte haritanın **krokisi** (üstten görünüş, yol soldan sağa ilerler): yeşil üçgen başlangıç, yeşil çizgi bitiş,
+  sarı çizgiler kapılar, mor kesikli daireler kişilerin dolaşma alanı, gri noktalar dekor, renkli daireler eşyalar.
+  **Bir eşyayı sürükleyerek yerini değiştirebilirsin**; tıklayınca kartı seçilir.
+- Her eşyanın kartı: kimlik, ad, konum (metre), açı, renk, mesaj (alınca ekranda yazan), **puanlar** (ölçek seç + sayı; **+ Puan ekle**),
+  **Elde duruşu** (isteğe bağlı: eşyanın sağ eldeki konumu/açısı; **Varsayılana dön** ile kaldırılır).
+- Kartın sağ üstünde **Çoğalt** ve **Sil**; en altta **+ Eşya ekle** (yolun kenarına yeni bir eşya koyar).
+
+**Harita → Harita ayarları sekmesi.** Genel (ad, tema, not), **Unreal: dekor, zemin ve yol yüzeyi** (model açı düzeltmesi,
+zemin/yol malzeme klasörleri ve karo boyları), Yol (uzunluk, genişlik, renkler, orta şerit), Işık ve gökyüzü, Başlangıç ve bitiş.
+
+**Diyaloglar ve diğer dosyalar** şimdilik yalnızca okunur gösterilir <kbd>Aşama 4</kbd>.
+
+**Kaydetme ve güvenlik**
+- Hiçbir şey kendiliğinden kaydedilmez: **Kaydet** (Ctrl+S) değişen bütün dosyaları birden yazar.
+- Her kayıttan önce dosyanın eski hâli `Belgeler\OyunAtolyesi\icerik_yedekleri\<tarih>\` altına kopyalanır.
+- Dosyadaki düzenleyicide görünmeyen alanlara (ör. dekor listesi) dokunulmaz; girinti ve sıra korunur.
+- **Ctrl+Z / Ctrl+Y** bu ekranda da çalışır (krokide bir sürükleme tek adım). **Değişiklikleri at** son kayda döner.
+- Kaydetmeden **Başlangıç**'a basarsan düğme "Kaydetmeden çık?" olur; ikinci basışta çıkar.
+- Kaydettikten sonra değişiklikler oyun klasöründedir; GitHub Desktop'ta görünür, oradan commit edebilirsin.
+
+## 17. Geliştirme adımları (sürüm geçmişi)
 
 Her satır bir çalışma oturumudur; ayrıntılar GUNLUK.md'de.
 
@@ -338,6 +409,8 @@ Her satır bir çalışma oturumudur; ayrıntılar GUNLUK.md'de.
 | 2026-11-14 gece | **Oyun motoru** | Gerçek fizik (yerçekimi, hız sınırı, sürtünme), daire/kutu çarpışma, içinden geçilemeyen nesneler; tuşu seçilebilen "Tuşla zıpla", yönlü "Sabit hızla kay", "Ekrandan çıkınca yok ol"; çarpışma alanlarını gösterme. |
 | 2026-11-15 | Kılavuz | Bu kullanım kılavuzu başlatıldı. |
 | 2026-11-15 gece | **v0.3** — Aşama 1 tamam | Köşe tutamaçlarıyla boyutlandırma, üst tutamaçla döndürme, çoklu seçim (Shift+tık, kutu seçimi, Ctrl+A), toplu taşıma/silme/çoğaltma, ok tuşlarıyla kaydırma, Düzen → Hizala (6 hizalama + 2 eşit dağıtma), geri al / yinele (araç çubuğunda da). |
+
+| 2026-11-16 gece | **v0.4** — Oyun içeriği | Oyunun klasörünü açma (atolye.py, yol güvenliği, kayıttan önce yedek), **Oyun içeriği** ekranı: karakterler.json (oyuncunun bütün ayarları, kameraya göre kontrol, kişilerin MetaHuman bedenleri), harita (Unreal zemin/yol ve model açısı, yol, ışık, başlangıç/bitiş), **eşyalar** (kart + sürüklenebilir kroki, puanlar), uyarılar, ayrı geri al/yinele. |
 
 **Sıradaki adımlar:** Aşama 2 — 3D görünüm (3D Harita sekmesi, yörünge kamerası, glTF modeller,
 taşı/döndür/ölçekle tutamaçları, ışık ve gökyüzü önizlemesi).

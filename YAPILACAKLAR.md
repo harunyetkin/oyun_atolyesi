@@ -5,9 +5,9 @@ Her madde yaklaşık bir günlük çalışmadır. Sıra önemlidir; üstten baş
 > Not (2026-11-15): Oyun Unreal Engine 5.8'e geçti (`hikaye_oyun/unreal`). İçerik biçimi aynı (`icerik/*.json`, BICIM.md); araç yine bu dosyaları düzenler. Godot'ya özel alanları (ör. `tur: mh` görünüm parçaları) yeni iş olarak ekleme; MetaHuman görünüm alanları BICIM.md'ye eklenince araca taşı.
 
 ## Sırada
-- [ ] Oyunun yeni ayarları (BICIM.md 2026-11-16, ikinci ek): karakterler.json `hareket.kamera_gore_kontrol` ve `serbest_donus_*`; haritada `unreal_model_aci`, `ortam.unreal_zemin_klasoru/karo`, `yol.unreal_klasor/karo`. Atölye'ye eklenecek.
-- [ ] Oyunun yeni içerikleri (BICIM.md 2026-11-16): haritada `esyalar` (yerdeki alınabilir eşyalar: id, ad, konum, aci, renk, mesaj, puanlar) ve karakterler.json'da `kisiler` (kişi bedenleri); araçta düzenlenebilir yap.
-- [ ] Oyunun yeni içerik dosyası `icerik/karakterler.json` (Unreal: oyuncu bedeni = MetaHuman yolu, hareket karışımı, hız çarpanı; BICIM.md): araçta düzenlenebilir yap.
+- [ ] Oyun içeriği ekranında **kişiler (npc)**: krokide dolaşma alanını (daire) sürükleme/boyutlandırma, hız, bağlı konuşma,
+      görünüm (Godot `gorunum` alanları) — form + kroki (3D görünümden önce yapılabilir)
+- [ ] Oyun içeriği ekranında **kapı seçimleri**: soru, kapılar (etiket, renk, puan, ödül, mesaj); krokide kapı çizgisini sürükleme
 (Aşama 2 — 3D görünüm)
 - [ ] Merkezde "3D Harita" sekmesi: three.js (npm paketi, lockfile commit), yörünge kamerası
       (sağ tık döndür, orta tık kaydır, tekerlek yakınlaştır), ızgara zemin, eksen göstergesi
@@ -37,7 +37,8 @@ Oyun 2026-11-15'te bu içerik türleriyle oynanabilir oldu; araçta her biri iç
 - [ ] Puan önizleme: bir haritadaki bütün kararların hangi ölçeklere ne verdiğini tek tabloda gösterme
 
 ## Daha sonra (Aşama 3 — Oyun projesine bağlanma)
-- [ ] Godot oyun klasörünü seçme (atolye.py, yol güvenliği), `icerik/` okuma/yazma, varlıkları listeleme
+- [x] Oyun klasörünü seçme (atolye.py, yol güvenliği), `icerik/` okuma/yazma — 2026-11-16 yapıldı
+- [ ] Oyunun varlıklarını (modeller, dokular, Unreal yolları) listeleme ve seçici pencere
 - [ ] "Oyunda dene": oyunu seçili haritadan başlatma
 - [ ] Kabul: oyunun ilk haritasını araçta aç, nesne ekle, kaydet, oyunda gör
 
@@ -52,6 +53,13 @@ Oyun 2026-11-15'te bu içerik türleriyle oynanabilir oldu; araçta her biri iç
 - [ ] Kabul testi: Kanat Çırp'ı araçta sıfırdan kur, `ornekler/kanat_cirp.json` olarak kaydet, otomatik testle oynat
 
 ## Tamamlandı
+- [x] 2026-11-16 (gece) — **Oyun içeriği düzenleyicisi (v0.4):** atolye.py'de oyun klasörü seçme/hatırlama, `icerik/`
+      okuma/yazma (yol güvenliği, kayıttan önce yedek, girinti ve son satır sonu korunur). Yeni "Oyun içeriği" ekranı
+      (`src/oyun/`): karakterler.json (oyuncunun bütün ayarları şemadan, `kamera_gore_kontrol`, `serbest_donus_*`;
+      şemada olmayan alanlar da "yeni" rozetiyle düzenlenebilir), `kisiler` (MetaHuman bedenleri, haritadan öneri),
+      harita ayarları (`unreal_model_aci`, `ortam.unreal_zemin_klasoru/karo`, `yol.unreal_klasor/karo`, yol, ışık,
+      başlangıç/bitiş), `esyalar` (kartlar, puanlar, elde duruşu, sürüklenebilir kroki), uyarılar, ayrı geri al/yinele,
+      kaydetmeden çıkış onayı. Diyaloglar ve diğer dosyalar salt okunur. 10 birim testi + 27 arayüz kontrolü eklendi.
 - [x] 2026-11-15 (gece) — **Sahne düzenleyici tamamlandı:** köşe tutamaçlarıyla boyutlandırma (karşı köşe
       sabit, Shift oranı korur), üst tutamaçla döndürme (araç seçmeden, Shift 15°), Shift+tık ve kutu
       seçimi, Ctrl+A / Esc, toplu taşı/sil/çoğalt, ok tuşlarıyla 1/10 px, Düzen → Hizala (6 hizalama +

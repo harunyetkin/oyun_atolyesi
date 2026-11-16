@@ -10,15 +10,17 @@ import { SahneGorunumu } from "./Sahne";
 import {
   NesnelerPaneli, SahneAgaci, Ozellikler, OlaylarSayfasi, ArayuzDuzenleyici, VarliklarPaneli, DegiskenlerPaneli, KonsolPaneli, SurumlerPaneli,
 } from "./Paneller";
+import { OyunIcerigiEkrani } from "../oyun/OyunIcerigi";
 import { AyarlarPenceresi, BaslangicEkrani, Hakkinda, KisayollarPenceresi, KomutPaleti, ProjeAyarlari, YeniProjePenceresi } from "./Pencereler";
 
 // ============================================================ Menü çubuğu
 const MENULER: { ad: string; kategoriler: Komut["kategori"][] }[] = [
   { ad: "Dosya", kategoriler: ["Dosya"] }, { ad: "Düzen", kategoriler: ["Düzen", "Hizala"] }, { ad: "Görünüm", kategoriler: ["Görünüm", "Araç"] },
-  { ad: "Oyun", kategoriler: ["Oyun"] }, { ad: "Yardım", kategoriler: ["Yardım"] },
+  { ad: "Oyun", kategoriler: ["Oyun", "Oyun içeriği"] }, { ad: "Yardım", kategoriler: ["Yardım"] },
 ];
 
-function MenuCubugu() {
+/** Menü çubuğu. `sag` verilirse sağ taraftaki proje/kayıt bilgisi yerine o gösterilir (oyun içeriği ekranı). */
+export function MenuCubugu({ sag }: { sag?: ReactNode } = {}) {
   const [acik, setAcik] = useState<string | null>(null);
   const kayit = useDurum(d => d.kayit);
   const projeAdi = useDurum(d => d.projeAdi);
@@ -51,10 +53,11 @@ function MenuCubugu() {
         </div>
       ))}
       <div className="menu-sag">
+        {sag ?? <>
         <span className="soluk">{projeAdi}</span>
         <span className="soluk" style={{ display: "flex", alignItems: "center", gap: 4 }} data-testid="kayit-durumu">
           <Save size={13} />{kayit === "kaydediliyor" ? "Kaydediliyor…" : kayit === "kayitli" ? "Kaydedildi" : kayit === "hata" ? "Kaydedilemedi" : "Kaydedilmedi"}
-        </span>
+        </span></>}
         <button className="dugme hayalet" onClick={() => komut("komut").calistir()} title="Komut paleti"><Command size={14} /> Ctrl+K</button>
       </div>
     </div>
@@ -223,6 +226,7 @@ export function Uygulama() {
       {ekran === "yukleniyor" && <div className="bos-durum" style={{ paddingTop: "30vh" }}>Oyun Atölyesi açılıyor…</div>}
       {ekran === "baslangic" && <BaslangicEkrani />}
       {ekran === "editor" && <Editor />}
+      {ekran === "oyun" && <OyunIcerigiEkrani />}
       {pencere === "yeniProje" && <YeniProjePenceresi />}
       {pencere === "komut" && <KomutPaleti />}
       {pencere === "ayarlar" && <AyarlarPenceresi />}

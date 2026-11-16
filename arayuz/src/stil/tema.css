@@ -183,3 +183,50 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .kisayol-tablosu { display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; padding: 16px; }
 kbd { background: var(--z4); border: 1px solid var(--cizgi2); border-bottom-width: 2px; border-radius: 4px; padding: 1px 6px; font-family: inherit; font-size: 12px; }
 .hata-yazi { color: var(--kirmizi); font-size: 12px; grid-column: 2; }
+
+/* ---------- oyun içeriği (3D oyunun JSON dosyaları) */
+.icerik-sayfa { padding: 18px 24px 40px; max-width: 980px; }
+.sayfa-aciklama { color: var(--yazi2); line-height: 1.55; margin: 0 0 14px; }
+.kartlar { display: flex; flex-direction: column; gap: 10px; }
+.kartlar > .kart { background: var(--z1); border: 1px solid var(--cizgi); border-radius: 8px; }
+.kartlar > .kart .kart-baslik { border-radius: 8px; }
+.icerik-sayfa .kart-icerik { grid-template-columns: 210px 1fr; gap: 9px 14px; }
+.icerik-sayfa .kart-icerik > label { line-height: 1.3; }
+.grup-aciklama { grid-column: 1 / -1; color: var(--yazi3); font-size: 12px; line-height: 1.5; margin-bottom: 2px; }
+.alan-aciklama { color: var(--yazi3); font-size: 11.5px; margin-top: 3px; }
+.alan-satir { display: flex; align-items: center; gap: 8px; }
+.alan-satir input[type=range] { flex: 1; max-width: 260px; accent-color: var(--vurgu); }
+.birim { color: var(--yazi3); font-size: 12px; white-space: nowrap; }
+.alan-uyari { color: var(--sari); font-size: 11.5px; display: flex; align-items: center; gap: 4px; }
+.giris.uyarili { border-color: rgba(233,185,73,.7); }
+textarea.giris { resize: vertical; min-height: 34px; line-height: 1.4; }
+.vektor { display: flex; gap: 6px; align-items: center; }
+.vektor .sayi-giris { width: 104px; flex: none; }
+.vektor .sayi-giris span { cursor: default; min-width: 14px; padding: 0 6px 0 8px; }
+.alan-satir .sayi-giris input, .puan-satiri .sayi-giris input { padding-left: 8px; }
+.anahtar-kap { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; }
+.anahtar { width: 36px; height: 20px; border-radius: 999px; background: var(--z4); border: 1px solid var(--cizgi2); position: relative; cursor: pointer; padding: 0; flex: none; }
+.anahtar span { position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--yazi2); transition: left .12s; }
+.anahtar.acik { background: var(--vurgu2); border-color: var(--vurgu); }
+.anahtar.acik span { left: 18px; background: #fff; }
+.liste-karti { background: var(--z1); border: 1px solid var(--cizgi); border-radius: 8px; }
+.liste-karti.secili { border-color: var(--vurgu); box-shadow: 0 0 0 1px var(--vurgu) inset; }
+.liste-karti-baslik { display: flex; align-items: center; gap: 8px; padding: 8px 8px 6px 12px; }
+.liste-karti .kart-icerik { padding-top: 6px; }
+.renk-nokta { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(255,255,255,.4); flex: none; }
+.ekle-satiri { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.uyari-kutusu { background: rgba(233,185,73,.08); border: 1px solid rgba(233,185,73,.35); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; }
+.uyari-kutusu b { color: var(--sari); display: flex; align-items: center; gap: 6px; }
+.puanlar { display: flex; flex-direction: column; gap: 6px; }
+.puan-satiri { display: flex; gap: 6px; align-items: center; }
+.puan-satiri select { max-width: 220px; }
+.kroki { background: var(--z1); border: 1px solid var(--cizgi); border-radius: 8px; padding: 8px; margin-bottom: 12px; }
+.kroki svg { width: 100%; max-height: 380px; min-height: 160px; display: block; background: #1b2a1d; border-radius: 6px; }
+.kroki-esya { cursor: grab; } .kroki-esya:active { cursor: grabbing; }
+.kroki-yazi { font-size: 1.7px; fill: #e4e7ee; text-anchor: middle; pointer-events: none; paint-order: stroke; stroke: rgba(0,0,0,.6); stroke-width: .35px; }
+.kroki-yazi.mor { fill: #c9b8ff; } .kroki-yazi.sari { fill: #e9b949; }
+.kroki-lejant { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--yazi2); padding: 8px 4px 0; }
+.kroki-lejant i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.ham-json { background: var(--z1); border: 1px solid var(--cizgi); border-radius: 8px; padding: 12px 14px; font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 12px; line-height: 1.5; color: var(--yazi2); white-space: pre-wrap; overflow: auto; }
