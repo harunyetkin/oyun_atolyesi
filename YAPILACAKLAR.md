@@ -4,7 +4,9 @@ Her madde yaklaşık bir günlük çalışmadır. Sıra önemlidir; üstten baş
 
 > Not (2026-11-15): Oyun Unreal Engine 5.8'e geçti (`hikaye_oyun/unreal`). İçerik biçimi aynı (`icerik/*.json`, BICIM.md); araç yine bu dosyaları düzenler. Godot'ya özel alanları (ör. `tur: mh` görünüm parçaları) yeni iş olarak ekleme; MetaHuman görünüm alanları BICIM.md'ye eklenince araca taşı.
 
-## Sırada - [ ] Oyunun yeni içerikleri (BICIM.md 2026-11-16): haritada `esyalar` (yerdeki alınabilir eşyalar: id, ad, konum, aci, renk, mesaj, puanlar) ve karakterler.json'da `kisiler` (kişi bedenleri); araçta düzenlenebilir yap.
+## Sırada
+- [ ] Oyunun yeni ayarları (BICIM.md 2026-11-16, ikinci ek): karakterler.json `hareket.kamera_gore_kontrol` ve `serbest_donus_*`; haritada `unreal_model_aci`, `ortam.unreal_zemin_klasoru/karo`, `yol.unreal_klasor/karo`. Atölye'ye eklenecek.
+- [ ] Oyunun yeni içerikleri (BICIM.md 2026-11-16): haritada `esyalar` (yerdeki alınabilir eşyalar: id, ad, konum, aci, renk, mesaj, puanlar) ve karakterler.json'da `kisiler` (kişi bedenleri); araçta düzenlenebilir yap.
 - [ ] Oyunun yeni içerik dosyası `icerik/karakterler.json` (Unreal: oyuncu bedeni = MetaHuman yolu, hareket karışımı, hız çarpanı; BICIM.md): araçta düzenlenebilir yap.
 (Aşama 2 — 3D görünüm)
 - [ ] Merkezde "3D Harita" sekmesi: three.js (npm paketi, lockfile commit), yörünge kamerası
