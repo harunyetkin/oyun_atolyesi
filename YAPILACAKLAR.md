@@ -5,12 +5,12 @@ Her madde yaklaşık bir günlük çalışmadır. Sıra önemlidir; üstten baş
 > Not (2026-11-15): Oyun Unreal Engine 5.8'e geçti (`hikaye_oyun/unreal`). İçerik biçimi aynı (`icerik/*.json`, BICIM.md); araç yine bu dosyaları düzenler. Godot'ya özel alanları (ör. `tur: mh` görünüm parçaları) yeni iş olarak ekleme; MetaHuman görünüm alanları BICIM.md'ye eklenince araca taşı.
 
 ## Sırada
-- [ ] Oyunun yeni alanı (BICIM.md 2026-11-18, 2): kişide `savas_tavri` (kac/savun/karsilik/karisik). Atölye'ye eklenecek.
-- [ ] Oyunun yeni alanları (BICIM.md 2026-11-18): `icerik/modeller.json` (model çarpışmaları), kişide `davranis: yol`, `durma_mesafesi`; `kalabalik.diyalog`. Atölye'ye eklenecek.
-- [ ] Oyunun yeni alanları (BICIM.md 2026-11-17, 2): kişide `selamlasma`, `tepkiler`; diyalog seçeneğinde `esya_ver`; haritada `kalabalik`. Atölye'ye eklenecek.
-- [ ] Oyunun yeni içerik türleri (BICIM.md 2026-11-17): haritada `sandiklar`, `gorevler` (adımlar: metin/tur/hedef), `sesler`; nesnede `oturak`; kişide `selamlar`, `davranis`; ortamda `gunes_hareketi`; eşyada `aciklama`; karakterler.json `secilebilir_govdeler`. Atölye'ye eklenecek.
-- [ ] Oyun içeriği ekranında **kişiler (npc)**: krokide dolaşma alanını (daire) sürükleme/boyutlandırma, hız, bağlı konuşma,
-      görünüm (Godot `gorunum` alanları) — form + kroki (3D görünümden önce yapılabilir)
+- [ ] Oyunun yeni içerik türleri (BICIM.md 2026-11-17/18), kalanlar: haritada **`sandiklar`** (kart + krokide sürükleme; içerik: ad, açıklama,
+      puanlar, mesaj; isteğe bağlı model/kapak ayarları) ve **`gorevler`** (adımlar: metin / tür / hedef — hedef listesi haritadaki kişi, eşya,
+      sandık, kapılardan). Atölye'ye eklenecek.
+- [ ] Oyunun yeni alanları, kalanlar: dekor nesnesinde **`oturak`** (yön, derinlik), karakterler.json **`secilebilir_govdeler`** (ana menüdeki
+      karakter seçimi: ad, beden, puanlar), yeni dosya **`modeller.json`** (model çarpışma silindirleri; okunur liste + düzenleme).
+- [ ] Diyalog seçeneğinde `esya_ver` — konuşma ağacı düzenleyicisiyle birlikte (Aşama 4).
 - [ ] Oyun içeriği ekranında **kapı seçimleri**: soru, kapılar (etiket, renk, puan, ödül, mesaj); krokide kapı çizgisini sürükleme
 (Aşama 2 — 3D görünüm)
 - [ ] Merkezde "3D Harita" sekmesi: three.js (npm paketi, lockfile commit), yörünge kamerası
@@ -35,7 +35,7 @@ Oyun 2026-11-15'te bu içerik türleriyle oynanabilir oldu; araçta her biri iç
       `varliklar/insanlar_mh/bilgi.json`'dan; görünüm alanları yas_yil, boy_cm, kilo_kg, cilt, sakal, sakal_rengi,
       ust/alt/takim, gozluk; 3D önizlemede MakeHuman karakteri; sürüm 2 dosyaları için göç
 - [ ] Harita: ortam (gökyüzü, güneş, sis), yol, başlangıç/bitiş, dekor yerleştirme (3D görünümde)
-- [ ] Kişiler (NPC): görünüm, dolaşma alanı (haritada daire olarak sürüklenebilir), hız, bağlı konuşma
+- [x] Kişiler (NPC): dolaşma alanı (krokide sürüklenir), hız, bağlı konuşma — 2026-11-17 yapıldı (görünüm: MetaHuman bedeni yolu)
 - [ ] Kapı seçimleri: konum, soru, kapılar (etiket, renk, puan, ödül, mesaj)
 - [ ] Konuşma ağacı düzenleyici: düğümler ve seçenekler, puanlar, ödüller (düğüm grafiği görünümü)
 - [ ] Puan önizleme: bir haritadaki bütün kararların hangi ölçeklere ne verdiğini tek tabloda gösterme
@@ -57,6 +57,14 @@ Oyun 2026-11-15'te bu içerik türleriyle oynanabilir oldu; araçta her biri iç
 - [ ] Kabul testi: Kanat Çırp'ı araçta sıfırdan kur, `ornekler/kanat_cirp.json` olarak kaydet, otomatik testle oynat
 
 ## Tamamlandı
+- [x] 2026-11-17 (gece) — **Haritadaki kişiler (v0.5):** Harita → **Kişiler** sekmesi (`src/oyun/Kisiler.tsx`): krokide dolaşma
+      alanını taşıma (tutulan yerden) ve kenar tutamacıyla yarıçap, "yolda yürür" kişilerin yaya şeridi (uçları çekilir; Unreal cm alanları
+      `serit_y`, `serit_x_min/max`); kart: kimlik (görev adımı ve karakterler.json `kisiler` kaydı da yeniden adlanır), ad, `davranis`
+      (dolas/bekle/otur/yol), alan, `hiz` (0–3), `durma_mesafesi`, `diyalog` (dosya seçimi), `selamlasma`, `selamlar`, `savas_tavri`,
+      `tepkiler` (carpma/itilme/vurulma), `unreal_govde`, Godot görünüm özeti; çoğalt/sil/ekle; **Kalabalık** kartı (`kalabalik` +
+      `diyalog`); uyarılar (`npcUyarilari`). Ayrıca eşyada `aciklama`, ortamda `gunes_hareketi`/`gunes_en_alcak`, **Sesler** kartı
+      (`sesler.*`, `darbe`), oyuncu animasyonlarında oturma/itme/darbe_alma/yere_dusme/yerden_kalkma, dövüşte `vurus_ani`.
+      Giriş kutuları `girisler.tsx`'e, kroki `Kroki.tsx`'e ayrıldı. 2 birim testi + 20 arayüz kontrolü.
 - [x] 2026-11-16 (gece) — **Oyun içeriği düzenleyicisi (v0.4):** atolye.py'de oyun klasörü seçme/hatırlama, `icerik/`
       okuma/yazma (yol güvenliği, kayıttan önce yedek, girinti ve son satır sonu korunur). Yeni "Oyun içeriği" ekranı
       (`src/oyun/`): karakterler.json (oyuncunun bütün ayarları şemadan, `kamera_gore_kontrol`, `serbest_donus_*`;

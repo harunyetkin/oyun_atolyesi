@@ -2,6 +2,46 @@
 
 En yeni girdi en üsttedir.
 
+## 2026-11-17 (gece) — Haritadaki kişiler artık Atölye'de düzenleniyor
+**Bu gece yapılanlar**
+- Bir haritayı açınca artık ilk **Kişiler** sekmesi geliyor. Oyunun son günlerde kişilere eklediği her şey burada:
+  - **Krokide** her kişinin dolaşma alanı mor bir daire. **Daireyi sürükleyerek** kişinin yerini değiştiriyorsun; kişiyi seçince
+    dairenin kenarında **beyaz bir nokta** çıkıyor, onu çekerek alanı büyütüp küçültüyorsun.
+  - **Davranış:** dolaşır / yerinde bekler / bankta oturur / **yolda yürür**. "Yolda yürür" seçince krokide kişinin yaya şeridi
+    (düz mor çizgi) çıkıyor; uçlarını çekerek şeridi uzatıp kısaltabiliyorsun.
+  - **Yürüme hızı** (oyunun sınırı 3 m/sn; daha büyüğünü yazarsan 3'e iniyor), **durma mesafesi** (oyuncu ne kadar yaklaşınca durup döner).
+  - **Konuşma** (hangi diyalog dosyası; listeden seçiliyor), **selamlaşma** (tokalaşır / el sallar / yok), **yanından geçerken** söylediği sözler.
+  - **Saldırıya uğrayınca:** kaçar / savunur / karşılık verir / karışık. Ve **çarpınca, itilince, vurulunca** söylediği sözler.
+  - **Beden (MetaHuman)** yolu. Eski Godot görünümü yalnız özet olarak duruyor (Unreal okumuyor).
+  - Kişi **ekle / çoğalt / sil**. Bir kişinin kimliğini değiştirirsen görevdeki "… ile konuş" adımı ve Karakterler'deki beden kaydı da kendiliğinden yeni kimliğe geçiyor.
+- Aynı sekmede **Kalabalık** kartı: otomatik üretilen MetaHuman'lardan kaç kişinin yolda dolaşacağı, hangi klasörden, ne konuşacakları.
+- Küçük eklemeler: eşyalara **açıklama** (çantada görünen), Harita ayarlarında **güneşin yavaşça alçalması** ve yeni **Sesler** kartı
+  (adım, rüzgâr, kuş, darbe sesleri ve şiddetleri); oyuncunun animasyon listesinde oturma, itme, darbe alma, yere düşme, yerden kalkma adları.
+- Testler: 37 birim testi + Chrome'da 94 otomatik kontrol (20'si bu gece eklendi) ve dosya işleri testi; hepsi geçiyor.
+
+**Nasıl denenir**
+1. GitHub Desktop: **Fetch origin → Pull origin** (`oyun_atolyesi` ve `hikaye_oyun`), sonra `exe_yap.bat`, sonra `OyunAtolyesi.exe`.
+2. **Oyun içeriğini aç → Deneme yolu**. Kişiler sekmesi açılır; krokide "Yolcu"nun dairesini biraz ileri sürükle.
+3. Yolcu'nun kartında **Saldırıya uğrayınca → Kaçar** seç, **Yanından geçerken**'e yeni bir söz ekle (ör. "Yolun açık olsun!"). **Kaydet**.
+4. Unreal'de oyunu başlat: Yolcu yeni yerinde dolaşmalı, yanından geçince yeni sözü söyleyebilmeli, ona vurunca kaçmalı.
+5. İstersen bir kişiyi **Yolda yürür** yap ve krokide şeridin uçlarını çek; oyunda o çizgi boyunca ileri geri yürümeli.
+
+**Ekran görüntüleri**
+![Haritadaki kişiler ve kroki](gunluk/2026-11-17/harita_kisiler.png)
+![Bir kişinin kartı](gunluk/2026-11-17/kisi_karti.png)
+
+**Küçük kararlar (ben seçtim, istersen değiştiririz)**
+- Harita açılınca ilk **Kişiler** sekmesi geliyor (en çok değişen kısım bu olduğu için).
+- Yaya şeridi oyunda Unreal ölçüsüyle (cm) yazılıyor; ekranda ise diğer konumlar gibi **metre** (yan / baş / son) gösteriliyor.
+- Kişinin görünüşü (eski Godot kıyafet/yaş alanları) düzenlenmiyor; Unreal'de beden MetaHuman olduğu için yalnız **beden yolu** düzenleniyor.
+
+**Senin kararın gereken konular**
+- Sırada **sandıklar ve görevler** var. Görevleri nasıl düzenlemek istersin? **(A)** Basit liste: her adım bir satır ("Yolcu ile konuş" + tür + hedef),
+  ya da **(B)** görevleri haritadan bağımsız, ayrı bir "Görevler" ekranında toplamak. Bir şey demezsen (A)'yı yapacağım.
+
+**Sıradaki adım**
+- Sandıklar (kart + krokide sürükleme) ve görevler; sonra oturaklar, ana menüdeki karakter seçimi ve model çarpışmaları.
+
 ## 2026-11-16 (gece) — Oyununun içeriği artık Atölye'de düzenlenebiliyor
 **Bu gece yapılanlar**
 - Başlangıç ekranına yeni bir düğme geldi: **Oyun içeriğini aç**. Bu, 3D hikâye oyununun (hikaye_oyun)

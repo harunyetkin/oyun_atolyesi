@@ -1,5 +1,5 @@
 // Tarayıcı testinde (?test=1) kullanılan örnek oyun içeriği.
-// Oyunun (hikaye_oyun) icerik/ klasöründen 2026-11-16'da kopyalandı; harita kısaltıldı.
+// Oyunun (hikaye_oyun) icerik/ klasöründen 2026-11-16'da kopyalandı (kişiler, kalabalık, sandık, görev ve sesler 2026-11-17'de yenilendi); harita kısaltıldı.
 export const ORNEK_ICERIK: Record<string, any> = {
  "oyun.json": {
   "surum": 1,
@@ -274,7 +274,26 @@ export const ORNEK_ICERIK: Record<string, any> = {
      "yaricap": 7
     },
     "hiz": 1.23,
-    "diyalog": "diyaloglar/yolcu.json"
+    "diyalog": "diyaloglar/yolcu.json",
+    "selamlar": [
+     "Merhaba!",
+     "Güzel bir gün, değil mi?"
+    ],
+    "selamlasma": "tokalas",
+    "tepkiler": {
+     "carpma": [
+      "Dikkat et!",
+      "Hey, önüne bak!"
+     ],
+     "itilme": [
+      "Ne yapıyorsun?!",
+      "Bana dokunma!"
+     ],
+     "vurulma": [
+      "Ah!",
+      "Delirdin mi?!"
+     ]
+    }
    },
    {
     "id": "bekleyen",
@@ -309,7 +328,26 @@ export const ORNEK_ICERIK: Record<string, any> = {
      "yaricap": 6
     },
     "hiz": 0.95,
-    "diyalog": "diyaloglar/bekleyen.json"
+    "diyalog": "diyaloglar/bekleyen.json",
+    "selamlar": [
+     "Birini bekliyorum.",
+     "Selam."
+    ],
+    "selamlasma": "tokalas",
+    "tepkiler": {
+     "carpma": [
+      "Dikkat et!",
+      "Hey, önüne bak!"
+     ],
+     "itilme": [
+      "Ne yapıyorsun?!",
+      "Bana dokunma!"
+     ],
+     "vurulma": [
+      "Ah!",
+      "Delirdin mi?!"
+     ]
+    }
    },
    {
     "id": "gezgin_1",
@@ -341,7 +379,26 @@ export const ORNEK_ICERIK: Record<string, any> = {
      "yaricap": 9
     },
     "hiz": 1.33,
-    "diyalog": ""
+    "diyalog": "",
+    "selamlar": [
+     "İyi yolculuklar.",
+     "Hava ne güzel."
+    ],
+    "selamlasma": "yok",
+    "tepkiler": {
+     "carpma": [
+      "Dikkat et!",
+      "Hey, önüne bak!"
+     ],
+     "itilme": [
+      "Ne yapıyorsun?!",
+      "Bana dokunma!"
+     ],
+     "vurulma": [
+      "Ah!",
+      "Delirdin mi?!"
+     ]
+    }
    },
    {
     "id": "gezgin_2",
@@ -373,7 +430,27 @@ export const ORNEK_ICERIK: Record<string, any> = {
      "yaricap": 9
     },
     "hiz": 1.14,
-    "diyalog": ""
+    "diyalog": "",
+    "selamlar": [
+     "Biraz dinleniyorum.",
+     "Merhaba."
+    ],
+    "davranis": "otur",
+    "selamlasma": "yok",
+    "tepkiler": {
+     "carpma": [
+      "Dikkat et!",
+      "Hey, önüne bak!"
+     ],
+     "itilme": [
+      "Ne yapıyorsun?!",
+      "Bana dokunma!"
+     ],
+     "vurulma": [
+      "Ah!",
+      "Delirdin mi?!"
+     ]
+    }
    }
   ],
   "esyalar": [
@@ -590,6 +667,82 @@ export const ORNEK_ICERIK: Record<string, any> = {
     "doku": "varliklar/dokular/oak_wood_planks",
     "olcek": 0.8
    }
+  },
+  "kalabalik": {
+   "not": "Otomatik üretilen MetaHuman'lar (BP_Uretilen_...) yolda dolaşır; yoksa kimse eklenmez.",
+   "sayi": 6,
+   "klasor": "/Game/MetaHumans",
+   "onek": "BP_Uretilen",
+   "ad": "Yoldan geçen",
+   "yaricap": 10,
+   "selamlar": [
+    "Merhaba.",
+    "İyi günler.",
+    "Selam!"
+   ],
+   "diyalog": "diyaloglar/yoldan_gecen.json"
+  },
+  "sandiklar": [
+   {
+    "id": "sandik_1",
+    "ad": "Eski sandık",
+    "konum": [
+     5.4,
+     0,
+     -50
+    ],
+    "aci": 90,
+    "icerik": {
+     "ad": "Gümüş pusula",
+     "aciklama": "ÖRNEK eşya: eski, işlemeli bir pusula. Hep aynı yönü gösteriyor.",
+     "puanlar": {},
+     "mesaj": ""
+    }
+   }
+  ],
+  "gorevler": [
+   {
+    "id": "ornek_yolculuk",
+    "ad": "Yolculuk (ÖRNEK)",
+    "aciklama": "Sistemi denemek için örnek görev. Gerçek görevler Harun'dan gelecek.",
+    "adimlar": [
+     {
+      "metin": "Yolcu ile konuş",
+      "tur": "diyalog",
+      "hedef": "yolcu"
+     },
+     {
+      "metin": "Eski defteri bul",
+      "tur": "esya",
+      "hedef": "defter"
+     },
+     {
+      "metin": "Eski sandığı aç",
+      "tur": "sandik",
+      "hedef": "sandik_1"
+     },
+     {
+      "metin": "Bir kapı seç",
+      "tur": "kapi",
+      "hedef": ""
+     },
+     {
+      "metin": "Yolun sonuna ulaş",
+      "tur": "bitis",
+      "hedef": ""
+     }
+    ]
+   }
+  ],
+  "sesler": {
+   "not": "ÖRNEK sesler: adımlar kodla üretildi (varliklar/sesler); kuşlar Unreal Starter Content'ten.",
+   "adim_cim": "/Game/sesler/adim_cim",
+   "adim_yol": "/Game/sesler/adim_yol",
+   "ruzgar": "/Game/sesler/ruzgar",
+   "kuslar": "/Game/StarterContent/Audio/Starter_Birds01",
+   "ruzgar_siddeti": 0.35,
+   "kus_siddeti": 0.45,
+   "darbe": "/Game/sesler/darbe"
   }
  },
  "diyaloglar/yolcu.json": {
@@ -640,6 +793,88 @@ export const ORNEK_ICERIK: Record<string, any> = {
     "secenekler": [
      {
       "metin": "Tamam, sağ ol.",
+      "puanlar": {},
+      "sonraki": ""
+     }
+    ]
+   }
+  }
+ },
+ "diyaloglar/bekleyen.json": {
+  "surum": 1,
+  "id": "bekleyen",
+  "not": "ÖRNEK konuşma: metinler ve puanlar yer tutucudur.",
+  "baslangic": "bas",
+  "dugumler": {
+   "bas": {
+    "metin": "Arkadaşımı bekliyorum ama geç kaldı. Sence beklemeli miyim, yoksa gitmeli miyim?",
+    "secenekler": [
+     {
+      "metin": "Biraz daha bekle, bir sebebi vardır.",
+      "puanlar": {
+       "ornek_a": 1
+      },
+      "sonraki": ""
+     },
+     {
+      "metin": "Ona bir mesaj atıp sor.",
+      "puanlar": {
+       "ornek_b": 1
+      },
+      "sonraki": ""
+     },
+     {
+      "metin": "Git, zamanına değer ver.",
+      "puanlar": {
+       "ornek_c": 1
+      },
+      "sonraki": ""
+     }
+    ]
+   }
+  }
+ },
+ "diyaloglar/yoldan_gecen.json": {
+  "surum": 1,
+  "id": "yoldan_gecen",
+  "not": "ÖRNEK konuşma: yolda dolaşan kişiler için kısa sohbet. Metinler yer tutucudur.",
+  "baslangic": "selam",
+  "dugumler": {
+   "selam": {
+    "metin": "Merhaba. Bir şey mi soracaktın?",
+    "secenekler": [
+     {
+      "metin": "Yolun sonunda ne var?",
+      "puanlar": {},
+      "sonraki": "son"
+     },
+     {
+      "metin": "Sadece selam vermek istedim.",
+      "puanlar": {},
+      "sonraki": "selam_ver"
+     },
+     {
+      "metin": "(Bir şey söylemeden yürü)",
+      "puanlar": {},
+      "sonraki": ""
+     }
+    ]
+   },
+   "son": {
+    "metin": "Bilmiyorum, ben de hiç sonuna kadar gitmedim. Anlatırsın belki.",
+    "secenekler": [
+     {
+      "metin": "Tamam, görüşürüz.",
+      "puanlar": {},
+      "sonraki": ""
+     }
+    ]
+   },
+   "selam_ver": {
+    "metin": "Selam! İyi yolculuklar.",
+    "secenekler": [
+     {
+      "metin": "Sana da.",
       "puanlar": {},
       "sonraki": ""
      }

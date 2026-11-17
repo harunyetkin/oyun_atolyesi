@@ -135,7 +135,9 @@ Durum: ✅ var · 🧩 arayüzü var, işlevi sonra · 🔜 planlı (aşama numa
 | Harita ayarları: Unreal zemin/yol/model açısı, yol, ışık ve gökyüzü, başlangıç/bitiş | ✅ |
 | Eşyalar: ekle/çoğalt/sil, konum, renk, mesaj, puanlar, elde duruşu; sürüklenebilir kroki | ✅ |
 | Uyarılar (kimlik kuralı, tekrar eden kimlik, bilinmeyen ölçek, yanlış Unreal yolu) | ✅ |
-| Kişiler (npc) haritada: dolaşma alanı, hız, konuşma bağlantısı | 🔜4 |
+| Kişiler (npc) haritada: krokide sürüklenip boyutlanan dolaşma alanı, yaya şeridi, davranış, hız, durma mesafesi, konuşma, selamlaşma, sözler, tepkiler, saldırıya tavır, beden | ✅ |
+| Kalabalık (otomatik üretilmiş MetaHuman'lar): sayı, klasör, önek, ad, yarıçap, konuşma, sözler | ✅ |
+| Sandıklar, görevler, sesler, oturaklar, ana menü beden seçimi | 🔜 |
 | Kapı seçimleri, dekor yerleştirme (3D görünümde) | 🔜2, 🔜4 |
 | Konuşma ağacı, karakter oluşturma, ölçek düzenleyicileri | 🔜4 |
 | "Oyunda dene" | 🔜3 |

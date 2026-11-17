@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   anahtarDegistir, benzersizKimlik, dosyaTuru, esyaCogalt, esyaEkle, esyaUyarilari, haritaKisileri, kimlikGecerli, kimlikYap,
-  kisiUyarilari, unrealYoluSorunu, yolOku, yolYaz,
+  kisiUyarilari, npcCogalt, npcEkle, npcSeridi, npcUyarilari, unrealYoluSorunu, yolOku, yolYaz,
 } from "./icerik";
 import { HARITA_GRUPLARI, OYUNCU_GRUPLARI } from "./sema";
 import { ORNEK_ICERIK } from "./ornekIcerik";
@@ -40,6 +40,37 @@ describe("oyun içeriği yardımcıları", () => {
     expect(unrealYoluSorunu("/Game/MetaHumans/A/BP_A")).toBe("");
     expect(unrealYoluSorunu("Game/A")).toMatch(/Game/);
     expect(unrealYoluSorunu("/Game/A/B.uasset")).toMatch(/Uzantı/);
+  });
+
+  it("kişi (npc) ekler, çoğaltır; yaya şeridini Unreal eksenine çevirir", () => {
+    const h: any = structuredClone(ORNEK_ICERIK["haritalar/deneme_yolu.json"]);
+    const n = h.npcler.length;
+    const id = npcEkle(h);
+    expect(id).toBe("kisi");
+    expect(h.npcler.length).toBe(n + 1);
+    expect(h.npcler[n].alan.merkez[0]).toBeGreaterThan(h.yol.genislik / 2);  // yolun dışında
+    expect(npcCogalt(h, "gezgin_1")).toBe("gezgin_3");   // gezgin_2 zaten var
+    expect(npcCogalt(h, "yolcu")).toBe("yolcu_2");
+    expect(h.npcler[1].id).toBe("yolcu_2");
+    expect(h.npcler[1].alan.merkez).toEqual([2, -22]);
+    expect(npcCogalt(h, "yok")).toBeNull();
+    // şerit: alan yoksa merkezden ±20 m; varsa cm (Unreal X = -z*100, Y = x*100)
+    const k: any = { id: "a", alan: { merkez: [3, -40], yaricap: 5 }, davranis: "yol" };
+    expect(npcSeridi(k)).toEqual({ x: 3, zBas: -20, zSon: -60 });
+    k.serit_y = -450; k.serit_x_min = 1000; k.serit_x_max = 5000;
+    expect(npcSeridi(k)).toEqual({ x: -4.5, zBas: -10, zSon: -50 });
+  });
+
+  it("kişi uyarıları: kimlik, hız, diyalog dosyası, seçenekler, şerit, kalabalık", () => {
+    const h: any = structuredClone(ORNEK_ICERIK["haritalar/deneme_yolu.json"]);
+    const diyaloglar = Object.keys(ORNEK_ICERIK).filter(y => y.startsWith("diyaloglar/"));
+    expect(npcUyarilari(h, diyaloglar)).toEqual([]);
+    h.npcler[0].hiz = 5; h.npcler[1].diyalog = "diyaloglar/yok.json"; h.npcler[2].savas_tavri = "saldir";
+    h.npcler[3].id = h.npcler[2].id; h.npcler[3].davranis = "yol"; h.npcler[3].serit_x_min = 10; h.npcler[3].serit_x_max = 5;
+    h.kalabalik.klasor = "MetaHumans";
+    const u = npcUyarilari(h, diyaloglar).map(x => x.metin).join(" | ");
+    expect(u).toMatch(/Hız 0–3/); expect(u).toMatch(/bulunamadı: diyaloglar\/yok.json/); expect(u).toMatch(/saldırı tavrı: saldir/);
+    expect(u).toMatch(/iki kez/); expect(u).toMatch(/şeridinin başı/); expect(u).toMatch(/Game/);
   });
 
   it("eşya ekler, çoğaltır ve uyarıları bulur", () => {

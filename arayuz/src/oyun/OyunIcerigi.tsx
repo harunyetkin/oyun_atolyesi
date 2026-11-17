@@ -1,6 +1,7 @@
 // Oyun içeriği düzenleyicisi: Harun'un 3D oyununun (hikaye_oyun) icerik/*.json dosyalarını
 // kod yazmadan düzenleme ekranı. Şimdilik: karakterler.json (oyuncu ayarları ve kişilerin bedenleri)
-// ve haritalar (Unreal ayarları, yol, ışık, yerdeki eşyalar). Diğer dosyalar salt okunur gösterilir.
+// ve haritalar (kişiler ve kalabalık, yerdeki eşyalar, Unreal ayarları, yol, ışık). Diğer dosyalar salt okunur gösterilir.
+// Giriş kutuları girisler.tsx'te, kroki Kroki.tsx'te, kişiler sayfası Kisiler.tsx'tedir.
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Undo2, Redo2, Save, FolderOpen, Home, Users, Map as HaritaIkon, MessageSquare, FileJson, Settings2, UserRound, Package,
@@ -11,118 +12,15 @@ import { useOyun } from "./durum";
 import { HARITA_GRUPLARI, OYUNCU_GRUPLARI, tanimliYollar, type Alan, type Grup } from "./sema";
 import {
   anahtarDegistir, benzersizKimlik, dosyaTuru, esyaCogalt, esyaEkle, esyaUyarilari, haritaKisileri, kimlikGecerli, kisiUyarilari,
-  unrealYoluSorunu, yolOku, yolYaz, type Esya, type Uyari,
+  yolOku, yolYaz, type Esya, type Uyari,
 } from "./icerik";
 import { Kart, RenkGiris } from "../editor/Ortak";
+import { AlanGirisi, AlanSatiri, KimlikGiris, PuanDuzenleyici, SayiAlani, Uyarilar, VektorAlani, YaziAlani } from "./girisler";
+import { Kroki } from "./Kroki";
+import { KisilerListesi as HaritaKisileri } from "./Kisiler";
 import { MenuCubugu } from "../editor/Cerceve";
 import { komut, kullanilabilir } from "../editor/komutlar";
 
-// ================================================================== giriş kutuları
-const yuvarla = (v: number) => Math.round(v * 1000) / 1000;
-
-/** Sayı kutusu: boş bırakılabilir (oyun kendi varsayılanını kullanır). Virgül de kabul eder. */
-function SayiAlani({ deger, degisti, alan, testId }: { deger: unknown; degisti: (v: number | undefined) => void; alan: Extract<Alan, { tur: "sayi" }>; testId?: string }) {
-  const metinYap = (v: unknown) => (typeof v === "number" ? String(yuvarla(v)) : "");
-  const [metin, setMetin] = useState(metinYap(deger));
-  useEffect(() => setMetin(metinYap(deger)), [deger]);
-  const sinirla = (v: number) => Math.min(alan.max ?? Infinity, Math.max(alan.min ?? -Infinity, v));
-  const uygula = () => {
-    const t = metin.trim().replace(",", ".");
-    if (t === "") { if (deger !== undefined) degisti(undefined); return; }
-    const v = Number(t);
-    if (isNaN(v)) { setMetin(metinYap(deger)); return; }
-    degisti(sinirla(v));
-    setMetin(metinYap(sinirla(v)));
-  };
-  const kaydirici = alan.min !== undefined && alan.max !== undefined && alan.max - alan.min <= 2 && (alan.adim ?? 1) < 1;
-  return (
-    <div className="alan-satir">
-      {kaydirici && typeof deger === "number" && (
-        <input type="range" min={alan.min} max={alan.max} step={alan.adim} value={deger} onChange={e => degisti(Number(e.target.value))} />
-      )}
-      <div className="sayi-giris" style={{ width: kaydirici ? 90 : 140, flex: "none" }}>
-        <input value={metin} placeholder="varsayılan" onChange={e => setMetin(e.target.value)} onBlur={uygula} data-testid={testId}
-          onKeyDown={e => {
-            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-            if ((e.key === "ArrowUp" || e.key === "ArrowDown") && typeof deger === "number") {
-              e.preventDefault();
-              const adim = (alan.adim ?? 1) * (e.shiftKey ? 10 : 1);
-              degisti(sinirla(yuvarla(deger + (e.key === "ArrowUp" ? adim : -adim))));
-            }
-          }} />
-      </div>
-      {alan.birim && <span className="birim">{alan.birim}</span>}
-    </div>
-  );
-}
-
-/** Yazı kutusu: her tuşta değil, kutudan çıkınca (ya da Enter'da) yazar; geri al adımları temiz kalır. */
-function YaziAlani({ deger, degisti, ipucu, cokSatir, uyari, testId }: { deger: unknown; degisti: (v: string) => void; ipucu?: string; cokSatir?: boolean; uyari?: string; testId?: string }) {
-  const [metin, setMetin] = useState(typeof deger === "string" ? deger : "");
-  useEffect(() => setMetin(typeof deger === "string" ? deger : ""), [deger]);
-  const uygula = () => { if (metin !== (deger ?? "")) degisti(metin); };
-  const ortak = {
-    className: "giris" + (uyari ? " uyarili" : ""), value: metin, placeholder: ipucu, "data-testid": testId,
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setMetin(e.target.value), onBlur: uygula,
-  };
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      {cokSatir ? <textarea rows={2} {...ortak} />
-        : <input {...ortak} onKeyDown={e => e.key === "Enter" && (e.target as HTMLInputElement).blur()} />}
-      {uyari && <span className="alan-uyari"><AlertTriangle size={12} /> {uyari}</span>}
-    </div>
-  );
-}
-
-/** Açık/kapalı düğmesi. Oyunda bazı alanlar 1/0, bazıları true/false; var olan türü korur. */
-function Anahtar({ deger, degisti, alan, testId }: { deger: unknown; degisti: (v: unknown) => void; alan: Extract<Alan, { tur: "anahtar" }>; testId?: string }) {
-  const acik = deger === true || (typeof deger === "number" && deger !== 0);
-  const mantik = typeof deger === "boolean" || (deger === undefined && alan.mantik);
-  return (
-    <label className="anahtar-kap">
-      <button className={"anahtar" + (acik ? " acik" : "")} role="switch" aria-checked={acik} data-testid={testId}
-        onClick={() => degisti(mantik ? !acik : acik ? 0 : 1)}><span /></button>
-      <span className="soluk">{acik ? alan.acik || "Açık" : alan.kapali || "Kapalı"}</span>
-    </label>
-  );
-}
-
-function VektorAlani({ deger, degisti, alan }: { deger: unknown; degisti: (v: number[]) => void; alan: Extract<Alan, { tur: "vektor" }> }) {
-  const v = Array.isArray(deger) && deger.length === 3 ? (deger as number[]) : [0, 0, 0];
-  const eksen = alan.eksenler || ["X", "Y", "Z"];
-  return (
-    <div className="vektor">
-      {[0, 1, 2].map(i => (
-        <div key={i} className="sayi-giris" title={eksen[i]}>
-          <span>{eksen[i]}</span>
-          <SayiKutusu deger={v[i]} degisti={n => { const y = [...v]; y[i] = n; degisti(y); }} />
-        </div>
-      ))}
-      {alan.birim && <span className="birim">{alan.birim}</span>}
-    </div>
-  );
-}
-
-/** Çıplak sayı kutusu (vektör ve puan gibi yerlerde). */
-function SayiKutusu({ deger, degisti, testId }: { deger: number; degisti: (v: number) => void; testId?: string }) {
-  const [metin, setMetin] = useState(String(yuvarla(deger)));
-  useEffect(() => setMetin(String(yuvarla(deger))), [deger]);
-  return <input value={metin} onChange={e => setMetin(e.target.value)} data-testid={testId}
-    onBlur={() => { const n = Number(metin.replace(",", ".")); if (!isNaN(n) && metin.trim() !== "") degisti(n); else setMetin(String(yuvarla(deger))); }}
-    onKeyDown={e => e.key === "Enter" && (e.target as HTMLInputElement).blur()} />;
-}
-
-/** Şemadaki bir alanı türüne göre çizer. */
-function AlanGirisi({ alan, deger, degisti, testId }: { alan: Alan; deger: unknown; degisti: (v: any) => void; testId?: string }) {
-  switch (alan.tur) {
-    case "sayi": return <SayiAlani alan={alan} deger={deger} degisti={degisti} testId={testId} />;
-    case "anahtar": return <Anahtar alan={alan} deger={deger} degisti={degisti} testId={testId} />;
-    case "renk": return <RenkGiris deger={typeof deger === "string" && /^#[0-9a-f]{6}$/i.test(deger) ? deger : "#808080"} degisti={degisti} />;
-    case "vektor": return <VektorAlani alan={alan} deger={deger} degisti={degisti} />;
-    case "unreal": return <YaziAlani deger={deger} degisti={degisti} ipucu={alan.ipucu} uyari={unrealYoluSorunu(String(deger ?? ""))} testId={testId} />;
-    case "yazi": return <YaziAlani deger={deger} degisti={degisti} ipucu={alan.ipucu} cokSatir={alan.cokSatir} testId={testId} />;
-  }
-}
 
 /** Bir şema grubunu kart olarak çizer. `onEk` dosya içindeki kök yol (ör. "oyuncu"). */
 function GrupKarti({ grup, dosya, onEk, kok, tanimli }: { grup: Grup; dosya: string; onEk: string; kok: any; tanimli: Set<string> }) {
@@ -154,22 +52,6 @@ function GrupKarti({ grup, dosya, onEk, kok, tanimli }: { grup: Grup; dosya: str
   );
 }
 
-function AlanSatiri({ alan, yeni, children }: { alan: Alan; yeni?: boolean; children: ReactNode }) {
-  return <>
-    <label title={alan.aciklama}>{alan.ad}{yeni && <span className="rozet" style={{ marginLeft: 6 }} title="Bu alanın açıklaması henüz yok">yeni</span>}</label>
-    <div>{children}{alan.aciklama && alan.tur !== "unreal" && <div className="alan-aciklama">{alan.aciklama}</div>}</div>
-  </>;
-}
-
-function Uyarilar({ liste }: { liste: Uyari[] }) {
-  if (!liste.length) return null;
-  return (
-    <div className="uyari-kutusu" data-testid="uyarilar">
-      <b><AlertTriangle size={14} /> Dikkat ({liste.length})</b>
-      {liste.map((u, i) => <div key={i}><span className="soluk">{u.yer}:</span> {u.metin}</div>)}
-    </div>
-  );
-}
 
 function SayfaSekmeleri<T extends string>({ sekmeler, aktif, sec }: { sekmeler: { id: T; ad: string; ikon: ReactNode; sayi?: number }[]; aktif: T; sec: (t: T) => void }) {
   return (
@@ -253,39 +135,24 @@ function KisilerListesi({ dosya, kisiler, npcler, uyarilar }: { dosya: string; k
   </>;
 }
 
-/** Kimlik kutusu: kutudan çıkınca dener; kural dışıysa eski hâline döner ve nedenini gösterir. */
-function KimlikGiris({ deger, dene, liste, testId }: { deger: string; dene: (yeni: string) => string; liste?: string[]; testId?: string }) {
-  const [metin, setMetin] = useState(deger);
-  const [hata, setHata] = useState("");
-  const listeId = useRef("kimlikler-" + Math.random().toString(36).slice(2)).current;
-  useEffect(() => setMetin(deger), [deger]);
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      <input className={"giris" + (hata ? " uyarili" : "")} value={metin} list={liste ? listeId : undefined} data-testid={testId}
-        onChange={e => { setMetin(e.target.value); setHata(""); }}
-        onBlur={() => { if (metin === deger) return; const h = dene(metin.trim()); if (h) { setHata(h); setMetin(deger); } }}
-        onKeyDown={e => e.key === "Enter" && (e.target as HTMLInputElement).blur()} />
-      {liste && <datalist id={listeId}>{liste.map(x => <option key={x} value={x} />)}</datalist>}
-      {hata && <span className="alan-uyari"><AlertTriangle size={12} /> {hata}</span>}
-    </div>
-  );
-}
 
 // ================================================================== haritalar
 function HaritaSayfasi({ dosya }: { dosya: string }) {
   const veri = useOyun(o => o.veri[dosya]);
   const oyun = useOyun(o => o.veri["oyun.json"]);
-  const [sekme, setSekme] = useState<"ayarlar" | "esyalar">("esyalar");
+  const [sekme, setSekme] = useState<"kisiler" | "esyalar" | "ayarlar">("kisiler");
   const olcekler: { id: string; ad: string }[] = oyun?.olcekler || [];
   const tanimli = tanimliYollar(HARITA_GRUPLARI);
   return (
     <>
-      <SayfaSekmeleri aktif={sekme} sec={setSekme} sekmeler={[
+      <SayfaSekmeleri aktif={sekme} sec={t => { setSekme(t); useOyun.getState().sec(null); }} sekmeler={[
+        { id: "kisiler", ad: "Kişiler", ikon: <Users size={14} />, sayi: (veri?.npcler || []).length },
         { id: "esyalar", ad: "Eşyalar", ikon: <Package size={14} />, sayi: (veri?.esyalar || []).length },
         { id: "ayarlar", ad: "Harita ayarları", ikon: <Settings2 size={14} /> }]} />
       <div className="icerik-sayfa">
         {sekme === "ayarlar"
           ? <div className="kartlar">{HARITA_GRUPLARI.map(g => <GrupKarti key={g.baslik} grup={g} dosya={dosya} onEk="" kok={veri} tanimli={tanimli} />)}</div>
+          : sekme === "kisiler" ? <HaritaKisileri dosya={dosya} harita={veri} />
           : <EsyalarListesi dosya={dosya} harita={veri} olcekler={olcekler} />}
       </div>
     </>
@@ -336,6 +203,9 @@ function EsyalarListesi({ dosya, harita, olcekler }: { dosya: string; harita: an
             <RenkGiris deger={e.renk || "#808080"} degisti={v => esyaDegistir(e.id, x => { x.renk = v; }, "renk:" + e.id)} />
             <label>Mesaj</label>
             <YaziAlani deger={e.mesaj} cokSatir ipucu="Alınca ekranda görünen yazı" degisti={v => esyaDegistir(e.id, x => { x.mesaj = v; })} />
+            <label title="Çantada eşyanın altında görünen açıklama">Açıklama</label>
+            <YaziAlani deger={e.aciklama} cokSatir ipucu="Çantada görünen açıklama (isteğe bağlı)" testId={"esya-aciklama-" + e.id}
+              degisti={v => esyaDegistir(e.id, x => { if (v) x.aciklama = v; else delete x.aciklama; })} />
             <label>Puanlar</label>
             <PuanDuzenleyici puanlar={e.puanlar || {}} olcekler={olcekler} testId={"esya-puan-" + e.id}
               degisti={p => esyaDegistir(e.id, x => { x.puanlar = p; }, "puan:" + e.id)} />
@@ -358,88 +228,6 @@ function EsyalarListesi({ dosya, harita, olcekler }: { dosya: string; harita: an
   </>;
 }
 
-/** Puanlar: { olcek_id: sayı }. Her satır bir ölçek. */
-function PuanDuzenleyici({ puanlar, olcekler, degisti, testId }: { puanlar: Record<string, number>; olcekler: { id: string; ad: string }[]; degisti: (p: Record<string, number>) => void; testId?: string }) {
-  const satirlar = Object.entries(puanlar);
-  const bos = olcekler.find(o => !(o.id in puanlar));
-  return (
-    <div className="puanlar" data-testid={testId}>
-      {satirlar.map(([o, v]) => (
-        <div key={o} className="puan-satiri">
-          <select className="giris" value={o} onChange={e => degisti(anahtarDegistir(puanlar, o, e.target.value))}>
-            {!olcekler.some(x => x.id === o) && <option value={o}>{o} (bilinmiyor)</option>}
-            {olcekler.map(x => <option key={x.id} value={x.id} disabled={x.id !== o && x.id in puanlar}>{x.ad}</option>)}
-          </select>
-          <div className="sayi-giris" style={{ width: 70, flex: "none" }}><SayiKutusu deger={v} degisti={n => degisti({ ...puanlar, [o]: n })} /></div>
-          <button className="ikon-dugme" title="Kaldır" onClick={() => { const p = { ...puanlar }; delete p[o]; degisti(p); }}><Trash2 size={13} /></button>
-        </div>
-      ))}
-      {bos ? <button className="dugme hayalet" style={{ alignSelf: "flex-start" }} onClick={() => degisti({ ...puanlar, [bos.id]: 1 })} data-testid={testId && testId + "-ekle"}>
-        <Plus size={13} /> Puan ekle</button>
-        : !satirlar.length && <span className="cok-soluk">Ölçek tanımlı değil (oyun.json)</span>}
-    </div>
-  );
-}
-
-/** Haritanın üstten görünüşü (yaklaşık): yol soldan sağa ilerler. Eşyalar sürüklenebilir. */
-function Kroki({ dosya, harita }: { dosya: string; harita: any }) {
-  const svg = useRef<SVGSVGElement>(null);
-  const secili = useOyun(o => o.secili);
-  const { degistir, sec } = useOyun.getState();
-  const yol = harita?.yol || {};
-  const uzunluk = yol.uzunluk ?? 130, genislik = yol.genislik ?? 7;
-  const basZ = (harita?.baslangic?.konum?.[2] ?? 4) + 2;
-  const sonZ = Math.min(basZ - uzunluk, harita?.bitis?.z ?? -uzunluk);
-  const esyalar: Esya[] = harita?.esyalar || [];
-  const npcler: any[] = harita?.npcler || [];
-  let w = genislik / 2 + 6;
-  for (const n of npcler) if (n.alan?.merkez) w = Math.max(w, Math.abs(n.alan.merkez[0]) + (n.alan.yaricap || 0) + 1);
-  for (const e of esyalar) w = Math.max(w, Math.abs(e.konum?.[0] ?? 0) + 2);
-  w = Math.min(w, 60);
-  // ekran: yatay = -z (ilerleme), dikey = x
-  const vb = `${-basZ - 2} ${-w} ${basZ - sonZ + 4} ${2 * w}`;
-  const surukle = (id: string) => (ev: React.PointerEvent) => {
-    ev.preventDefault(); ev.stopPropagation(); sec(id);
-    const el = svg.current; if (!el) return;
-    const m = el.getScreenCTM(); if (!m) return;
-    const ters = m.inverse();
-    const hareket = (e: PointerEvent) => {
-      const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(ters);
-      const x = Math.round(Math.max(-w, Math.min(w, p.y)) * 10) / 10, z = Math.round(-p.x * 10) / 10;
-      degistir(dosya, d => { const es = d.esyalar.find((q: Esya) => q.id === id); if (es) es.konum = [x, es.konum?.[1] ?? 0, z]; }, "kroki:" + id);
-    };
-    const birak = () => { removeEventListener("pointermove", hareket); removeEventListener("pointerup", birak); };
-    addEventListener("pointermove", hareket); addEventListener("pointerup", birak);
-  };
-  return (
-    <div className="kroki" data-testid="kroki">
-      <svg ref={svg} viewBox={vb} preserveAspectRatio="xMidYMid meet" style={{ aspectRatio: `${basZ - sonZ + 4} / ${2 * w}` }}>
-        <rect x={-basZ} y={-genislik / 2} width={basZ - sonZ} height={genislik} fill={yol.renk || "#8d8478"} opacity={0.55} />
-        {yol.serit !== false && <line x1={-basZ} x2={-sonZ} y1={0} y2={0} stroke="#e9e3d0" strokeWidth={0.15} strokeDasharray="1.5 1.5" opacity={0.6} />}
-        {(harita?.nesneler || []).map((n: any, i: number) => n.konum && <circle key={i} cx={-n.konum[2]} cy={n.konum[0]} r={0.45} fill="#6f7686" opacity={0.7} />)}
-        {npcler.map(n => n.alan?.merkez && <g key={n.id}>
-          <circle cx={-n.alan.merkez[1]} cy={n.alan.merkez[0]} r={n.alan.yaricap || 1} fill="rgba(167,139,250,.08)" stroke="#a78bfa" strokeWidth={0.15} strokeDasharray="0.8 0.6" />
-          <text x={-n.alan.merkez[1]} y={n.alan.merkez[0] + 0.7} className="kroki-yazi mor">{n.ad || n.id}</text>
-        </g>)}
-        {(harita?.kapilar || []).map((k: any) => <g key={k.id}>
-          <line x1={-k.z} x2={-k.z} y1={-genislik / 2 - 1} y2={genislik / 2 + 1} stroke="#e9b949" strokeWidth={0.5} />
-          <text x={-k.z} y={-genislik / 2 - 1.8} className="kroki-yazi sari">{k.id}</text>
-        </g>)}
-        {harita?.baslangic?.konum && <polygon points={`${-harita.baslangic.konum[2] - 1.2},${harita.baslangic.konum[0] - 1.2} ${-harita.baslangic.konum[2] + 1.6},${harita.baslangic.konum[0]} ${-harita.baslangic.konum[2] - 1.2},${harita.baslangic.konum[0] + 1.2}`} fill="#4cc38a" />}
-        {harita?.bitis?.z !== undefined && <line x1={-harita.bitis.z} x2={-harita.bitis.z} y1={-genislik / 2 - 1} y2={genislik / 2 + 1} stroke="#4cc38a" strokeWidth={0.5} />}
-        {esyalar.map(e => e.konum && <g key={e.id} className="kroki-esya" onPointerDown={surukle(e.id)} data-testid={"kroki-" + e.id}>
-          <circle cx={-e.konum[2]} cy={e.konum[0]} r={secili === e.id ? 1.3 : 1} fill={e.renk || "#a0703c"} stroke={secili === e.id ? "#4f9cf7" : "#fff"} strokeWidth={secili === e.id ? 0.4 : 0.2} />
-          <text x={-e.konum[2]} y={e.konum[0] + (e.konum[0] >= 0 ? 2.6 : -1.8)} className="kroki-yazi">{e.ad || e.id}</text>
-        </g>)}
-      </svg>
-      <div className="kroki-lejant">
-        <span><i style={{ background: "#4cc38a" }} /> başlangıç / bitiş</span><span><i style={{ background: "#e9b949" }} /> kapılar</span>
-        <span><i style={{ background: "#a78bfa" }} /> kişilerin dolaşma alanı</span><span><i style={{ background: "#6f7686" }} /> dekor</span>
-        <span className="cok-soluk" style={{ marginLeft: "auto" }}>üstten görünüş, yaklaşık · yol soldan sağa</span>
-      </div>
-    </div>
-  );
-}
 
 // ================================================================== diğer dosyalar
 function HamGorunum({ dosya }: { dosya: string }) {
