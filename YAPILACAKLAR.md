@@ -5,6 +5,7 @@ Her madde yaklaşık bir günlük çalışmadır. Sıra önemlidir; üstten baş
 > Not (2026-11-15): Oyun Unreal Engine 5.8'e geçti (`hikaye_oyun/unreal`). İçerik biçimi aynı (`icerik/*.json`, BICIM.md); araç yine bu dosyaları düzenler. Godot'ya özel alanları (ör. `tur: mh` görünüm parçaları) yeni iş olarak ekleme; MetaHuman görünüm alanları BICIM.md'ye eklenince araca taşı.
 
 ## Sırada
+- [ ] Oyunun yeni içerik türleri (BICIM.md 2026-11-17): haritada `sandiklar`, `gorevler` (adımlar: metin/tur/hedef), `sesler`; nesnede `oturak`; kişide `selamlar`, `davranis`; ortamda `gunes_hareketi`; eşyada `aciklama`; karakterler.json `secilebilir_govdeler`. Atölye'ye eklenecek.
 - [ ] Oyun içeriği ekranında **kişiler (npc)**: krokide dolaşma alanını (daire) sürükleme/boyutlandırma, hız, bağlı konuşma,
       görünüm (Godot `gorunum` alanları) — form + kroki (3D görünümden önce yapılabilir)
 - [ ] Oyun içeriği ekranında **kapı seçimleri**: soru, kapılar (etiket, renk, puan, ödül, mesaj); krokide kapı çizgisini sürükleme
