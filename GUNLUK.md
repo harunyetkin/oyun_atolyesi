@@ -2,6 +2,8 @@
 
 En yeni girdi en üsttedir.
 
+> **2026-11-19 (gece) — Yankı gecesi:** mobil yarasa oyunu Yankı'nın telefonda oynanabilen ilk sürümü kuruldu (ayrıntı ve telefonda deneme adımları: [yanki/GUNLUK.md](yanki/GUNLUK.md)).
+
 ## 2026-11-17 (gece) — Haritadaki kişiler artık Atölye'de düzenleniyor
 **Bu gece yapılanlar**
 - Bir haritayı açınca artık ilk **Kişiler** sekmesi geliyor. Oyunun son günlerde kişilere eklediği her şey burada:
