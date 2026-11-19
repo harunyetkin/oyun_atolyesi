@@ -19,6 +19,8 @@ Yankı gecesinde `yanki/` dışına dokunma (kök `GUNLUK.md`'ye tek satırlık 
 - `oyun/` — **derlenmiş oyun; commit edilir** (Harun'un bilgisayarında Node gerekmez, GitHub Pages bu klasörü sunar).
   Elle düzenleme; `cd yanki/kaynak && npm ci && npm run build` ile üretilir.
 - `araclar/oyun_testi.py` — telefon öykünmeli otomatik oynanış testi.
+- `Yanki.html` — **tek dosyalık paket** (bilgisayarda çift tıklayınca tarayıcıda açılır; Harun'un isteği 2026-11-19).
+  Her derlemeden sonra `python3 yanki/araclar/tek_dosya.py` ile yenile ve commit'le.
 - `PLAN.md`, `YAPILACAKLAR.md`, `GUNLUK.md` (en yeni üstte), `GERI_BILDIRIM.md`, `KREDILER.md`, `gunluk/YYYY-AA-GG/` (ekran görüntüleri).
 
 ## Mobil kurallar
@@ -39,7 +41,7 @@ Sırayla oku: `GERI_BILDIRIM.md` (önce bu!), `PLAN.md`, `YAPILACAKLAR.md`, `GUN
 2. **İş seçimi:** "Sırada"nın başından bir gecede bitip test edilebilecek kadar (1–3). Yarım iş bırakma.
 3. **Uygula:** Temiz, Türkçe yorumlu kod. Oyun her commit'te telefonda açılıp oynanabilir olmalı.
 4. **Test et:**
-   - `cd yanki/kaynak && npm run build` hatasız; `npm test` (oyun mantığı birim testleri; yeni oynanışa test ekle)
+   - `cd yanki/kaynak && npm run build` hatasız, ardından `python3 yanki/araclar/tek_dosya.py`; `npm test` (oyun mantığı birim testleri; yeni oynanışa test ekle)
    - `python3 yanki/araclar/oyun_testi.py /tmp/yanki_test` (Pixel 7 ve iPhone 14 öykünmesi: açılış, dokunma, büyük yankı,
      çarpma, yeniden başlama, 7 sn otomatik uçuş, ses düğmesi, konsol hatası, çevrimdışı açılış). Yeni özellik ekleyince kontrol ekle.
    - Ekran görüntülerini **Read ile açıp gözünle kontrol et**; en iyi 1–3'ünü küçültüp `gunluk/YYYY-AA-GG/` altına koy.

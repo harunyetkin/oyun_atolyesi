@@ -16,6 +16,9 @@ En yeni girdi en üsttedir.
 - Testler: 10 birim testi (mağara hiç kapanmıyor, otomatik pilot 40 saniye uçabiliyor vb.) + Pixel 7 ve iPhone 14 öykünmesiyle
   31 otomatik oynanış kontrolü (dokunma, büyük yankı, çarpma, yeniden başlama, ses düğmesi, internetsiz açılış); hepsi geçiyor.
 
+**Bilgisayarda nasıl oynanır** (eklendi, 19.11): GitHub Desktop'ta **Fetch origin → Pull origin**, sonra `oyun_atolyesi\yanki`
+klasöründeki **Yanki.html** dosyasına çift tıkla. Tarayıcıda açılır; **Boşluk** (ya da fare tıkı) = kanat çırp, basılı tut = büyük yankı.
+
 **Telefonda nasıl denenir** (bir kerelik kurulum, 1 dakika)
 1. Bilgisayardan GitHub'da `oyun_atolyesi` deposunu aç → üstte **Settings** → soldan **Pages**.
 2. "Build and deployment" altında **Source: Deploy from a branch**, **Branch: main**, klasör **/ (root)** seç → **Save**.
