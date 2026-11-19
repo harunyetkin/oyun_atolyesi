@@ -45,7 +45,7 @@ export function BaslangicEkrani() {
         <button className="dugme" onClick={() => useDurum.getState().depo?.klasoru_ac()}><FolderOpen size={15} /> Proje klasörünü aç</button>
         <button className="dugme hayalet" onClick={() => set("pencere", "kisayollar")}><Keyboard size={15} /> Klavye kısayolları</button>
         <span style={{ flex: 1 }} />
-        <div className="cok-soluk" style={{ fontSize: 12 }}>Sürüm 0.5 · oyun içeriği: kişiler ve kalabalık</div>
+        <div className="cok-soluk" style={{ fontSize: 12 }}>Sürüm 0.6 · oyun içeriği: sandıklar ve görevler</div>
       </aside>
       <main>
         <h2>Projelerin</h2>

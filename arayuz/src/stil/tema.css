@@ -226,7 +226,7 @@ textarea.giris { resize: vertical; min-height: 34px; line-height: 1.4; }
 .kroki svg { width: 100%; max-height: 380px; min-height: 160px; display: block; background: #1b2a1d; border-radius: 6px; }
 .kroki-esya { cursor: grab; } .kroki-esya:active { cursor: grabbing; }
 .kroki-yazi { font-size: 1.7px; fill: #e4e7ee; text-anchor: middle; pointer-events: none; paint-order: stroke; stroke: rgba(0,0,0,.6); stroke-width: .35px; }
-.kroki-yazi.mor { fill: #c9b8ff; } .kroki-yazi.sari { fill: #e9b949; }
+.kroki-yazi.mor { fill: #c9b8ff; } .kroki-yazi.sari { fill: #e9b949; } .kroki-yazi.yesil { fill: #4cc38a; }
 .kroki-lejant { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--yazi2); padding: 8px 4px 0; }
 .kroki-lejant i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
 .kroki-kisi > circle[data-testid^="kroki-alan"] { cursor: move; }
@@ -237,3 +237,6 @@ textarea.giris { resize: vertical; min-height: 34px; line-height: 1.4; }
 .kart-alt-baslik { grid-column: 1 / -1; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--yazi3); border-top: 1px solid var(--cizgi); padding-top: 9px; margin-top: 3px; }
 .ham-json { background: var(--z1); border: 1px solid var(--cizgi); border-radius: 8px; padding: 12px 14px; font-family: "Cascadia Mono", Consolas, monospace;
   font-size: 12px; line-height: 1.5; color: var(--yazi2); white-space: pre-wrap; overflow: auto; }
+.gorev-adimlari { display: flex; flex-direction: column; gap: 6px; }
+.gorev-adimi { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.gorev-adimi .adim-no { width: 20px; height: 20px; border-radius: 10px; background: var(--z3); color: var(--yazi2); font-size: 11px; display: grid; place-items: center; flex: none; }

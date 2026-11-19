@@ -137,7 +137,10 @@ Durum: ✅ var · 🧩 arayüzü var, işlevi sonra · 🔜 planlı (aşama numa
 | Uyarılar (kimlik kuralı, tekrar eden kimlik, bilinmeyen ölçek, yanlış Unreal yolu) | ✅ |
 | Kişiler (npc) haritada: krokide sürüklenip boyutlanan dolaşma alanı, yaya şeridi, davranış, hız, durma mesafesi, konuşma, selamlaşma, sözler, tepkiler, saldırıya tavır, beden | ✅ |
 | Kalabalık (otomatik üretilmiş MetaHuman'lar): sayı, klasör, önek, ad, yarıçap, konuşma, sözler | ✅ |
-| Sandıklar, görevler, sesler, oturaklar, ana menü beden seçimi | 🔜 |
+| Sandıklar: ekle/çoğalt/sil, krokide sürükleme, içindeki eşya ve puanlar, Unreal model/kapak ayarları | ✅ |
+| Görevler: adımlar (yazı, tür, haritadan hedef), sıralama, uyarılar; kimlik değişince hedefler izler | ✅ |
+| Sesler, güneş hareketi, eşya açıklaması | ✅ |
+| Oturaklar, ana menü beden seçimi, model çarpışmaları, kişi programı, iç mekânlar/geçişler, arayüz.json | 🔜 |
 | Kapı seçimleri, dekor yerleştirme (3D görünümde) | 🔜2, 🔜4 |
 | Konuşma ağacı, karakter oluşturma, ölçek düzenleyicileri | 🔜4 |
 | "Oyunda dene" | 🔜3 |

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   anahtarDegistir, benzersizKimlik, dosyaTuru, esyaCogalt, esyaEkle, esyaUyarilari, haritaKisileri, kimlikGecerli, kimlikYap,
+  gorevEkle, gorevHedefiniYenile, gorevHedefleri, gorevUyarilari, sandikCogalt, sandikEkle, sandikUyarilari,
   kisiUyarilari, npcCogalt, npcEkle, npcSeridi, npcUyarilari, unrealYoluSorunu, yolOku, yolYaz,
 } from "./icerik";
 import { HARITA_GRUPLARI, OYUNCU_GRUPLARI } from "./sema";
@@ -71,6 +72,40 @@ describe("oyun içeriği yardımcıları", () => {
     const u = npcUyarilari(h, diyaloglar).map(x => x.metin).join(" | ");
     expect(u).toMatch(/Hız 0–3/); expect(u).toMatch(/bulunamadı: diyaloglar\/yok.json/); expect(u).toMatch(/saldırı tavrı: saldir/);
     expect(u).toMatch(/iki kez/); expect(u).toMatch(/şeridinin başı/); expect(u).toMatch(/Game/);
+  });
+
+  it("sandık ekler, çoğaltır; uyarıları bulur", () => {
+    const h: any = structuredClone(ORNEK_ICERIK["haritalar/deneme_yolu.json"]);
+    expect(sandikUyarilari(h, ["ornek_a", "ornek_b", "ornek_c"])).toEqual([]);
+    const id = sandikEkle(h);
+    expect(id).toBe("sandik");
+    const yeni = h.sandiklar.find((s: any) => s.id === "sandik");
+    expect(yeni.konum[0]).toBeLessThan(-h.yol.genislik / 2);   // yolun kenarında
+    expect(yeni.icerik.puanlar).toEqual({});
+    expect(sandikCogalt(h, "sandik_1")).toBe("sandik_1_2");
+    expect(sandikCogalt(h, "yok")).toBeNull();
+    h.sandiklar[0].icerik.puanlar = { bilinmeyen: 1 }; h.sandiklar[1].kapak_ekseni = "yaw"; h.sandiklar[2].id = "Sandik";
+    const u = sandikUyarilari(h, ["ornek_a"]).map(x => x.metin).join(" | ");
+    expect(u).toMatch(/Bilinmeyen ölçek: bilinmeyen/); expect(u).toMatch(/roll/); expect(u).toMatch(/küçük harf/);
+    expect(u).toMatch(/adı boş/);   // yeni sandığın içi boş
+  });
+
+  it("görev hedefleri haritadan gelir; uyarılar ve kimlik değişince hedef güncellenir", () => {
+    const h: any = structuredClone(ORNEK_ICERIK["haritalar/deneme_yolu.json"]);
+    expect(gorevHedefleri(h, "diyalog").map(x => x[0])).toEqual(h.npcler.map((n: any) => n.id));
+    expect(gorevHedefleri(h, "sandik")[0]).toEqual(["sandik_1", "Eski sandık (sandik_1)"]);
+    expect(gorevHedefleri(h, "bitis")).toEqual([]);
+    expect(gorevUyarilari(h)).toEqual([]);
+    gorevHedefiniYenile(h, "sandik", "sandik_1", "kutu");
+    expect(h.gorevler[0].adimlar[2].hedef).toBe("kutu");
+    expect(h.gorevler[0].adimlar[0].hedef).toBe("yolcu");   // başka türe dokunmaz
+    const u = gorevUyarilari(h).map(x => x.yer + ": " + x.metin).join(" | ");
+    expect(u).toMatch(/adım 3: Haritada "kutu" bulunamadı/);
+    const id = gorevEkle(h);
+    expect(id).toBe("gorev");
+    h.gorevler[1].adimlar = [{ metin: "", tur: "bitis", hedef: "x" }, { metin: "a", tur: "uc", hedef: "" }];
+    const u2 = gorevUyarilari(h).map(x => x.metin).join(" | ");
+    expect(u2).toMatch(/Yazısı boş/); expect(u2).toMatch(/hedefi olmaz/); expect(u2).toMatch(/Bilinmeyen tür: uc/);
   });
 
   it("eşya ekler, çoğaltır ve uyarıları bulur", () => {

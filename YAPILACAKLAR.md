@@ -5,10 +5,14 @@ Her madde yaklaşık bir günlük çalışmadır. Sıra önemlidir; üstten baş
 > Not (2026-11-15): Oyun Unreal Engine 5.8'e geçti (`hikaye_oyun/unreal`). İçerik biçimi aynı (`icerik/*.json`, BICIM.md); araç yine bu dosyaları düzenler. Godot'ya özel alanları (ör. `tur: mh` görünüm parçaları) yeni iş olarak ekleme; MetaHuman görünüm alanları BICIM.md'ye eklenince araca taşı.
 
 ## Sırada
-- [ ] Oyunun yeni içerik türleri (BICIM.md 2026-11-17/18), kalanlar: haritada **`sandiklar`** (kart + krokide sürükleme; içerik: ad, açıklama,
-      puanlar, mesaj; isteğe bağlı model/kapak ayarları) ve **`gorevler`** (adımlar: metin / tür / hedef — hedef listesi haritadaki kişi, eşya,
-      sandık, kapılardan). Atölye'ye eklenecek.
-- [ ] Oyunun yeni alanları, kalanlar: dekor nesnesinde **`oturak`** (yön, derinlik), karakterler.json **`secilebilir_govdeler`** (ana menüdeki
+- [ ] Oyunun yeni alanları (BICIM.md 2026-11-18/19), haritada: kişide **`program`** (günlük program) ve **`nitelikler`**;
+      ortamda `zaman` (gün-gece, saat), `pozlama`, `yerel_isik_golgesi`; **`ic_mekanlar`** ve **`gecisler`**; `zeminler`,
+      `serpme_yok`, `gorunmez_duvarlar`; nesnede `zemine_oturt`, `"carpisma": "yok"`, `grup`. Önce BICIM.md'deki tanımlarını oku,
+      sonra kişi kartına program/nitelikler, Harita ayarlarına ortam alanları; iç mekân/geçiş/zemin listeleri için kart + kroki.
+- [ ] Yeni dosyalar: **`arayuz.json`** (renkler, yazı tipleri, logo, menü müziği, yapımcılar, `menu_sahnesi`) düzenleyicisi;
+      karakterler.json'daki yeni oyuncu alanları (`nitelikler`, `oturma.*`, `dovus.tekme_*`, `kamera.omuz_kaydirma` vb.) için şema
+      açıklamaları (şimdilik "yeni" rozetiyle görünüyorlar) ve kökte `kisi_nitelikler`; `tasarim/` klasörü (malzemeler.json, karakterler.json) okunur liste.
+- [ ] Oyunun yeni alanları, kalanlar: dekor nesnesinde **`oturak`** (yön, derinlik, `tasinir`), karakterler.json **`secilebilir_govdeler`** (ana menüdeki
       karakter seçimi: ad, beden, puanlar), yeni dosya **`modeller.json`** (model çarpışma silindirleri; okunur liste + düzenleme).
 - [ ] Diyalog seçeneğinde `esya_ver` — konuşma ağacı düzenleyicisiyle birlikte (Aşama 4).
 - [ ] Oyun içeriği ekranında **kapı seçimleri**: soru, kapılar (etiket, renk, puan, ödül, mesaj); krokide kapı çizgisini sürükleme
@@ -57,6 +61,12 @@ Oyun 2026-11-15'te bu içerik türleriyle oynanabilir oldu; araçta her biri iç
 - [ ] Kabul testi: Kanat Çırp'ı araçta sıfırdan kur, `ornekler/kanat_cirp.json` olarak kaydet, otomatik testle oynat
 
 ## Tamamlandı
+- [x] 2026-11-20 (gece) — **Sandıklar ve görevler (v0.6):** Harita → **Sandıklar** (`SandiklarGorevler.tsx`): kart (kimlik, ad, konum,
+      açı, içindeki eşya: ad/açıklama/mesaj/puanlar; Unreal: `model_govde`, `model_kapak`, `unreal_on_duzeltme`, `kapak_mentesesi`,
+      `kapak_ekseni`, `kapak_acisi`), krokide sürükleme (`mod="sandik"`), ekle/çoğalt/sil. Harita → **Görevler**: ad, açıklama, adımlar
+      (metin, tür, haritadan hedef listesi `gorevHedefleri`, "herhangi biri"), yukarı/aşağı/sil/ekle; `gorevUyarilari`, `sandikUyarilari`.
+      Kişi, eşya ve sandık kimliği değişince görev hedefleri izler (`gorevHedefiniYenile`). Kroki sınırları içerikten hesaplanıyor; uzak
+      bitiş okla. Yeni ana harita `koy_meydani.json` ile duman testi. 4 birim testi + 13 arayüz kontrolü.
 - [x] 2026-11-17 (gece) — **Haritadaki kişiler (v0.5):** Harita → **Kişiler** sekmesi (`src/oyun/Kisiler.tsx`): krokide dolaşma
       alanını taşıma (tutulan yerden) ve kenar tutamacıyla yarıçap, "yolda yürür" kişilerin yaya şeridi (uçları çekilir; Unreal cm alanları
       `serit_y`, `serit_x_min/max`); kart: kimlik (görev adımı ve karakterler.json `kisiler` kaydı da yeniden adlanır), ad, `davranis`

@@ -1,23 +1,24 @@
 // Oyun içeriği düzenleyicisi: Harun'un 3D oyununun (hikaye_oyun) icerik/*.json dosyalarını
 // kod yazmadan düzenleme ekranı. Şimdilik: karakterler.json (oyuncu ayarları ve kişilerin bedenleri)
-// ve haritalar (kişiler ve kalabalık, yerdeki eşyalar, Unreal ayarları, yol, ışık). Diğer dosyalar salt okunur gösterilir.
+// ve haritalar (kişiler ve kalabalık, yerdeki eşyalar, sandıklar, görevler, Unreal ayarları, yol, ışık). Diğer dosyalar salt okunur gösterilir.
 // Giriş kutuları girisler.tsx'te, kroki Kroki.tsx'te, kişiler sayfası Kisiler.tsx'tedir.
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Undo2, Redo2, Save, FolderOpen, Home, Users, Map as HaritaIkon, MessageSquare, FileJson, Settings2, UserRound, Package,
-  Plus, Trash2, Copy, AlertTriangle, RotateCcw, Hand,
+  Plus, Trash2, Copy, Box, Flag, AlertTriangle, RotateCcw, Hand,
 } from "lucide-react";
 import { useDurum } from "../depo/durum";
 import { useOyun } from "./durum";
 import { HARITA_GRUPLARI, OYUNCU_GRUPLARI, tanimliYollar, type Alan, type Grup } from "./sema";
 import {
   anahtarDegistir, benzersizKimlik, dosyaTuru, esyaCogalt, esyaEkle, esyaUyarilari, haritaKisileri, kimlikGecerli, kisiUyarilari,
-  yolOku, yolYaz, type Esya, type Uyari,
+  gorevHedefiniYenile, yolOku, yolYaz, type Esya, type Uyari,
 } from "./icerik";
 import { Kart, RenkGiris } from "../editor/Ortak";
 import { AlanGirisi, AlanSatiri, KimlikGiris, PuanDuzenleyici, SayiAlani, Uyarilar, VektorAlani, YaziAlani } from "./girisler";
 import { Kroki } from "./Kroki";
 import { KisilerListesi as HaritaKisileri } from "./Kisiler";
+import { GorevlerListesi, SandiklarListesi } from "./SandiklarGorevler";
 import { MenuCubugu } from "../editor/Cerceve";
 import { komut, kullanilabilir } from "../editor/komutlar";
 
@@ -140,7 +141,7 @@ function KisilerListesi({ dosya, kisiler, npcler, uyarilar }: { dosya: string; k
 function HaritaSayfasi({ dosya }: { dosya: string }) {
   const veri = useOyun(o => o.veri[dosya]);
   const oyun = useOyun(o => o.veri["oyun.json"]);
-  const [sekme, setSekme] = useState<"kisiler" | "esyalar" | "ayarlar">("kisiler");
+  const [sekme, setSekme] = useState<"kisiler" | "esyalar" | "sandiklar" | "gorevler" | "ayarlar">("kisiler");
   const olcekler: { id: string; ad: string }[] = oyun?.olcekler || [];
   const tanimli = tanimliYollar(HARITA_GRUPLARI);
   return (
@@ -148,11 +149,15 @@ function HaritaSayfasi({ dosya }: { dosya: string }) {
       <SayfaSekmeleri aktif={sekme} sec={t => { setSekme(t); useOyun.getState().sec(null); }} sekmeler={[
         { id: "kisiler", ad: "Kişiler", ikon: <Users size={14} />, sayi: (veri?.npcler || []).length },
         { id: "esyalar", ad: "Eşyalar", ikon: <Package size={14} />, sayi: (veri?.esyalar || []).length },
+        { id: "sandiklar", ad: "Sandıklar", ikon: <Box size={14} />, sayi: (veri?.sandiklar || []).length },
+        { id: "gorevler", ad: "Görevler", ikon: <Flag size={14} />, sayi: (veri?.gorevler || []).length },
         { id: "ayarlar", ad: "Harita ayarları", ikon: <Settings2 size={14} /> }]} />
       <div className="icerik-sayfa">
         {sekme === "ayarlar"
           ? <div className="kartlar">{HARITA_GRUPLARI.map(g => <GrupKarti key={g.baslik} grup={g} dosya={dosya} onEk="" kok={veri} tanimli={tanimli} />)}</div>
           : sekme === "kisiler" ? <HaritaKisileri dosya={dosya} harita={veri} />
+          : sekme === "sandiklar" ? <SandiklarListesi dosya={dosya} harita={veri} olcekler={olcekler} />
+          : sekme === "gorevler" ? <GorevlerListesi dosya={dosya} harita={veri} />
           : <EsyalarListesi dosya={dosya} harita={veri} olcekler={olcekler} />}
       </div>
     </>
@@ -190,7 +195,11 @@ function EsyalarListesi({ dosya, harita, olcekler }: { dosya: string; harita: an
             <KimlikGiris deger={e.id} testId={"esya-kimlik-" + e.id} dene={yeni => {
               if (!kimlikGecerli(yeni)) return "Yalnız küçük harf, rakam ve _";
               if (yeni !== e.id && esyalar.some(x => x.id === yeni)) return "Bu kimlik zaten var";
-              esyaDegistir(e.id, x => { x.id = yeni; }); if (secili === e.id) sec(yeni);
+              degistir(dosya, d => {
+                const x = (d.esyalar || []).find((q: Esya) => q.id === e.id); if (x) x.id = yeni;
+                gorevHedefiniYenile(d, "esya", e.id, yeni);   // görev adımları da yeni kimliği izler
+              });
+              if (secili === e.id) sec(yeni);
               return "";
             }} />
             <label>Ad</label>

@@ -4,6 +4,45 @@ En yeni girdi en üsttedir.
 
 > **2026-11-19 (gece) — Yankı gecesi:** mobil yarasa oyunu Yankı'nın telefonda oynanabilen ilk sürümü kuruldu (ayrıntı ve telefonda deneme adımları: [yanki/GUNLUK.md](yanki/GUNLUK.md)).
 
+## 2026-11-20 (gece) — Sandıklar ve görevler artık Atölye'de
+**Bu gece yapılanlar**
+- Haritanın üstünde iki yeni sekme var: **Sandıklar** ve **Görevler**.
+- **Sandıklar:** Krokide sandıklar turuncu kutular; **sürükleyerek yerlerini değiştirebiliyorsun**. Her sandığın kartında adı, yeri, açısı ve
+  **içindeki eşya** var: eşyanın adı, çantada görünen açıklaması, açınca ekranda çıkan mesaj ve **puanları**. İstersen Unreal'deki
+  görünüşünü de (gövde/kapak modeli, kapağın nereden ve ne kadar açılacağı) ayarlayabiliyorsun; boş bırakırsan oyunun hazır sandığı kullanılır.
+- **Görevler:** Her görevin adı, açıklaması ve **adımları** var. Bir adım şöyle yazılıyor: *"Kuyu bilgesiyle konuş"* + tür (**Biriyle konuş /
+  Eşya al / Sandık aç / Kapı seç / Yolun sonuna var**) + hedef. Hedef listesi haritadan geliyor: kişiler, eşyalar, sandıklar, kapılar;
+  "herhangi biri" de seçilebiliyor. Adımların sırasını ↑ ↓ ile değiştirebiliyorsun.
+- Bir kişinin, eşyanın ya da sandığın kimliğini değiştirirsen görev adımları da **kendiliğinden** yeni kimliğe geçiyor.
+- Yazısı boş adım ya da haritada artık olmayan bir hedef (ör. silinmiş sandık) sarı **Dikkat** kutusunda görünüyor.
+- Oyunun yeni ana haritası **Köy meydanı** ile denedim. Bitiş çizgisi 500 m ileride olduğu için kroki çok ince bir şeride dönüşüyordu;
+  artık kroki haritadaki şeylere göre boyutlanıyor ve uzak bitiş "bitiş … m ileride →" diye gösteriliyor.
+- Testler: 39 birim testi + Chrome'da 105 otomatik kontrol (13'ü bu gece eklendi) ve dosya işleri testi; hepsi geçiyor.
+
+**Nasıl denenir**
+1. GitHub Desktop: **Fetch origin → Pull origin** (`oyun_atolyesi` ve `hikaye_oyun`), sonra `exe_yap.bat`, sonra `OyunAtolyesi.exe`.
+2. **Oyun içeriğini aç → Köy meydanı → Sandıklar → + Sandık ekle.** Krokide sandığı Köy bilgesinin yanına sürükle, içindeki eşyaya
+   bir ad ver (ör. "Eski anahtar"), **Kaydet**. Unreal'de oyunu başlat: sandık o yerde olmalı, açınca eşya çantaya girmeli.
+3. **Görevler → + Görev ekle.** Birinci adım: "Köy bilgesiyle konuş" / Biriyle konuş / Köy bilgesi. **+ Adım ekle**: "Sandığı aç" / Sandık aç /
+   yeni sandık. **Kaydet**. Oyunda görev listesinde bu iki adım görünmeli ve yaptıkça işaretlenmeli.
+
+**Ekran görüntüleri**
+![Sandıklar](gunluk/2026-11-20/sandiklar.png)
+![Görevler](gunluk/2026-11-20/gorevler.png)
+![Köy meydanının krokisi](gunluk/2026-11-20/koy_meydani_kroki.png)
+
+**Küçük kararlar (ben seçtim, istersen değiştiririz)**
+- Görevleri (A) seçeneğindeki gibi her haritanın içinde, basit adım listesi olarak yaptım (sorduğum soruya cevap gelmediği için).
+- Yeni sandık yolun sol kenarına konuyor (eşyalar sağ kenara konuyordu); karışmasınlar diye.
+
+**Senin kararın gereken konular**
+- Oyuna son günlerde çok şey eklendi (kişilerin günlük programı, gün-gece saati, iç mekânlar ve geçişler, menü görünüşü `arayuz.json`…).
+  Sırayı ben şöyle koydum: **(1)** kişi programı + gün-gece ve ortam ayarları, **(2)** iç mekânlar/geçişler, **(3)** menü görünüşü.
+  Önce görmek istediğin başka bir şey varsa bu sohbete yazman yeterli.
+
+**Sıradaki adım**
+- Atölye'nin sıradaki gecesinde: kişilerin günlük programı ve gün-gece/ortam ayarları.
+
 ## 2026-11-17 (gece) — Haritadaki kişiler artık Atölye'de düzenleniyor
 **Bu gece yapılanlar**
 - Bir haritayı açınca artık ilk **Kişiler** sekmesi geliyor. Oyunun son günlerde kişilere eklediği her şey burada:

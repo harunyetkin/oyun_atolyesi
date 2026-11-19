@@ -4,7 +4,7 @@ Bu kılavuz, Oyun Atölyesi'ndeki **her ekranı, her düğmeyi ve her menüyü**
 **hangi adımlarla geliştirildiğini** anlatır. Claude her çalışmada kılavuzu günceller.
 Yeni bir düğme eklenince, değişince ya da bir özellik "yakında" olmaktan çıkınca burası da değişir.
 
-> Son güncelleme: 2026-11-17 (gece) · Araç sürümü: 0.5 (Oyun içeriği: karakterler, haritadaki kişiler ve kalabalık, eşyalar, harita ayarları)
+> Son güncelleme: 2026-11-20 (gece) · Araç sürümü: 0.6 (Oyun içeriği: karakterler, haritadaki kişiler ve kalabalık, eşyalar, sandıklar, görevler, harita ayarları)
 
 **İçindekiler**
 1. [Temel kavramlar](#1-temel-kavramlar)
@@ -412,6 +412,27 @@ haritada olmayan bir kimlik yazarsan üstteki **Dikkat** kutusu uyarır.
   **Elde duruşu** (isteğe bağlı: eşyanın sağ eldeki konumu/açısı; **Varsayılana dön** ile kaldırılır).
 - Kartın sağ üstünde **Çoğalt** ve **Sil**; en altta **+ Eşya ekle** (yolun kenarına yeni bir eşya koyar).
 
+**Harita → Sandıklar sekmesi.** Açılabilir sandıklar (oyunda “[F] Aç”; açılınca içindeki eşya çantaya girer).
+- Kroki bu sekmede sandıkları (turuncu dikdörtgen) öne çıkarır: **bir sandığı sürükleyerek** yerini değiştirirsin, tıklayınca kartı seçilir.
+- Kart: kimlik, ad, konum, açı; **İçindeki eşya** (adı, çantadaki açıklaması, açınca çıkan mesaj, **puanlar**);
+  **Unreal'de görünüş** (isteğe bağlı: gövde ve kapak modeli, ön yön düzeltmesi, kapak menteşesi, kapak ekseni yana/öne-arkaya, kapağın açılma açısı;
+  boş bırakılırsa oyunun hazır sandığı kullanılır).
+- Sandığın kimliğini değiştirirsen o sandığı hedef alan görev adımları da yeni kimliğe geçer. Çoğalt, Sil ve **+ Sandık ekle** düğmeleri var.
+
+**Harita → Görevler sekmesi.** Görevler ve adımları.
+
+![Oyun içeriği: görevler](kilavuz/oyun_gorevler.png)
+
+- Her görevin kimliği, adı ve açıklaması var. **Adımlar** satır satır: oyuncunun gördüğü yazı, **tür** ve **hedef**.
+  Türler: *Biriyle konuş*, *Eşya al*, *Sandık aç*, *Kapı seç*, *Yolun sonuna var*. Hedef listesi haritadan gelir (o haritadaki kişiler, eşyalar,
+  sandıklar, kapılar); **(herhangi biri)** seçilirse o türden herhangi biri yeter. “Yolun sonu”nun hedefi olmaz.
+- Satırın sağındaki **↑ / ↓** adımın sırasını değiştirir, çöp kutusu siler; altta **+ Adım ekle**. Kartın sağ üstünde görevi silme, en altta **+ Görev ekle**.
+- Yazısı boş adım, haritada bulunamayan hedef ya da bilinmeyen tür üstteki **Dikkat** kutusunda gösterilir.
+- Görevlerin içeriği (hangi görev, ne anlatır) senin kararın; araç yalnızca düzenlemeyi kolaylaştırır.
+
+**Kroki hakkında:** Krokinin boyutu haritadaki şeylere (yol, dekor, kişiler, eşyalar, sandıklar, kapılar) göre ayarlanır. Bitiş çizgisi
+çok uzaktaysa (ör. Köy meydanında 500 m ileride) kroki onu göstermek için küçülmez; yolun altında “bitiş … m ileride →” yazar.
+
 **Harita → Harita ayarları sekmesi.** Genel (ad, tema, not), **Unreal: dekor, zemin ve yol yüzeyi** (model açı düzeltmesi,
 zemin/yol malzeme klasörleri ve karo boyları), Yol (uzunluk, genişlik, renkler, orta şerit), Işık ve gökyüzü, Başlangıç ve bitiş.
 
@@ -439,6 +460,7 @@ Her satır bir çalışma oturumudur; ayrıntılar GUNLUK.md'de.
 
 | 2026-11-16 gece | **v0.4** — Oyun içeriği | Oyunun klasörünü açma (atolye.py, yol güvenliği, kayıttan önce yedek), **Oyun içeriği** ekranı: karakterler.json (oyuncunun bütün ayarları, kameraya göre kontrol, kişilerin MetaHuman bedenleri), harita (Unreal zemin/yol ve model açısı, yol, ışık, başlangıç/bitiş), **eşyalar** (kart + sürüklenebilir kroki, puanlar), uyarılar, ayrı geri al/yinele. |
 | 2026-11-17 gece | **v0.5** — Haritadaki kişiler | Harita → **Kişiler** sekmesi: krokide dolaşma alanını sürükleme ve kenardan büyütme, yaya şeridinin uçlarını çekme; davranış (dolaş/bekle/otur/yolda yürü), hız, durma mesafesi, konuşma, selamlaşma, yanından geçerken sözler, saldırıya tavır, çarpma/itilme/vurulma sözleri, beden; **Kalabalık** kartı; kimlik değişince görev ve beden kaydı da güncellenir. Oyuncu animasyonlarına oturma/itme/darbe/düşme/kalkma, dövüşe vuruş anı adları. |
+| 2026-11-20 gece | **v0.6** — Sandıklar ve görevler | Harita → **Sandıklar** (krokide sürükleme, içindeki eşya, puanlar, Unreal model/kapak ayarları) ve **Görevler** (adımlar: yazı, tür, haritadan seçilen hedef; sıralama; uyarılar). Kişi/eşya/sandık kimliği değişince görev adımları da güncellenir. Kroki boyutu içeriğe göre (uzak bitiş okla gösterilir); yeni ana harita Köy meydanı ile denendi. |
 
 **Sıradaki adımlar:** Aşama 2 — 3D görünüm (3D Harita sekmesi, yörünge kamerası, glTF modeller,
 taşı/döndür/ölçekle tutamaçları, ışık ve gökyüzü önizlemesi).

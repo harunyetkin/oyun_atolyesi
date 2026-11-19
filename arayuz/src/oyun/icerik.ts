@@ -191,6 +191,110 @@ export function npcUyarilari(harita: any, diyaloglar: string[]): Uyari[] {
   return sonuc;
 }
 
+// ------------------------------------------------------------------ sandıklar ve görevler (harita içinde)
+// BICIM.md: sandık { id, ad, konum, aci, icerik: { ad, aciklama, puanlar, mesaj }, model_govde?, model_kapak?,
+// unreal_on_duzeltme?, kapak_mentesesi? [x,y,z] cm, kapak_ekseni? "roll"|"pitch", kapak_acisi? }.
+// Görev { id, ad, aciklama, adimlar: [ { metin, tur, hedef } ] }; adım "tur:hedef" kararıyla tamamlanır, hedef boşsa herhangi biri.
+export interface Sandik {
+  id: string; ad: string; konum: [number, number, number]; aci: number;
+  icerik: { ad: string; aciklama?: string; puanlar: Record<string, number>; mesaj?: string };
+  [diger: string]: unknown;
+}
+export interface GorevAdimi { metin: string; tur: string; hedef: string }
+export interface Gorev { id: string; ad: string; aciklama?: string; adimlar: GorevAdimi[]; [diger: string]: unknown }
+
+/** Adım türleri (oyunun karar kaynakları) ve ekranda görünen adları. */
+export const GOREV_TURLERI: [string, string][] = [
+  ["diyalog", "Biriyle konuş"], ["esya", "Eşya al"], ["sandik", "Sandık aç"], ["kapi", "Kapı seç"], ["bitis", "Yolun sonuna var"],
+];
+
+/** Bir adım türü için haritadaki olası hedefler: [kimlik, görünen ad]. `bitis` hedef almaz. */
+export function gorevHedefleri(harita: any, tur: string): [string, string][] {
+  const ad = (x: any) => (x.ad && x.ad !== x.id ? `${x.ad} (${x.id})` : x.id);
+  switch (tur) {
+    case "diyalog": return (harita?.npcler || []).map((n: any) => [n.id, ad(n)]);
+    case "esya": return (harita?.esyalar || []).map((e: any) => [e.id, ad(e)]);
+    case "sandik": return (harita?.sandiklar || []).map((s: any) => [s.id, ad(s)]);
+    case "kapi": return (harita?.kapilar || []).map((k: any) => [k.id, k.soru ? `${k.id}: ${k.soru}` : k.id]);
+    default: return [];
+  }
+}
+
+/** Haritadaki bir kimlik değişince görev adımlarındaki hedefi de günceller (aynı türde). */
+export function gorevHedefiniYenile(harita: any, tur: string, eski: string, yeni: string): void {
+  for (const g of harita?.gorevler || []) for (const a of g.adimlar || []) if (a.tur === tur && a.hedef === eski) a.hedef = yeni;
+}
+
+/** Haritaya yeni bir sandık ekler (yolun kenarına) ve kimliğini döner. */
+export function sandikEkle(harita: any): string {
+  const liste: Sandik[] = (harita.sandiklar ||= []);
+  const id = benzersizKimlik("sandik", liste.map(s => s.id));
+  const son = liste[liste.length - 1];
+  const z = son ? Math.round((son.konum?.[2] ?? 0) - 8) : (harita.baslangic?.konum?.[2] ?? 0) - 10;
+  const genislik = harita.yol?.genislik ?? 7;
+  liste.push({ id, ad: "Yeni sandık", konum: [-Math.round((genislik / 2 + 1.5) * 10) / 10, 0, z], aci: 90,
+    icerik: { ad: "", aciklama: "", puanlar: {}, mesaj: "" } });
+  return id;
+}
+
+/** Bir sandığın kopyasını hemen arkasına ekler; yeni kimliği döner. */
+export function sandikCogalt(harita: any, id: string): string | null {
+  const liste: Sandik[] = harita.sandiklar || [];
+  const i = liste.findIndex(s => s.id === id);
+  if (i < 0) return null;
+  const kopya: Sandik = JSON.parse(JSON.stringify(liste[i]));
+  kopya.id = benzersizKimlik(id, liste.map(s => s.id));
+  kopya.konum = [kopya.konum[0], kopya.konum[1], kopya.konum[2] - 2];
+  liste.splice(i + 1, 0, kopya);
+  return kopya.id;
+}
+
+/** Haritaya boş bir görev ekler (bir adımla) ve kimliğini döner. */
+export function gorevEkle(harita: any): string {
+  const liste: Gorev[] = (harita.gorevler ||= []);
+  const id = benzersizKimlik("gorev", liste.map(g => g.id));
+  liste.push({ id, ad: "Yeni görev", aciklama: "", adimlar: [{ metin: "", tur: "diyalog", hedef: "" }] });
+  return id;
+}
+
+/** Sandıkların sorunları: kimlik, tekrar, eksik ad/içerik, bilinmeyen ölçek, kapak ekseni. */
+export function sandikUyarilari(harita: any, olcekler: string[]): Uyari[] {
+  const sonuc: Uyari[] = [];
+  const gorulen = new Set<string>();
+  for (const s of (harita?.sandiklar || []) as Sandik[]) {
+    const yer = "Sandık " + (s.ad || s.id);
+    if (!kimlikGecerli(s.id || "")) sonuc.push({ yer, metin: `Kimlik "${s.id}" yalnız küçük harf, rakam ve _ içermeli` });
+    if (gorulen.has(s.id)) sonuc.push({ yer, metin: `"${s.id}" kimliği iki kez kullanılmış` });
+    gorulen.add(s.id);
+    if (!s.icerik?.ad) sonuc.push({ yer, metin: "İçindeki eşyanın adı boş (açılınca çantaya bu ad girer)" });
+    for (const o of Object.keys(s.icerik?.puanlar || {})) if (olcekler.length && !olcekler.includes(o)) sonuc.push({ yer, metin: `Bilinmeyen ölçek: ${o}` });
+    if (s.kapak_ekseni !== undefined && s.kapak_ekseni !== "roll" && s.kapak_ekseni !== "pitch") sonuc.push({ yer, metin: `Kapak ekseni "roll" ya da "pitch" olmalı` });
+  }
+  return sonuc;
+}
+
+/** Görevlerin sorunları: kimlik, adımsız görev, bilinmeyen tür, haritada olmayan hedef. */
+export function gorevUyarilari(harita: any): Uyari[] {
+  const sonuc: Uyari[] = [];
+  const gorulen = new Set<string>();
+  for (const g of (harita?.gorevler || []) as Gorev[]) {
+    const yer = "Görev " + (g.ad || g.id);
+    if (!kimlikGecerli(g.id || "")) sonuc.push({ yer, metin: `Kimlik "${g.id}" yalnız küçük harf, rakam ve _ içermeli` });
+    if (gorulen.has(g.id)) sonuc.push({ yer, metin: `"${g.id}" kimliği iki kez kullanılmış` });
+    gorulen.add(g.id);
+    if (!(g.adimlar || []).length) sonuc.push({ yer, metin: "Hiç adımı yok" });
+    (g.adimlar || []).forEach((a, i) => {
+      const ay = `${yer}, adım ${i + 1}`;
+      if (!GOREV_TURLERI.some(t => t[0] === a.tur)) { sonuc.push({ yer: ay, metin: `Bilinmeyen tür: ${a.tur}` }); return; }
+      if (!a.metin) sonuc.push({ yer: ay, metin: "Yazısı boş (oyuncu görev listesinde bunu görür)" });
+      if (a.tur === "bitis" && a.hedef) sonuc.push({ yer: ay, metin: "“Yolun sonu” adımının hedefi olmaz" });
+      if (a.tur !== "bitis" && a.hedef && !gorevHedefleri(harita, a.tur).some(h => h[0] === a.hedef))
+        sonuc.push({ yer: ay, metin: `Haritada "${a.hedef}" bulunamadı` });
+    });
+  }
+  return sonuc;
+}
+
 // ------------------------------------------------------------------ denetim
 export interface Uyari { yer: string; metin: string }
 

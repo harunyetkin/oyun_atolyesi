@@ -401,6 +401,54 @@ with sync_playwright() as p:
     kontrol("krokide sürükleyince konum değişti (yol boyunca ileri = z azalır)", sonra[2] < once[2] - 2 and sonra[0] > once[0], f"{once} -> {sonra}")
     kontrol("sürükleme tek geri al adımı", oyun("o.geri.length") == gecmis + 1)
     s.screenshot(path=f"{CIKTI}/9_oyun_esyalar.png")
+    # harita: sandıklar
+    s.click("[data-testid=oyun-sekme-sandiklar]")
+    kontrol("sandıklar sekmesi: 1 sandık ve krokide sürüklenebilir", s.locator("[data-testid^=sandik-kimlik-]").count() == 1
+            and s.locator("[data-testid=kroki-sandik-sandik_1].kroki-esya").count() == 1)
+    s.fill("[data-testid=sandik-esya-ad-sandik_1]", "Gümüş pusula ve harita")
+    s.keyboard.press("Enter")
+    s.click("[data-testid=sandik-puan-sandik_1-ekle]")
+    s.select_option("[data-testid=sandik-eksen-sandik_1]", "pitch")
+    kontrol("sandığın içi, puanı ve kapak ekseni yazıldı", oyun(f"{h}.sandiklar[0].icerik.ad") == "Gümüş pusula ve harita"
+            and oyun(f"{h}.sandiklar[0].icerik.puanlar") == {"ornek_a": 1} and oyun(f"{h}.sandiklar[0].kapak_ekseni") == "pitch")
+    s.locator("[data-testid=kroki]").scroll_into_view_if_needed()
+    time.sleep(0.4)
+    once = oyun(f"{h}.sandiklar[0].konum")
+    k = s.locator("[data-testid=kroki-sandik-sandik_1] rect").bounding_box()
+    s.mouse.move(k["x"] + k["width"] / 2, k["y"] + k["height"] / 2); s.mouse.down()
+    s.mouse.move(k["x"] - 60, k["y"] + 20, steps=8); s.mouse.up()
+    sonra = oyun(f"{h}.sandiklar[0].konum")
+    kontrol("krokide sandık sürüklendi (geriye: z arttı)", sonra[2] > once[2] + 1, f"{once} -> {sonra}")
+    s.fill("[data-testid=sandik-kimlik-sandik_1]", "kutu")
+    s.keyboard.press("Enter")
+    kontrol("sandık kimliği değişti, görev adımı izledi", oyun(f"{h}.sandiklar[0].id") == "kutu" and oyun(f"{h}.gorevler[0].adimlar[2].hedef") == "kutu")
+    s.click("[data-testid=sandik-ekle]")
+    kontrol("sandık eklendi, içi boş uyarısı", oyun(f"{h}.sandiklar.length") == 2 and "adı boş" in s.inner_text("[data-testid=uyarilar]"))
+    s.screenshot(path=f"{CIKTI}/9c_oyun_sandiklar.png")
+    s.click("[data-testid=sandik-sil-sandik]")
+    # harita: görevler
+    s.click("[data-testid=oyun-sekme-gorevler]")
+    kontrol("görevler sekmesi: 1 görev, 5 adım", s.locator("[data-testid^=gorev-kimlik-]").count() == 1
+            and s.locator("[data-testid=gorev-adimlar-ornek_yolculuk] .gorev-adimi").count() == 5)
+    kontrol("sandık adımının hedef listesinde yeni kimlik seçili", s.input_value("[data-testid=gorev-adim-hedef-ornek_yolculuk-2]") == "kutu")
+    s.click("[data-testid=gorev-ekle]")
+    kontrol("görev eklendi, boş adım uyarısı", oyun(f"{h}.gorevler.length") == 2 and "Yazısı boş" in s.inner_text("[data-testid=uyarilar]"))
+    s.fill("[data-testid=gorev-ad-gorev]", "Kuyunun sırrı")
+    s.keyboard.press("Enter")
+    s.fill("[data-testid=gorev-adim-metin-gorev-0]", "Sandığı aç")
+    s.keyboard.press("Enter")
+    s.select_option("[data-testid=gorev-adim-tur-gorev-0]", "sandik")
+    s.select_option("[data-testid=gorev-adim-hedef-gorev-0]", "kutu")
+    s.click("[data-testid=gorev-adim-ekle-gorev]")
+    s.fill("[data-testid=gorev-adim-metin-gorev-1]", "Yolcuyla konuş")
+    s.keyboard.press("Enter")
+    s.select_option("[data-testid=gorev-adim-hedef-gorev-1]", "yolcu")
+    s.click("[data-testid=gorev-adim-yukari-gorev-1]")
+    adimlar = oyun(f"{h}.gorevler[1].adimlar")
+    kontrol("adımlar yazıldı ve sıra değişti", adimlar == [{"metin": "Yolcuyla konuş", "tur": "diyalog", "hedef": "yolcu"},
+                                                          {"metin": "Sandığı aç", "tur": "sandik", "hedef": "kutu"}], str(adimlar))
+    kontrol("uyarı kalmadı", s.locator("[data-testid=uyarilar]").count() == 0)
+    s.screenshot(path=f"{CIKTI}/9d_oyun_gorevler.png")
     # harita ayarları
     s.click("[data-testid=oyun-sekme-ayarlar]")
     s.fill("[data-testid=alan-unreal_model_aci]", "-90")
@@ -432,6 +480,8 @@ with sync_playwright() as p:
     yazilan = s.evaluate("window.__oyun.getState().depo.icerik_oku('haritalar/deneme_yolu.json')")
     kontrol("dosyaya yazıldı, dokunulmayan alanlar duruyor",
             yazilan["esyalar"][2]["id"] == "pusula" and yazilan["unreal_model_aci"] == -90 and len(yazilan["nesneler"]) == 6 and "kapilar" in yazilan)
+    kontrol("sandık ve görev dosyaya yazıldı", yazilan["sandiklar"][0]["id"] == "kutu" and yazilan["gorevler"][0]["adimlar"][2]["hedef"] == "kutu"
+            and yazilan["gorevler"][1]["ad"] == "Kuyunun sırrı")
     kontrol("yeni kişi dosyaya yazıldı", [n for n in yazilan["npcler"] if n["id"] == "kisi"][0]["savas_tavri"] == "kac"
             and yazilan["kalabalik"]["sayi"] == 8 and yazilan["npcler"][0]["tepkiler"]["carpma"])
     yazilan = s.evaluate("window.__oyun.getState().depo.icerik_oku('karakterler.json')")

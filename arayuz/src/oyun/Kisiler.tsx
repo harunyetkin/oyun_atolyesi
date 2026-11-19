@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { Copy, Plus, RotateCcw, Trash2, UserRound, Users } from "lucide-react";
 import { useOyun } from "./durum";
 import {
-  DAVRANISLAR, kimlikGecerli, NPC_VARSAYILAN, npcCogalt, npcEkle, npcSeridi, npcUyarilari, SAVAS_TAVIRLARI, SELAMLASMALAR,
+  DAVRANISLAR, gorevHedefiniYenile, kimlikGecerli, NPC_VARSAYILAN, npcCogalt, npcEkle, npcSeridi, npcUyarilari, SAVAS_TAVIRLARI, SELAMLASMALAR,
   TEPKI_TURLERI, unrealYoluSorunu, type Npc,
 } from "./icerik";
 import { AlanGirisi, KimlikGiris, MetinListesi, SayiAlani, SayiKutusu, SecimAlani, Uyarilar, YaziAlani } from "./girisler";
@@ -48,7 +48,7 @@ export function KisilerListesi({ dosya, harita }: { dosya: string; harita: any }
   const kimlikDegistir = (eski: string, yeni: string) => {
     degistir(dosya, d => {
       const n = (d.npcler || []).find((x: Npc) => x.id === eski); if (n) n.id = yeni;
-      for (const g of d.gorevler || []) for (const a of g.adimlar || []) if (a.tur === "diyalog" && a.hedef === eski) a.hedef = yeni;
+      gorevHedefiniYenile(d, "diyalog", eski, yeni);
     });
     if (karakterler?.kisiler && eski in karakterler.kisiler && !(yeni in karakterler.kisiler))
       degistir("karakterler.json", d => {
