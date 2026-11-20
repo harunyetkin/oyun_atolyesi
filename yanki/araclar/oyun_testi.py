@@ -87,6 +87,45 @@ with sync_playwright() as p:
         kontrol("konsol hatası yok", not konsol, "; ".join(konsol[:3]))
         ctx.close()
 
+    # bilgisayar ve farklı ekran oranları: oyun alanı ekrana sığar, her karede bütün tuval temizlenir (iz kalmaz)
+    for gen, yuk in [(1916, 939), (2560, 1080), (1024, 768), (360, 900)]:
+        print(f"\n== {gen}×{yuk} ==")
+        ctx = tarayici.new_context(viewport={"width": gen, "height": yuk})
+        s = ctx.new_page()
+        konsol = []
+        s.on("pageerror", lambda e: konsol.append(str(e)))
+        s.goto(ADRES + "?test=1&tohum=7")
+        s.wait_for_function("!!window.__yanki")
+        time.sleep(0.4)
+        z = s.evaluate("window.__cizim()")
+        sigar = z["W"] * z["olcek"] <= z["tw"] + 1 and 1000 * z["olcek"] <= z["th"] + 1
+        dolar = abs(z["W"] * z["olcek"] - z["tw"]) < 2 or abs(1000 * z["olcek"] - z["th"]) < 2
+        kontrol("oyun alanı ekrana sığıyor ve bir yönde tam dolduruyor", sigar and dolar, str(z))
+        if (gen, yuk) == (1916, 939):
+            kontrol("Harun'un geniş ekranında boşluk kalmıyor", abs(z["W"] * z["olcek"] - z["tw"]) < 2 and abs(1000 * z["olcek"] - z["th"]) < 2, str(z))
+        s.keyboard.down("Space"); s.keyboard.up("Space")
+        s.evaluate(PILOT)
+        time.sleep(2.5)
+        # tuvali baştan sona eflatuna boya; bir sonraki karede hiçbir köşede eflatun kalmamalı
+        kalan = s.evaluate("""() => new Promise(r => {
+            const c = document.getElementById('oyun'), g = c.getContext('2d');
+            g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = '#ff00ff'; g.fillRect(0, 0, c.width, c.height);
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              const w = c.width, h = c.height, n = [];
+              for (const [x, y] of [[0, 0], [w - 1, 0], [0, h - 1], [w - 1, h - 1], [w - 2, h >> 1], [w >> 1, 1]]) {
+                const d = g.getImageData(x, y, 1, 1).data; if (d[0] > 200 && d[2] > 200 && d[1] < 80) n.push([x, y]);
+              }
+              r(n);
+            }));
+          })""")
+        kontrol("her karede bütün ekran yeniden çiziliyor (kenarlarda iz yok)", not kalan, str(kalan))
+        kontrol("oyun sürüyor, hata yok", oyun(s, "o.durum") == "oyun" and not konsol, "; ".join(konsol[:2]))
+        oyun(s, "(o.enerji = 1, o.sonar(true))")
+        time.sleep(0.6)
+        s.screenshot(path=f"{CIKTI}/ekran_{gen}x{yuk}.png")
+        s.evaluate("clearInterval(window.__pilot)")
+        ctx.close()
+
     # çevrimdışı: test kipi olmadan açılınca çevrimdışı çalışma kurulur; internet kesilince de açılır
     print("\n== çevrimdışı ==")
     ctx = tarayici.new_context(**{k: v for k, v in p.devices["Pixel 7"].items() if k != "default_browser_type"})

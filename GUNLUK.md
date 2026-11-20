@@ -2,6 +2,8 @@
 
 En yeni girdi en üsttedir.
 
+> **2026-11-21 (gece) — Yankı gecesi:** geniş ekrana tam sığma ve mağaranın akarak belirmesi düzeltildi (ayrıntı: [yanki/GUNLUK.md](yanki/GUNLUK.md)).
+
 > **2026-11-19 (gece) — Yankı gecesi:** mobil yarasa oyunu Yankı'nın telefonda oynanabilen ilk sürümü kuruldu (ayrıntı ve telefonda deneme adımları: [yanki/GUNLUK.md](yanki/GUNLUK.md)).
 
 ## 2026-11-20 (gece) — Sandıklar ve görevler artık Atölye'de

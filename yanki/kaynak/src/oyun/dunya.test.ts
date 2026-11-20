@@ -111,6 +111,35 @@ describe("Yankı oyun mantığı", () => {
     expect(enCok()).toBeLessThan(once * 0.3);
   });
 
+  it("duvar akarak belirir: komşu dilimler arasında ani parlaklık sıçraması yok, ışık hemen değil yumuşakça yükselir", () => {
+    const o = new Oyun(9);
+    o.dokun(); o.birak();
+    o.adim(1 / 120);
+    let enBuyukSicrama = 0, enParlak = 0;
+    for (let n = 0; n < 120; n++) {
+      o.y = H / 2; o.vy = 0;   // yarasayı havada tut
+      o.adim(1 / 120);
+      const ilk = Math.floor(o.kam / AYAR.ornekAraligi), son = ilk + Math.ceil(o.W / AYAR.ornekAraligi);
+      for (let i = ilk; i < son; i++) for (const k of [0, 1] as const) {
+        const a = o.parlaklik(i, k), b = o.parlaklik(i + 1, k);
+        enBuyukSicrama = Math.max(enBuyukSicrama, Math.abs(a - b));
+        enParlak = Math.max(enParlak, a);
+      }
+    }
+    expect(enParlak).toBeGreaterThan(0.4);           // duvar gerçekten görünüyor
+    expect(enBuyukSicrama).toBeLessThan(0.12);       // ama yan yana dilimler arasında keskin sınır yok
+    // yankı değdiği anda görünen parlaklık hedefin altında başlar (yumuşak belirme)
+    const o2 = new Oyun(9);
+    o2.dokun(); o2.birak();
+    let ilkGorulen: number[] | null = null;
+    for (let n = 0; n < 60 && !ilkGorulen; n++) {
+      o2.y = H / 2; o2.vy = 0; o2.adim(1 / 120);
+      for (const v of o2.isik.values()) if (v[2] > 0.3) { ilkGorulen = [...v]; break; }
+    }
+    expect(ilkGorulen).not.toBeNull();
+    expect(ilkGorulen![0]).toBeLessThan(ilkGorulen![2]);
+  });
+
   it("basılı tutunca büyük sonar çıkar, enerji harcar ve dolana kadar tekrar çıkmaz", () => {
     const o = new Oyun(4);
     o.dokun(); o.birak();
@@ -136,6 +165,7 @@ describe("Yankı oyun mantığı", () => {
     o.boyutla(390 / 844);
     expect(o.W).toBeCloseTo(462, 0);
     o.boyutla(0.2); expect(o.W).toBe(420);
-    o.boyutla(5); expect(o.W).toBe(1900);
+    o.boyutla(1916 / 939); expect(o.W).toBeCloseTo(2040, 0);   // Harun'un geniş ekranı: artık tam dolar
+    o.boyutla(5); expect(o.W).toBe(3200);
   });
 });

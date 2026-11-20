@@ -2,6 +2,40 @@
 
 En yeni girdi en üsttedir.
 
+## 2026-11-21 (gece) — Geniş ekrana tam sığıyor, mağara akarak beliriyor
+**Bu gece yapılanlar** (senin ekran görüntülü geri bildirimin)
+- **Ekrana sığma:** Geniş bilgisayar ekranında oyun artık pencerenin tamamını dolduruyor. Önceden oyun alanı belli bir genişlikte
+  duruyordu ve sağda kalan şerit hiç temizlenmediği için orada eski karelerin izleri (yeşil lekeler) birikiyordu. Artık her
+  karede bütün ekran baştan çiziliyor; çok dar ya da çok geniş ekranlarda oyun ortalanıyor, kenarlar koyu kalıyor.
+- **Akıcı belirme:** Duvarlar artık "pencere pencere" değil, yankı dalgası ilerledikçe duvar boyunca **akarak** beliriyor ve yavaşça
+  sönüyor. Yankı değdiği anda duvar birden parlamıyor, saniyenin onda biri içinde yumuşakça aydınlanıyor; yan yana parçalar
+  arasındaki keskin sınırlar ve basamaklar kalktı. Kayanın içe doğru kararması da daha yumuşak.
+- Bilgisayarda çift tıklanan **Yanki.html** de güncellendi.
+- Testler: 11 birim testi (yan yana duvar parçaları arasında ani parlaklık sıçraması olmadığını ölçen yeni test dahil) +
+  44 otomatik oynanış kontrolü: telefonlar ve 4 farklı bilgisayar ekranı (senin 1916×939 ekranın dahil); her birinde ekranın
+  tamamının her karede yeniden çizildiği denetleniyor. Hepsi geçiyor.
+
+**Nasıl denenir**
+- **Bilgisayarda:** GitHub Desktop'ta **Fetch origin → Pull origin**, sonra `oyun_atolyesi\yanki\Yanki.html`'e çift tıkla. Tarayıcıyı tam
+  ekran yap (F11) ve oyna: sağda şerit ya da leke kalmamalı; duvarlar yankıyla akarak görünmeli.
+- **Telefonda:** GitHub Pages açıksa aynı bağlantı (https://harunyetkin.github.io/oyun_atolyesi/yanki/oyun/); oyunu bir kez kapatıp aç.
+
+**Ekran görüntüleri**
+![Senin ekran boyutunda (1916×939)](gunluk/2026-11-21/genis_ekran.png)
+![Çok geniş ekran (2560×1080)](gunluk/2026-11-21/cok_genis_ekran.png)
+![Telefonda](gunluk/2026-11-21/telefon_ucus.png)
+
+**Küçük kararlar**
+- Geniş ekranda ileriyi daha çok görüyorsun (ekran ne kadar genişse o kadar). Bu bilgisayarda oyunu biraz kolaylaştırıyor;
+  istersen geniş ekranda görüşü sınırlayıp yanları koyu bırakabilirim.
+
+**Senin kararın gereken konular**
+- Önceki sorular hâlâ açık: yarasa (A) soldan sağa mı, (B) aşağıdan yukarı mı uçsun; Mor/Buz/Lav bölümleri ve yol ayrımları uygun mu?
+  Cevabını gece çalışmasının sohbetine yazabilirsin.
+
+**Sıradaki adım**
+- Duraklat düğmesi, ardından sarkıt ve dikitler.
+
 ## 2026-11-19 (gece) — Yankı doğdu: telefonda oynanabilen ilk sürüm
 **Bu gece yapılanlar**
 - Yarasa oyunu **Yankı**'yı sıfırdan, telefonda oynanacak şekilde kurdum. Oyun Atölyesi deposunun içinde ama araçtan

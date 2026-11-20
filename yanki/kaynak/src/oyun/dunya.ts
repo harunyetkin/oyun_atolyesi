@@ -26,12 +26,17 @@ export const AYAR = {
   enerjiDolumu: 0.2,        // büyük sonar enerjisi / sn (1 = dolu)
   dalgaKalinligi: 34,
   sonmeSuresi: 1.3,         // duvar ışığının sönme hızı (sn)
+  belirmeSuresi: 0.09,      // yankı değince duvarın yumuşakça parlaması (sn; anında değil)
   ornekAraligi: 10,         // duvar örneklerinin aralığı
   bocekAraligi: [380, 760] as [number, number],
   bocekPuani: 5,
   bocekYaricap: 34,
   yenidenBaslamaBeklemesi: 0.7,
 };
+
+/** Yumuşatma ağırlıkları (7 örnek, ortası en ağır). */
+const PUS = [1, 2, 3, 4, 3, 2, 1];
+const PUS_TOPLAM = PUS.reduce((a, b) => a + b, 0);
 
 export type Durum = "menu" | "oyun" | "bitti";
 export type Olay = "basla" | "cirp" | "buyuk_sonar" | "bocek" | "carpma";
@@ -69,8 +74,9 @@ export class Oyun {
   buyukKullanildi = false;
   dalgalar: Dalga[] = [];
   bocekler: Bocek[] = [];
-  /** Duvar örneklerinin parlaklığı: örnek sırası → [tavan, taban] (0–1). */
-  isik = new Map<number, [number, number]>();
+  /** Duvar örneklerinin ışığı: örnek sırası → [tavan, taban, tavan hedefi, taban hedefi] (0–1).
+   *  Yankı değince hedef yükselir; görünen parlaklık hedefe kısa sürede yumuşakça yaklaşır, hedef zamanla söner. */
+  isik = new Map<number, [number, number, number, number]>();
   olaylar: Olay[] = [];
   carpmaNedeni = "";
   private rnd: () => number;
@@ -89,7 +95,7 @@ export class Oyun {
 
   /** Ekran oranı (genişlik / yükseklik) değişince çağrılır. */
   boyutla(oran: number): void {
-    this.W = Math.max(420, Math.min(1900, H * oran));
+    this.W = Math.max(420, Math.min(3200, H * oran));
   }
 
   /** Yeni bir mağara (yeni tohumdan) ve başa dönüş. */
@@ -203,11 +209,13 @@ export class Oyun {
   private dalgalariIlerlet(dt: number): void {
     const ara = AYAR.ornekAraligi, kalinlik = AYAR.dalgaKalinligi;
     const son = Math.exp(-dt / AYAR.sonmeSuresi);
-    // ışık söner; kameranın gerisinde kalan örnekler silinir
+    const yaklas = Math.min(1, dt / AYAR.belirmeSuresi);
+    // ışık söner (hedef azalır), görünen parlaklık hedefe yumuşakça yaklaşır; kameranın gerisi silinir
     const ilk = Math.floor((this.kam - 100) / ara);
     for (const [i, v] of this.isik) {
       if (i < ilk) { this.isik.delete(i); continue; }
-      v[0] *= son; v[1] *= son;
+      v[2] *= son; v[3] *= son;
+      v[0] += (v[2] - v[0]) * yaklas; v[1] += (v[3] - v[1]) * yaklas;
     }
     for (const d of this.dalgalar) {
       const r0 = d.r;
@@ -224,8 +232,8 @@ export class Oyun {
           const mesafe = Math.hypot(x - d.x, yy - d.y);
           // dalganın bu adımda süpürdüğü halka (hızlı dalga örnek atlamasın diye r0..r arası)
           if (mesafe >= r0 - kalinlik && mesafe <= d.r + kalinlik) {
-            if (!v) { v = [0, 0]; this.isik.set(i, v); }
-            v[k] = Math.max(v[k], guc);
+            if (!v) { v = [0, 0, 0, 0]; this.isik.set(i, v); }
+            v[k + 2] = Math.max(v[k + 2], guc);
           }
         }
       }
@@ -277,6 +285,17 @@ export class Oyun {
     this.vy = Math.max(this.vy, 0);
     if (this.skor > this.rekor) this.rekor = this.skor;
     this.olaylar.push("carpma");
+  }
+
+  /** Bir duvar örneğinin ekranda görünen parlaklığı (k: 0 tavan, 1 taban). Komşu örneklerle yumuşatılır ki
+   *  duvar parça parça (pencere pencere) değil, akarak belirsin ve sönsün. */
+  parlaklik(i: number, k: 0 | 1): number {
+    let top = 0;
+    for (let j = -3; j <= 3; j++) {
+      const v = this.isik.get(i + j);
+      if (v) top += v[k] * PUS[j + 3];
+    }
+    return top / PUS_TOPLAM;
   }
 
   /** Biriken olayları verir ve listeyi boşaltır (ses, titreşim için). */

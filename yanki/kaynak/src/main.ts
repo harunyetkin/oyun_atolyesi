@@ -19,7 +19,7 @@ let eskiRekor = oyun.rekor;
 const durum = { yeniRekor: false };
 
 // ---------------------------------------------------------------- ekran boyutu
-let olcek = 1;
+let olcek = 1, ox = 0, oy = 0;
 function boyutla() {
   // pil için çözünürlük en fazla 2× (çok yoğun ekranlarda 3× gereksiz yük)
   const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -29,7 +29,11 @@ function boyutla() {
   tuval.style.width = w + "px";
   tuval.style.height = h + "px";
   oyun.boyutla(w / h);
-  olcek = tuval.height / H;
+  // Oyun alanı (oyun.W × 1000) ekrana sığacak kadar büyütülür ve ortalanır. Oran sınırların içindeyse ekranı
+  // tam doldurur; çok dar ekranda üstte/altta, çok genişte yanlarda koyu boşluk kalır.
+  olcek = Math.min(tuval.height / H, tuval.width / oyun.W);
+  ox = (tuval.width - oyun.W * olcek) / 2;
+  oy = (tuval.height - H * olcek) / 2;
 }
 window.addEventListener("resize", boyutla);
 boyutla();
@@ -84,7 +88,7 @@ function kare(simdi: number) {
     while (birikim >= ADIM) { oyun.adim(ADIM); birikim -= ADIM; }
     olaylariIsle();
   }
-  ciz(c, oyun, olcek, durum);
+  ciz(c, oyun, olcek, ox, oy, durum);
   requestAnimationFrame(kare);
 }
 requestAnimationFrame(kare);
@@ -97,6 +101,7 @@ document.addEventListener("visibilitychange", () => {
 
 // ---------------------------------------------------------------- testler için
 (window as any).__yanki = oyun;
+(window as any).__cizim = () => ({ olcek, ox, oy, W: oyun.W, tw: tuval.width, th: tuval.height });
 
 // ---------------------------------------------------------------- çevrimdışı çalışma (yalnız yayında; testte değil)
 if (!testKipi && import.meta.env.PROD && "serviceWorker" in navigator) {

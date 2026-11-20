@@ -1,5 +1,5 @@
-self.__DOSYALAR__ = ["./","./assets/index-BVdHJ6Fu.js","./assets/index-DWrbyqo_.css","./index.html","./manifest.webmanifest","./simge-180.png","./simge-192.png","./simge-512.png"];
-self.__SURUM__ = "mwnmuohl";
+self.__DOSYALAR__ = ["./","./assets/index-0ic96qsD.js","./assets/index-DWrbyqo_.css","./index.html","./manifest.webmanifest","./simge-180.png","./simge-192.png","./simge-512.png"];
+self.__SURUM__ = "mwpkv02i";
 // Yankı çevrimdışı çalışma: ağ varsa her zaman en yenisi indirilir ve saklanır; ağ yoksa saklanan sürüm açılır.
 // DOSYALAR listesini derleme (vite.config.ts) doldurur; sürüm her derlemede değişir, eski saklananlar silinir.
 const DOSYALAR = self.__DOSYALAR__ || ["./", "./index.html"];

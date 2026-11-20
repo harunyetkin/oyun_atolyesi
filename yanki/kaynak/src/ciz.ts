@@ -70,9 +70,16 @@ function sigdir(c: CanvasRenderingContext2D, metin: string, x: number, y: number
   c.fillText(metin, x, y);
 }
 
-export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, enIyi: { yeniRekor: boolean }) {
+/** Bir kare çizer. Önce bütün tuval temizlenir (eski karelerden iz kalmasın); oyun alanı `olcek` ile
+ *  büyütülüp (ox, oy) kadar kaydırılarak ortalanır. Ekran oranı oyun alanından farklıysa kenarlar koyu kalır. */
+export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, ox: number, oy: number, enIyi: { yeniRekor: boolean }) {
   const W = o.W;
-  c.setTransform(olcek, 0, 0, olcek, 0, 0);
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  c.fillStyle = RENK.arka1;
+  c.fillRect(0, 0, c.canvas.width, c.canvas.height);
+  c.setTransform(olcek, 0, 0, olcek, ox, oy);
+  c.save();
+  c.beginPath(); c.rect(0, 0, W, H); c.clip();   // oyun alanının dışına taşan çizim olmasın
   const arka = c.createLinearGradient(0, 0, 0, H);
   arka.addColorStop(0, RENK.arka1); arka.addColorStop(0.5, RENK.arka2); arka.addColorStop(1, RENK.arka1);
   c.fillStyle = arka;
@@ -85,10 +92,11 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, enIyi: 
   const ara = AYAR.ornekAraligi;
   const ilk = Math.floor(kx / ara) - 1, son = Math.ceil((kx + W) / ara) + 1;
 
-  // Duvarlar: her örnek aralığı bir dilim (kenarı izleyen yamuk). Parlaklık 12 basamağa yuvarlanır ve aynı
-  // basamaktaki dilimler tek seferde çizilir (telefonda az çizim çağrısı). Üç kat: kenarda parlak, içeride sönük.
-  const BASAMAK = 12;
-  const KATLAR: [number, number][] = [[16, 0.55], [38, 0.28], [75, 0.13]];   // [derinlik, saydamlık]
+  // Duvarlar: her örnek aralığı bir dilim (kenarı izleyen yamuk). Parlaklık komşularla yumuşatılmış gelir
+  // (Oyun.parlaklik), 40 basamağa yuvarlanır (göze sürekli görünür) ve aynı basamaktaki dilimler tek seferde
+  // çizilir (telefonda az çizim çağrısı). Altı ince kat üst üste biner: kenarda parlak, içeride yumuşakça kararır.
+  const BASAMAK = 40;
+  const KATLAR: [number, number][] = [[7, 0.42], [15, 0.28], [26, 0.2], [40, 0.14], [57, 0.1], [78, 0.07]];   // [derinlik, saydamlık]
   const yollar: Path2D[][] = KATLAR.map(() => Array.from({ length: BASAMAK + 1 }, () => new Path2D()));
   const kenarlar: Path2D[] = Array.from({ length: BASAMAK + 1 }, () => new Path2D());
   const dolu = new Set<number>();
@@ -96,12 +104,11 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, enIyi: 
   for (let i = ilk; i < son; i++) {
     const sonraki = o.sinir((i + 1) * ara);
     const x0 = i * ara - kx, x1 = x0 + ara;
-    const v = o.isik.get(i) || [0, 0];
-    const v2 = o.isik.get(i + 1) || v;
     for (const k of [0, 1] as const) {
       const y0 = onceki[k], y1 = sonraki[k];
-      const yakin = Math.max(0, 1 - Math.hypot(x0 + ara / 2 - yx, (y0 + y1) / 2 - o.y) / isikYaricap) * 0.55;
-      const p = Math.min(1, Math.max((v[k] + v2[k]) / 2, yakin));
+      const uzak = Math.hypot(x0 + ara / 2 - yx, (y0 + y1) / 2 - o.y) / isikYaricap;
+      const yakin = uzak < 1 ? (1 - uzak) * (1 - uzak) * 0.55 : 0;   // yarasanın ışığı da yumuşak kenarlı
+      const p = Math.min(1, Math.max((o.parlaklik(i, k) + o.parlaklik(i + 1, k)) / 2, yakin));
       const b = Math.round(p * BASAMAK);
       if (b === 0) continue;
       dolu.add(b);
@@ -114,8 +121,8 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, enIyi: 
     }
     onceki = sonraki;
   }
-  c.lineWidth = 3;
-  c.lineCap = "round";
+  c.lineWidth = 2.5;
+  c.lineCap = "butt";
   for (const b of dolu) {
     const p = b / BASAMAK;
     KATLAR.forEach(([, a], j) => { c.fillStyle = `rgba(${RENK.kaya.join(",")},${a * p})`; c.fill(yollar[j][b]); });
@@ -194,4 +201,5 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, enIyi: 
       sigdir(c, "Yeniden başlamak için dokun", W / 2, H * 0.68, 36, 600, W - 40);
     }
   }
+  c.restore();
 }
