@@ -114,6 +114,25 @@ export const SAVAS_TAVIRLARI: [string, string, string][] = [
   ["savun", "Savunur", "Gard alır, bloklar, geri çekilir."],
   ["karsilik", "Karşılık verir", "Yumrukla karşılık verir."],
 ];
+/** Günlük programdaki işler (BICIM.md: kişide "program"). */
+export const PROGRAM_ISLERI: [string, string][] = [["dolas", "Dolaşır"], ["bekle", "Bekler"], ["otur", "Oturur"]];
+export interface ProgramDuragi { saat: number; is: string; yer?: [number, number]; yaricap?: number; aci?: number; [diger: string]: unknown }
+/** Kişi nitelikleri (karakterler.json kisi_nitelikler; kişide "nitelikler" bunların üstüne yazılır): [alan, ad, birim]. */
+export const KISI_NITELIKLERI: [string, string, string][] = [
+  ["can", "Can", ""], ["hafif_darbe", "Hafif darbede kayıp", "can"], ["guclu_darbe", "Güçlü darbede kayıp", "can"],
+  ["blok_hasar_carpani", "Gardda kayıp oranı", "×"], ["can_yenilenme", "Can yenilenmesi", "/sn"],
+  ["can_yenilenme_gecikmesi", "Yenilenme gecikmesi", "sn"], ["kalkis_can_orani", "Kalkınca can oranı", "0–1"],
+];
+
+/** Program durağı ekler: son durağın 2 saat sonrası, alanın ortasında bekler. */
+export function programDuragiEkle(n: Npc): void {
+  const liste = ((n.program as ProgramDuragi[] | undefined) ||= []);
+  const son = liste[liste.length - 1];
+  const saat = son ? Math.min(23.5, (Number(son.saat) || 0) + 2) : 8;
+  const yer = son?.yer ? [...son.yer] as [number, number] : n.alan?.merkez ? [n.alan.merkez[0], n.alan.merkez[1]] as [number, number] : [0, 0] as [number, number];
+  liste.push({ saat, is: "bekle", yer });
+}
+
 export const TEPKI_TURLERI: [string, string][] = [["carpma", "Çarpınca"], ["itilme", "İtilince"], ["vurulma", "Vurulunca"]];
 /** Oyunun varsayılanları (Konusan.cpp): yarıçap 6 m, hız 1.2 m/sn (0–3), durma mesafesi 3 m, şerit merkez ±20 m. */
 export const NPC_VARSAYILAN = { yaricap: 6, hiz: 1.2, hizEnFazla: 3, durma: 3, seritYari: 20 };
@@ -180,6 +199,13 @@ export function npcUyarilari(harita: any, diyaloglar: string[]): Uyari[] {
     if (!secenekte(SAVAS_TAVIRLARI, n.savas_tavri)) sonuc.push({ yer, metin: `Bilinmeyen saldırı tavrı: ${n.savas_tavri}` });
     const s = unrealYoluSorunu(n.unreal_govde || "");
     if (s) sonuc.push({ yer, metin: "Beden yolu: " + s });
+    const prog = n.program as ProgramDuragi[] | undefined;
+    if (prog !== undefined && !Array.isArray(prog)) sonuc.push({ yer, metin: "Günlük program bir liste olmalı" });
+    (Array.isArray(prog) ? prog : []).forEach((p, i) => {
+      const py = `${yer}, program ${i + 1}`;
+      if (typeof p.saat !== "number" || p.saat < 0 || p.saat > 24) sonuc.push({ yer: py, metin: "Saat 0–24 arasında olmalı" });
+      if (!PROGRAM_ISLERI.some(t => t[0] === p.is)) sonuc.push({ yer: py, metin: `Bilinmeyen iş: ${p.is}` });
+    });
     if (n.davranis === "yol" && typeof n.serit_x_min === "number" && typeof n.serit_x_max === "number" && n.serit_x_min >= n.serit_x_max)
       sonuc.push({ yer, metin: "Yaya şeridinin başı sonundan önce olmalı" });
   }

@@ -58,6 +58,31 @@ export const OYUNCU_GRUPLARI: Grup[] = [
       ["hareket.havada_kontrol", oran("Havada kontrol", "0 = havada yön değiştirilemez, 1 = yerdeki gibi.")],
     ],
     digerleri: { yol: "hareket", tur: "sayi" } },
+  { baslik: "Can ve dayanıklılık",
+    aciklama: "Koşma, kaçınma, vuruş ve zıplama dayanıklılık harcar; darbe can azaltır. Can biterse ölüm yok: oyuncu bayılır ve kalkar.",
+    alanlar: [
+      ["nitelikler.can", sayi("Can", "", { min: 1 })],
+      ["nitelikler.dayaniklilik", sayi("Dayanıklılık", "", { min: 1 })],
+      ["nitelikler.can_yenilenme", sayi("Can yenilenmesi", "/sn", { min: 0, adim: 0.5 })],
+      ["nitelikler.can_yenilenme_gecikmesi", sayi("…darbeden sonra başlama", "sn", { min: 0, adim: 0.5 })],
+      ["nitelikler.dayaniklilik_yenilenme", sayi("Dayanıklılık yenilenmesi", "/sn", { min: 0 })],
+      ["nitelikler.dayaniklilik_gecikmesi", sayi("…harcamadan sonra başlama", "sn", { min: 0, adim: 0.1 })],
+      ["nitelikler.tukenme_esigi", oran("Tükenme eşiği", "Dayanıklılık bitince bu orana dolmadan koşulamaz.")],
+      ["nitelikler.kosu_tuketimi", sayi("Koşu tüketimi", "/sn", { min: 0 })],
+      ["nitelikler.kacinma_bedeli", sayi("Kaçınma bedeli", "", { min: 0 })],
+      ["nitelikler.yumruk_bedeli", sayi("Yumruk bedeli", "", { min: 0 })],
+      ["nitelikler.guclu_vurus_bedeli", sayi("Güçlü vuruş bedeli", "", { min: 0 })],
+      ["nitelikler.tekme_bedeli", sayi("Tekme bedeli", "", { min: 0 })],
+      ["nitelikler.ziplama_bedeli", sayi("Zıplama bedeli", "", { min: 0 })],
+      ["nitelikler.engel_bedeli", sayi("Engel aşma bedeli", "", { min: 0 })],
+      ["nitelikler.hafif_darbe", sayi("Hafif darbede can kaybı", "", { min: 0 })],
+      ["nitelikler.guclu_darbe", sayi("Güçlü darbede can kaybı", "", { min: 0 })],
+      ["nitelikler.blok_hasar_carpani", oran("Gardda can kaybı oranı")],
+      ["nitelikler.blok_dayaniklilik", sayi("Gardda karşılanan darbe bedeli", "", { min: 0, aciklama: "Güçlü darbede iki katı; yetmezse gard kırılır." })],
+      ["nitelikler.bayilma_suresi", sayi("Bayılma süresi", "sn", { min: 0, adim: 0.5 })],
+      ["nitelikler.kalkis_can_orani", oran("Kalkınca can oranı")],
+    ],
+    digerleri: { yol: "nitelikler", tur: "sayi" } },
   { baslik: "Kaçınma (yana/geri sıçrama)",
     alanlar: [
       ["hareket.kacinma_mesafesi_ileri", sayi("İleri mesafe", "cm", { min: 0 })],
@@ -167,6 +192,31 @@ export const HARITA_GRUPLARI: Grup[] = [
       ["yol.unreal_klasor", { tur: "unreal", ad: "Yol klasörü", ipucu: "/Game/Dekor/Yol (varsayılan)" }],
       ["yol.unreal_karo", sayi("Yol karo boyu", "m", { min: 0, adim: 0.5, aciklama: "Varsayılan: yol genişliğinin yarısı." })],
     ] },
+  { baslik: "Unreal seviyesi", acikBaslar: true,
+    aciklama: "Haritanın zemini, yolları ve sınırları Unreal'de elle kurulmuş bir seviyedeyse: oyun kendi düz zeminini, yol şeridini, yan duvarları ve bitiş kemerini koymaz; oyuncu ve kişiler araziye yukarıdan indirilir.",
+    alanlar: [
+      ["seviye_zemini", { tur: "anahtar", ad: "Zemin Unreal seviyesinde", acik: "Evet (seviyenin kendi zemini)", kapali: "Hayır (oyun düz zemin kurar)" }],
+      ["unreal_seviye", { tur: "unreal", ad: "Unreal seviyesi", ipucu: "/Game/Haritalar/Koy", aciklama: "Bilgi: oyun şimdilik varsayılan haritayı açar." }],
+    ] },
+  { baslik: "Gün ve gece",
+    aciklama: "Gün-gece döngüsü (Unreal). Saat kayıtla saklanır ve ekranda pusulanın sağında görünür.",
+    alanlar: [
+      ["ortam.zaman.baslangic_saati", sayi("Başlangıç saati", "saat", { min: 0, max: 24, adim: 0.5 })],
+      ["ortam.zaman.gun_suresi_dakika", sayi("Bir günün süresi", "gerçek dk", { min: 1, aciklama: "Kaç gerçek dakikada bir oyun günü (24 saat) geçer." })],
+      ["ortam.zaman.en_yuksek_gunes", sayi("Öğlen güneş yüksekliği", "°", { min: 0, max: 90 })],
+      ["ortam.zaman.ogle_yonu", sayi("Öğlen güneşin yönü", "°")],
+      ["ortam.zaman.gece_gucu", oran("Ay ışığı", "Gece ışığı, güneşin bu oranı kadar.")],
+      ["ortam.zaman.gece_pozlama", sayi("Gece pozlaması", "", { adim: 0.05, aciklama: "Eksi = gece daha karanlık." })],
+      ["ortam.zaman.gece_gok_isigi", oran("Gece gök ışığı", "Gece de etrafın görünmesi için gökten gelen ışık.")],
+    ],
+    digerleri: { yol: "ortam.zaman", tur: "sayi" } },
+  { baslik: "Pozlama ve ışık gölgeleri",
+    alanlar: [
+      ["ortam.pozlama.golge_kontrasti", sayi("Gölge kontrastı", "", { min: 0.1, max: 1, adim: 0.05, aciklama: "Düşük = gölgeler daha aydınlık (varsayılan 0.6)." })],
+      ["ortam.pozlama.parlak_kontrasti", sayi("Parlak kontrastı", "", { min: 0.1, max: 1, adim: 0.05, aciklama: "Düşük = parlak gökyüzü daha az patlar (varsayılan 0.7)." })],
+      ["ortam.yerel_isik_golgesi", { tur: "anahtar", ad: "Lamba ışıklarının gölgesi", mantik: true, aciklama: "Lamba direkleri ve iç mekân ışıkları gölge yapsın mı? Çok sayıda gölgeli ışık ekran kartını zorlayabilir (varsayılan kapalı)." }],
+    ],
+    digerleri: { yol: "ortam.pozlama", tur: "sayi" } },
   { baslik: "Yol",
     alanlar: [
       ["yol.uzunluk", sayi("Uzunluk", "m", { min: 10 })],
@@ -208,6 +258,20 @@ export const HARITA_GRUPLARI: Grup[] = [
       ["bitis.metin", { tur: "yazi", ad: "Bitiş yazısı" }],
     ] },
 ];
+
+// ------------------------------------------------------------------ karakterler.json → kisi_nitelikler (bütün kişilerin ortak canı)
+export const KISI_NITELIK_GRUBU: Grup = { baslik: "Kişilerin canı (ortak)", acikBaslar: true,
+  aciklama: "Bütün kişiler için ortak değerler. Hafif darbe can azaltır (başa 1.25 kat); can biterse kişi yere düşer ve kalkınca belli oranda dolar. Güçlü darbe her zaman düşürür. Haritada bir kişiye özel değer yazılırsa onunki geçerlidir.",
+  alanlar: [
+    ["can", sayi("Can", "", { min: 1 })],
+    ["hafif_darbe", sayi("Hafif darbede kayıp", "", { min: 0 })],
+    ["guclu_darbe", sayi("Güçlü darbede kayıp", "", { min: 0 })],
+    ["blok_hasar_carpani", oran("Gardda kayıp oranı")],
+    ["can_yenilenme", sayi("Can yenilenmesi", "/sn", { min: 0, adim: 0.5 })],
+    ["can_yenilenme_gecikmesi", sayi("…darbeden sonra başlama", "sn", { min: 0, adim: 0.5 })],
+    ["kalkis_can_orani", oran("Kalkınca can oranı")],
+  ],
+  digerleri: { yol: "", tur: "sayi" } };
 
 /** Bir grup listesinde tanımlı bütün yollar (digerleri hesabı için). */
 export const tanimliYollar = (gruplar: Grup[]) => new Set(gruplar.flatMap(g => g.alanlar.map(([y]) => y)));

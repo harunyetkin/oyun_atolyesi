@@ -6,6 +6,76 @@ En yeni girdi en üsttedir.
 
 > **2026-11-19 (gece) — Yankı gecesi:** mobil yarasa oyunu Yankı'nın telefonda oynanabilen ilk sürümü kuruldu (ayrıntı ve telefonda deneme adımları: [yanki/GUNLUK.md](yanki/GUNLUK.md)).
 
+## 2026-11-22 (gece) — Kişilerin günlük programı, gün-gece ve can ayarları
+**Bu gece yapılanlar**
+- **Günlük program:** Oyundaki köylülerin artık saat saat bir programı var (ör. demirci 07:00'de dükkânında bekler, 19:00'da hana
+  gider). Atölye'de bir kişinin kartında **Günlük program** bölümü çıktı: her satır bir durak (saat, iş: dolaşır / bekler / oturur,
+  yer, yarıçap ya da bakış yönü). **+ Durak ekle**, **Saate göre sırala**, sil. Kişiyi seçince krokide durakları **turuncu kareler**
+  olarak (üstünde saati) ve aralarındaki yolu görüyorsun; **bir durağı sürükleyerek yerini değiştirebiliyorsun**.
+- **Can:** Kişi kartında **Bu kişinin canı** (boş kutular ortak değeri kullanır; ortak değer kutuda soluk yazıyor). Karakterler'de
+  oyuncunun **Can ve dayanıklılık** kartı (can, yenilenme, koşu/kaçınma/yumruk/tekme bedelleri, bayılma…) ve **Kişiler (beden ve can)**
+  sekmesinde bütün kişilerin **ortak canı**.
+- **Harita ayarları:** **Gün ve gece** (başlangıç saati, bir günün kaç gerçek dakika sürdüğü, öğlen güneşi, ay ışığı, gece
+  karanlığı), **Pozlama** (gölge ve parlaklık kontrastı, lambaların gölgesi) ve **Unreal seviyesi** (köy haritası gibi zemini
+  Unreal'de kurulmuş haritalar).
+- **Kroki artık yakınlaşıyor:** Köy meydanında 27 kişi var ve bazıları yüzlerce metre uzakta; kroki her şeyi sığdırınca her şey
+  noktaya dönüyordu. Artık kroki önce **kalabalık bölgeyi** gösteriyor; sağ üstteki düğmelerle (+, −, yakın görünüm, hepsini sığdır),
+  **fare tekerleğiyle** yakınlaşıp **boş yeri sürükleyerek** gezebiliyorsun. Uzaklaşınca işaretler ve isimler okunaklı kalacak kadar büyüyor.
+- Testler: 40 birim testi + Chrome'da 119 otomatik kontrol (14'ü bu gece) ve dosya işleri testi; hepsi geçiyor. Gerçek Köy meydanı
+  dosyalarıyla da açıp gezdim, hata yok.
+
+**Nasıl denenir**
+1. GitHub Desktop: **Fetch origin → Pull origin** (`oyun_atolyesi` ve `hikaye_oyun`), sonra `exe_yap.bat`, sonra `OyunAtolyesi.exe`.
+2. **Oyun içeriğini aç → Köy meydanı → Kişiler.** Listeden **Demirci**'nin kartına tıkla: krokide turuncu duraklar (7:00, 19:00, 23:00)
+   görünmeli. 19:00 durağını biraz kaydır, **Kaydet**. Unreal'de saati 19'a getir (oyunun saat komutuyla): demirci yeni yere gitmeli.
+3. **Harita ayarları → Gün ve gece**: "Bir günün süresi"ni 48'den 10'a indir, **Kaydet**; oyunda gün 10 dakikada geçmeli.
+4. Krokide tekerlekle yakınlaş/uzaklaş, boş yeri sürükle, sağ üstte **hepsini sığdır**'a bas: uzaktaki Balıkçı reisi ve Ebe görünmeli.
+
+**Ekran görüntüleri**
+![Seçili kişinin programı krokide](gunluk/2026-11-22/program_kroki.png)
+![Program durakları](gunluk/2026-11-22/program_duraklari.png)
+![Köy meydanı krokisi (yakın görünüm)](gunluk/2026-11-22/koy_kroki.png)
+
+**Küçük kararlar (ben seçtim)**
+- Yeni durak, son durağın 2 saat sonrasına ve aynı yere konuyor; "bekler" işiyle başlıyor.
+- Karakterler'deki "Kişilerin bedenleri" sekmesinin adı **"Kişiler (beden ve can)"** oldu.
+
+### Haftalık inceleme — 16–22 Kasım haftası
+**Bu hafta neler eklendi**
+- **Oyun Atölyesi** (v0.4 → v0.7): oyunun içerik dosyalarını açıp düzenleyen **Oyun içeriği** ekranı (16 Kasım); haritada **kişiler**
+  (kroki üzerinde alan, şerit; davranış, sözler, saldırı tavrı, kalabalık — 17 Kasım); **sandıklar ve görevler** (20 Kasım);
+  **günlük program, gün-gece, can** ve yakınlaşan kroki (bu gece). Her biri oyunun o hafta eklediği yeni alanlara göre yapıldı.
+- **Yankı** (yeni!): telefonda oynanan yarasa oyunu sıfırdan kuruldu (19 Kasım), bilgisayarda çift tıklanan **Yanki.html**,
+  geniş ekrana tam sığma ve mağaranın akarak belirmesi (21 Kasım, senin geri bildirimin).
+- Gece çalışması artık tek sohbette, geceler sırayla Atölye / Yankı.
+
+**Bu hafta denemeni önerdiğim 5 şey**
+1. **Bir köylünün günü:** Atölye → Köy meydanı → bir kişinin programına yeni bir durak ekle (ör. 12:00 kuyunun başında bekle) → Kaydet → oyunda saati ilerlet.
+2. **Sandık + görev:** Sandıklar'da bir sandık ekle, içine bir eşya koy; Görevler'de "Köy bilgesiyle konuş → sandığı aç" görevi kur; oyunda bitir.
+3. **Bir kişinin canı:** Demirci'nin canını 200 yap (kişiye özel), oyunda dövüşte farkı gör; sonra kutuyu boşaltıp ortak değere döndür.
+4. **Yankı bilgisayarda:** `oyun_atolyesi\yanki\Yanki.html`'e çift tıkla, F11 ile tam ekran; rekorunu yaz.
+5. **Yankı telefonda:** GitHub'da Settings → Pages → main → Save (bir kerelik), sonra telefondan https://harunyetkin.github.io/oyun_atolyesi/yanki/oyun/ → ana ekrana ekle.
+
+**Tasarım ve yön için sorular** (cevabını gece çalışmasının sohbetine yazman yeterli)
+- **Atölye'de sıradaki büyük adım:** (A) iç mekânlar, geçişler ve meşaleler (köyün kalanı), (B) **konuşma ağacı düzenleyicisi** (diyaloglar şimdi
+  yalnız okunuyor), (C) 3D harita görünümü. Ben (A)'yı sıraya koydum.
+- **Kroki mi, 3D mi?** Köy büyüdükçe kroki yetmeyebilir: (A) krokiyi geliştirmeye devam (zemin ve binaların ana hatlarını çizmek), (B) doğrudan 3D görünüme geçmek.
+- **Yankı'nın yönü:** (A) soldan sağa (şimdiki), (B) aşağıdan yukarı. Ve Mor → Buz → Lav bölümleri ile yol ayrımları uygun mu?
+
+**Gelecek haftanın planı**
+- Atölye: iç mekânlar ve geçişler, meşaleler, zeminler ve görünmez duvarlar; ardından `arayuz.json` (menü görünüşü) ve oturaklar.
+- Yankı: duraklat düğmesi, sarkıt ve dikitler, örümcek ağı / su damlası gibi ölümcül olmayan tehlikeler.
+
+**Kısa ekran görüntüsü serisi**
+![Oyun içeriği: karakterler (16 Kasım)](gunluk/2026-11-16/oyun_karakterler.png)
+![Haritadaki kişiler (17 Kasım)](gunluk/2026-11-17/harita_kisiler.png)
+![Görevler (20 Kasım)](gunluk/2026-11-20/gorevler.png)
+![Günlük program (22 Kasım)](gunluk/2026-11-22/program_kroki.png)
+![Yankı geniş ekranda (21 Kasım)](yanki/gunluk/2026-11-21/genis_ekran.png)
+
+**Sıradaki adım**
+- Atölye'nin sıradaki gecesinde: iç mekânlar ve geçişler.
+
 ## 2026-11-20 (gece) — Sandıklar ve görevler artık Atölye'de
 **Bu gece yapılanlar**
 - Haritanın üstünde iki yeni sekme var: **Sandıklar** ve **Görevler**.

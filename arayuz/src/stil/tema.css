@@ -222,15 +222,15 @@ textarea.giris { resize: vertical; min-height: 34px; line-height: 1.4; }
 .puanlar { display: flex; flex-direction: column; gap: 6px; }
 .puan-satiri { display: flex; gap: 6px; align-items: center; }
 .puan-satiri select { max-width: 220px; }
-.kroki { background: var(--z1); border: 1px solid var(--cizgi); border-radius: 8px; padding: 8px; margin-bottom: 12px; }
-.kroki svg { width: 100%; max-height: 380px; min-height: 160px; display: block; background: #1b2a1d; border-radius: 6px; }
+.kroki { position: relative; background: var(--z1); border: 1px solid var(--cizgi); border-radius: 8px; padding: 8px; margin-bottom: 12px; }
+.kroki svg.kroki-harita { width: 100%; max-height: 380px; min-height: 160px; display: block; background: #1b2a1d; border-radius: 6px; }
 .kroki-esya { cursor: grab; } .kroki-esya:active { cursor: grabbing; }
-.kroki-yazi { font-size: 1.7px; fill: #e4e7ee; text-anchor: middle; pointer-events: none; paint-order: stroke; stroke: rgba(0,0,0,.6); stroke-width: .35px; }
-.kroki-yazi.mor { fill: #c9b8ff; } .kroki-yazi.sari { fill: #e9b949; } .kroki-yazi.yesil { fill: #4cc38a; }
+.kroki-yazi { font-size: calc(1.7px * var(--kroki-olcek, 1)); fill: #e4e7ee; text-anchor: middle; pointer-events: none; paint-order: stroke; stroke: rgba(0,0,0,.6); stroke-width: calc(.35px * var(--kroki-olcek, 1)); }
+.kroki-yazi.mor { fill: #c9b8ff; } .kroki-yazi.sari { fill: #e9b949; } .kroki-yazi.yesil { fill: #4cc38a; } .kroki-yazi.turuncu { fill: #f6c08c; }
 .kroki-lejant { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--yazi2); padding: 8px 4px 0; }
 .kroki-lejant i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
 .kroki-kisi > circle[data-testid^="kroki-alan"] { cursor: move; }
-.kroki-tutamac { fill: #fff; stroke: #4f9cf7; stroke-width: .3px; cursor: ew-resize; }
+.kroki-tutamac { fill: #fff; stroke: #4f9cf7; stroke-width: calc(.3px * var(--kroki-olcek, 1)); cursor: ew-resize; }
 .secim-aciklama { color: var(--yazi3); font-size: 12px; margin-top: 3px; line-height: 1.4; }
 .kisi-ozet { display: flex; flex-wrap: wrap; gap: 5px; }
 .kisi-ozet span { background: var(--z2); border: 1px solid var(--cizgi); border-radius: 10px; padding: 1px 8px; font-size: 11.5px; color: var(--yazi2); }
@@ -240,3 +240,5 @@ textarea.giris { resize: vertical; min-height: 34px; line-height: 1.4; }
 .gorev-adimlari { display: flex; flex-direction: column; gap: 6px; }
 .gorev-adimi { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .gorev-adimi .adim-no { width: 20px; height: 20px; border-radius: 10px; background: var(--z3); color: var(--yazi2); font-size: 11px; display: grid; place-items: center; flex: none; }
+.kroki-dugmeler { position: absolute; top: 14px; right: 14px; display: flex; gap: 2px; background: rgba(17,19,24,.75); border: 1px solid var(--cizgi); border-radius: 6px; padding: 2px; z-index: 1; }
+.kroki svg.kroki-harita { cursor: grab; } .kroki svg.kroki-harita:active { cursor: grabbing; }

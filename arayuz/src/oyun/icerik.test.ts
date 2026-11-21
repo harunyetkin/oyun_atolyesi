@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   anahtarDegistir, benzersizKimlik, dosyaTuru, esyaCogalt, esyaEkle, esyaUyarilari, haritaKisileri, kimlikGecerli, kimlikYap,
   gorevEkle, gorevHedefiniYenile, gorevHedefleri, gorevUyarilari, sandikCogalt, sandikEkle, sandikUyarilari,
-  kisiUyarilari, npcCogalt, npcEkle, npcSeridi, npcUyarilari, unrealYoluSorunu, yolOku, yolYaz,
+  kisiUyarilari, programDuragiEkle, npcCogalt, npcEkle, npcSeridi, npcUyarilari, unrealYoluSorunu, yolOku, yolYaz,
 } from "./icerik";
 import { HARITA_GRUPLARI, OYUNCU_GRUPLARI } from "./sema";
 import { ORNEK_ICERIK } from "./ornekIcerik";
@@ -72,6 +72,19 @@ describe("oyun içeriği yardımcıları", () => {
     const u = npcUyarilari(h, diyaloglar).map(x => x.metin).join(" | ");
     expect(u).toMatch(/Hız 0–3/); expect(u).toMatch(/bulunamadı: diyaloglar\/yok.json/); expect(u).toMatch(/saldırı tavrı: saldir/);
     expect(u).toMatch(/iki kez/); expect(u).toMatch(/şeridinin başı/); expect(u).toMatch(/Game/);
+  });
+
+  it("günlük program: durak ekler (son duraktan 2 saat sonra), uyarıları bulur", () => {
+    const h: any = structuredClone(ORNEK_ICERIK["haritalar/deneme_yolu.json"]);
+    const yolcu = h.npcler.find((n: any) => n.id === "yolcu");
+    programDuragiEkle(yolcu);
+    expect(yolcu.program).toEqual([{ saat: 8, is: "bekle", yer: yolcu.alan.merkez }]);
+    programDuragiEkle(yolcu);
+    expect(yolcu.program[1].saat).toBe(10);
+    expect(npcUyarilari(h, [])).toEqual([]);
+    yolcu.program[0].saat = 25; yolcu.program[1].is = "uyu";
+    const u = npcUyarilari(h, []).map(x => x.yer + ": " + x.metin).join(" | ");
+    expect(u).toMatch(/program 1: Saat 0–24/); expect(u).toMatch(/program 2: Bilinmeyen iş: uyu/);
   });
 
   it("sandık ekler, çoğaltır; uyarıları bulur", () => {

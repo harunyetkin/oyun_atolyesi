@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useDurum } from "../depo/durum";
 import { useOyun } from "./durum";
-import { HARITA_GRUPLARI, OYUNCU_GRUPLARI, tanimliYollar, type Alan, type Grup } from "./sema";
+import { HARITA_GRUPLARI, KISI_NITELIK_GRUBU, OYUNCU_GRUPLARI, tanimliYollar, type Alan, type Grup } from "./sema";
 import {
   anahtarDegistir, benzersizKimlik, dosyaTuru, esyaCogalt, esyaEkle, esyaUyarilari, haritaKisileri, kimlikGecerli, kisiUyarilari,
   gorevHedefiniYenile, yolOku, yolYaz, type Esya, type Uyari,
@@ -34,9 +34,10 @@ function GrupKarti({ grup, dosya, onEk, kok, tanimli }: { grup: Grup; dosya: str
     const sozluk = yolOku(kok, grup.digerleri.yol);
     if (sozluk && typeof sozluk === "object" && !Array.isArray(sozluk)) {
       for (const [k, v] of Object.entries(sozluk)) {
-        const yol = grup.digerleri.yol + "." + k;
+        const yol = grup.digerleri.yol ? grup.digerleri.yol + "." + k : k;
         if (tanimli.has(yol)) continue;
-        const tur = typeof v === "number" ? "sayi" : grup.digerleri.tur;
+        if (v !== null && typeof v === "object") continue;   // iç içe sözlükler kendi kartlarında
+        const tur = typeof v === "number" ? "sayi" : typeof v === "string" && k === "not" ? "yazi" : grup.digerleri.tur;
         digerleri.push([yol, tur === "sayi" ? { tur: "sayi", ad: k } : tur === "unreal" ? { tur: "unreal", ad: k } : { tur: "yazi", ad: k }]);
       }
     }
@@ -76,7 +77,7 @@ function KarakterlerSayfasi({ dosya }: { dosya: string }) {
     <>
       <SayfaSekmeleri aktif={sekme} sec={setSekme} sekmeler={[
         { id: "oyuncu", ad: "Oyuncu", ikon: <UserRound size={14} /> },
-        { id: "kisiler", ad: "Kişilerin bedenleri", ikon: <Users size={14} />, sayi: Object.keys(kisiler).length }]} />
+        { id: "kisiler", ad: "Kişiler (beden ve can)", ikon: <Users size={14} />, sayi: Object.keys(kisiler).length }]} />
       <div className="icerik-sayfa">
         {sekme === "oyuncu" ? <>
           <p className="sayfa-aciklama">Oyuncunun Unreal'deki bedeni, hareketleri ve “his” ayarları. Bir kutuyu boş bırakırsan oyun kendi varsayılanını kullanır.
@@ -84,19 +85,22 @@ function KarakterlerSayfasi({ dosya }: { dosya: string }) {
           <div className="kartlar">
             {OYUNCU_GRUPLARI.map(g => <GrupKarti key={g.baslik} grup={g} dosya={dosya} onEk="oyuncu" kok={veri?.oyuncu || {}} tanimli={tanimli} />)}
           </div>
-        </> : <KisilerListesi dosya={dosya} kisiler={kisiler} npcler={npcler} uyarilar={uyarilar} />}
+        </> : <KisilerListesi dosya={dosya} kok={veri} kisiler={kisiler} npcler={npcler} uyarilar={uyarilar} />}
       </div>
     </>
   );
 }
 
-function KisilerListesi({ dosya, kisiler, npcler, uyarilar }: { dosya: string; kisiler: Record<string, any>; npcler: { id: string; ad: string; harita: string }[]; uyarilar: Uyari[] }) {
+function KisilerListesi({ dosya, kok, kisiler, npcler, uyarilar }: { dosya: string; kok: any; kisiler: Record<string, any>; npcler: { id: string; ad: string; harita: string }[]; uyarilar: Uyari[] }) {
   const degistir = useOyun.getState().degistir;
   const eksik = npcler.filter(n => !(n.id in kisiler));
   const ekle = (id: string) => degistir(dosya, d => { d.kisiler = { ...(d.kisiler || {}), [id]: { unreal_govde: "" } }; });
   return <>
     <p className="sayfa-aciklama">Haritalardaki her kişinin (npc) Unreal'deki bedeni. Kimlik, haritadaki kişinin kimliğiyle aynı olmalı.
-      Bedeni seçilmeyen kişi oyuncunun bedenini kullanır.</p>
+      Bedeni seçilmeyen kişi oyuncunun bedenini kullanır. Üstteki kartta bütün kişilerin ortak can ayarları var.</p>
+    <div className="kartlar" style={{ marginBottom: 12 }}>
+      <GrupKarti grup={KISI_NITELIK_GRUBU} dosya={dosya} onEk="kisi_nitelikler" kok={kok?.kisi_nitelikler || {}} tanimli={tanimliYollar([KISI_NITELIK_GRUBU])} />
+    </div>
     <Uyarilar liste={uyarilar} />
     <div className="kartlar">
       {Object.entries(kisiler).map(([id, k]) => {

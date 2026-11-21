@@ -140,7 +140,10 @@ Durum: ✅ var · 🧩 arayüzü var, işlevi sonra · 🔜 planlı (aşama numa
 | Sandıklar: ekle/çoğalt/sil, krokide sürükleme, içindeki eşya ve puanlar, Unreal model/kapak ayarları | ✅ |
 | Görevler: adımlar (yazı, tür, haritadan hedef), sıralama, uyarılar; kimlik değişince hedefler izler | ✅ |
 | Sesler, güneş hareketi, eşya açıklaması | ✅ |
-| Oturaklar, ana menü beden seçimi, model çarpışmaları, kişi programı, iç mekânlar/geçişler, arayüz.json | 🔜 |
+| Kişilerin günlük programı (duraklar, krokide sürükleme), kişiye özel ve ortak can, oyuncunun can ve dayanıklılığı | ✅ |
+| Gün-gece döngüsü, pozlama, Unreal seviyesi ayarları | ✅ |
+| Kroki: yakınlaştırma, kaydırma, yakın görünüm, hepsini sığdır | ✅ |
+| Oturaklar, ana menü beden seçimi, model çarpışmaları, iç mekânlar/geçişler, meşaleler, arayüz.json | 🔜 |
 | Kapı seçimleri, dekor yerleştirme (3D görünümde) | 🔜2, 🔜4 |
 | Konuşma ağacı, karakter oluşturma, ölçek düzenleyicileri | 🔜4 |
 | "Oyunda dene" | 🔜3 |

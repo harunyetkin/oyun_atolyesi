@@ -8,7 +8,7 @@ import type { Alan } from "./sema";
 export const yuvarla = (v: number) => Math.round(v * 1000) / 1000;
 
 /** Sayı kutusu: boş bırakılabilir (oyun kendi varsayılanını kullanır). Virgül de kabul eder. */
-export function SayiAlani({ deger, degisti, alan, testId }: { deger: unknown; degisti: (v: number | undefined) => void; alan: Extract<Alan, { tur: "sayi" }>; testId?: string }) {
+export function SayiAlani({ deger, degisti, alan, testId, ipucu = "varsayılan" }: { deger: unknown; degisti: (v: number | undefined) => void; alan: Extract<Alan, { tur: "sayi" }>; testId?: string; ipucu?: string }) {
   const metinYap = (v: unknown) => (typeof v === "number" ? String(yuvarla(v)) : "");
   const [metin, setMetin] = useState(metinYap(deger));
   useEffect(() => setMetin(metinYap(deger)), [deger]);
@@ -28,7 +28,7 @@ export function SayiAlani({ deger, degisti, alan, testId }: { deger: unknown; de
         <input type="range" min={alan.min} max={alan.max} step={alan.adim} value={deger} onChange={e => degisti(Number(e.target.value))} />
       )}
       <div className="sayi-giris" style={{ width: kaydirici ? 90 : 140, flex: "none" }}>
-        <input value={metin} placeholder="varsayılan" onChange={e => setMetin(e.target.value)} onBlur={uygula} data-testid={testId}
+        <input value={metin} placeholder={ipucu} onChange={e => setMetin(e.target.value)} onBlur={uygula} data-testid={testId}
           onKeyDown={e => {
             if (e.key === "Enter") (e.target as HTMLInputElement).blur();
             if ((e.key === "ArrowUp" || e.key === "ArrowDown") && typeof deger === "number") {

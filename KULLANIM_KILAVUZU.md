@@ -4,7 +4,7 @@ Bu kılavuz, Oyun Atölyesi'ndeki **her ekranı, her düğmeyi ve her menüyü**
 **hangi adımlarla geliştirildiğini** anlatır. Claude her çalışmada kılavuzu günceller.
 Yeni bir düğme eklenince, değişince ya da bir özellik "yakında" olmaktan çıkınca burası da değişir.
 
-> Son güncelleme: 2026-11-20 (gece) · Araç sürümü: 0.6 (Oyun içeriği: karakterler, haritadaki kişiler ve kalabalık, eşyalar, sandıklar, görevler, harita ayarları)
+> Son güncelleme: 2026-11-22 (gece) · Araç sürümü: 0.7 (Oyun içeriği: karakterler ve can, haritadaki kişiler, günlük programlar, kalabalık, eşyalar, sandıklar, görevler, gün-gece ve harita ayarları)
 
 **İçindekiler**
 1. [Temel kavramlar](#1-temel-kavramlar)
@@ -362,6 +362,7 @@ Oyun bu dosyaları her açılışta okur; yani burada değiştirip **kaydedince*
 - **Beden ve animasyon:** MetaHuman bedeninin, Animation Blueprint'in ve hareket karışımının Unreal yolları (`/Game/...`), hız çarpanı.
 - **Kontrol biçimi:** *Kameraya göre yürü* anahtarı (açık = W/A/S/D kameranın baktığı yöne göre yürütür, karakter gittiği yöne döner;
   kapalı = eski biçim, A/D karakteri döndürür) ve serbest dönüş hızı / çevikliği / ivmesi.
+- **Can ve dayanıklılık:** can, dayanıklılık, yenilenmeler, tükenme eşiği, koşu/kaçınma/yumruk/tekme/zıplama bedelleri, darbelerde can kaybı, gard, bayılma süresi.
 - **Hareket**, **Kaçınma**, **Kamera**, **Animasyon geçişi**, **Dövüş**, **Doğallık**, **Etkileşim anları** (0–1 arası; kaydırıcı da var),
   **Çanta** (göster, konum, boyut, renk), **Animasyonlar** (her hareketin Unreal yolu; oturma, itme, darbe alma, yere düşme, yerden kalkma dahil),
   **Animasyon yuvaları**. Dövüş kartında yumruğun değdiği an (0–1) da var.
@@ -370,7 +371,7 @@ Oyun bu dosyaları her açılışta okur; yani burada değiştirip **kaydedince*
 - Oyuna sonradan eklenen ve henüz açıklaması yazılmamış bir ayar da ilgili kartta **yeni** rozetiyle görünür ve düzenlenebilir.
 - Yanlış yazılmış bir Unreal yolu (ör. `/Game/` ile başlamıyor) kutunun altında sarı uyarıyla gösterilir.
 
-**Karakterler → Kişilerin bedenleri sekmesi.** Haritalardaki her kişinin (npc) MetaHuman bedeni:
+**Karakterler → Kişiler (beden ve can) sekmesi.** En üstteki **Kişilerin canı (ortak)** kartı bütün kişilerin can ayarlarıdır (can, hafif/güçlü darbede kayıp, gardda kayıp oranı, yenilenme, kalkınca can oranı); haritada bir kişiye özel değer yazılırsa onunki geçerli olur. Altında Haritalardaki her kişinin (npc) MetaHuman bedeni:
 kimlik, beden yolu, isteğe bağlı Animation Blueprint. Kartın sağ üstündeki çöp kutusu kişiyi siler.
 Altta, haritada olup bedeni seçilmemiş kişiler için hazır **+ ekle** düğmeleri çıkar. Kimlik yalnız küçük harf, rakam ve `_` olabilir;
 haritada olmayan bir kimlik yazarsan üstteki **Dikkat** kutusu uyarır.
@@ -384,22 +385,35 @@ haritada olmayan bir kimlik yazarsan üstteki **Dikkat** kutusu uyarır.
   Krokide boş bir yere tıklamak seçimi bırakır. Kroki **yolda yürür** kişilerin yaya şeridini de mor düz çizgi olarak gösterir;
   seçiliyken şeridin **iki ucundaki beyaz noktaları** çekerek şeridi uzatır, kısaltır ya da yana kaydırırsın.
 - Her kişinin kartı:
-  - **Kimlik, Ad.** Kimliği değiştirirsen haritadaki görev adımları ("… ile konuş") ve Karakterler → Kişilerin bedenleri'ndeki kaydı da yeni kimliğe geçer.
+  - **Kimlik, Ad.** Kimliği değiştirirsen haritadaki görev adımları ("… ile konuş") ve Karakterler → Kişiler (beden ve can)'daki kaydı da yeni kimliğe geçer.
   - **Davranış:** *Dolaşır* (varsayılan), *Yerinde bekler*, *Oturur* (alanın ortasına en yakın boş banka oturur), *Yolda yürür* (yaya şeridinde ileri geri). Altında kısa açıklaması yazar.
   - **Yer ve hareket:** alanın ortası (X: yolun sağı/solu, Z: yol boyunca; metre), yarıçap, **yürüme hızı** (m/sn; oyun 0–3 arasına kırpar),
     **durma mesafesi** (oyuncu bu kadar yaklaşınca kişi durup ona döner). *Yolda yürür* seçiliyse **Yaya şeridi** (yan, baş, son; metre) çıkar;
     **Varsayılana dön** şeridi siler (oyun alanın ortasından ±20 m'lik şerit kullanır).
+  - **Bakış yönü** (beklerken baktığı yön, °) ve varsa **Grup** (ör. köy).
+  - **Günlük program:** saat saat ne yapacağı. Her satır bir durak: **Saat** (0–24; 7.5 = 07:30), **iş** (*Dolaşır / Bekler / Oturur*),
+    **yer** (X, Z; metre) ve dolaşırken yarıçap (r) ya da beklerken bakış yönü (°). **+ Durak ekle** son durağın 2 saat sonrasını ekler;
+    **Saate göre sırala** satırları sıraya koyar; çöp kutusu durağı siler. Program varsa kişinin davranışını saate göre program belirler.
+    Kişi seçiliyken krokide durakları turuncu kareler (üstünde saati) ve aralarındaki kesikli yol olarak görürsün; **bir durağı
+    sürükleyerek** yerini değiştirebilirsin.
   - **Konuşma ve sözler:** **Konuşma** (diyalog dosyası seçilir; "konuşmaz" seçilirse yalnız dolaşır), **Selamlaşma** (tokalaşır / el sallar / selamlaşmaz),
     **Yanından geçerken** söylediği kısa sözler (**+ Söz ekle**, satırın yanındaki çöp kutusu siler).
   - **Çarpışma ve saldırı:** **Saldırıya uğrayınca** tavrı (*Karışık* varsayılan, *Kaçar*, *Savunur*, *Karşılık verir*) ve
     **Çarpınca / İtilince / Vurulunca** söylediği sözler.
-  - **Görünüş:** **Beden (MetaHuman)** yolu. Boş bırakırsan Karakterler → Kişilerin bedenleri'ndeki beden, o da yoksa oyuncunun bedeni kullanılır.
+  - **Bu kişinin canı:** can, darbelerde kayıp, gard oranı, yenilenme… Boş kutular **Karakterler → Kişiler** sekmesindeki ortak
+    değerleri kullanır (kutuda soluk olarak görünür); bir değer yazarsan yalnız bu kişi için geçerli olur.
+  - **Görünüş:** **Beden (MetaHuman)** yolu. Boş bırakırsan Karakterler → Kişiler (beden ve can)'daki beden, o da yoksa oyuncunun bedeni kullanılır.
     Eski Godot görünümü (cinsiyet, yaş, boy, kıyafet) yalnız özet olarak gösterilir, burada değiştirilmez.
   - Kartın sağ üstünde **Çoğalt** (kopyayı biraz ileriye koyar) ve **Sil**; en altta **+ Kişi ekle**.
 - **Kalabalık** kartı: Unreal'de otomatik üretilmiş MetaHuman'lardan (klasördeki, adı belli bir önekle başlayanlar) yolda dolaşan kişiler:
   kişi sayısı, görünen ad, MetaHuman klasörü, ad öneki, dolaşma yarıçapı, konuşma ve yanından geçerken söyledikleri.
   Haritada kalabalık yoksa **Kalabalık ekle** düğmesi çıkar; çöp kutusu kalabalığı kaldırır.
 - Sorunlar (iki kez kullanılan kimlik, 3 m/sn'den hızlı kişi, bulunamayan konuşma dosyası, yanlış Unreal yolu, ters yaya şeridi) üstteki **Dikkat** kutusunda listelenir.
+
+**Krokide gezinme:** Sağ üstteki düğmeler: **+ / −** yakınlaştırır ve uzaklaştırır, **yakın görünüm** (çerçeve simgesi) haritanın
+kalabalık bölgesine döner, **hepsini sığdır** (çapraz oklar) her şeyi gösterir. Farenin **tekerleği** imlecin olduğu yere yakınlaştırır;
+**boş bir yeri sürükleyerek** krokiyi kaydırırsın. Büyük haritalarda (ör. Köy meydanı) kroki önce kalabalık bölgeyi gösterir; uzaktaki
+kişileri görmek için “hepsini sığdır”a bas.
 
 **Harita → Eşyalar sekmesi.** Yerdeki alınabilir eşyalar (oyunda yaklaşınca “[F] Al”).
 
@@ -433,7 +447,7 @@ haritada olmayan bir kimlik yazarsan üstteki **Dikkat** kutusu uyarır.
 **Kroki hakkında:** Krokinin boyutu haritadaki şeylere (yol, dekor, kişiler, eşyalar, sandıklar, kapılar) göre ayarlanır. Bitiş çizgisi
 çok uzaktaysa (ör. Köy meydanında 500 m ileride) kroki onu göstermek için küçülmez; yolun altında “bitiş … m ileride →” yazar.
 
-**Harita → Harita ayarları sekmesi.** Genel (ad, tema, not), **Unreal: dekor, zemin ve yol yüzeyi** (model açı düzeltmesi,
+**Harita → Harita ayarları sekmesi.** Genel (ad, tema, not), **Unreal seviyesi** (zemin ve yollar Unreal'deki elle kurulmuş seviyedeyse anahtar açık; seviyenin yolu), **Gün ve gece** (başlangıç saati, bir oyun gününün gerçek dakika olarak süresi, öğlen güneşin yüksekliği ve yönü, ay ışığı, gece pozlaması ve gece gök ışığı), **Pozlama ve ışık gölgeleri** (gölge ve parlak kontrastı, lamba ışıklarının gölgesi), **Unreal: dekor, zemin ve yol yüzeyi** (model açı düzeltmesi,
 zemin/yol malzeme klasörleri ve karo boyları), Yol (uzunluk, genişlik, renkler, orta şerit), Işık ve gökyüzü, Başlangıç ve bitiş.
 
 **Diyaloglar ve diğer dosyalar** şimdilik yalnızca okunur gösterilir <kbd>Aşama 4</kbd>.
@@ -461,6 +475,7 @@ Her satır bir çalışma oturumudur; ayrıntılar GUNLUK.md'de.
 | 2026-11-16 gece | **v0.4** — Oyun içeriği | Oyunun klasörünü açma (atolye.py, yol güvenliği, kayıttan önce yedek), **Oyun içeriği** ekranı: karakterler.json (oyuncunun bütün ayarları, kameraya göre kontrol, kişilerin MetaHuman bedenleri), harita (Unreal zemin/yol ve model açısı, yol, ışık, başlangıç/bitiş), **eşyalar** (kart + sürüklenebilir kroki, puanlar), uyarılar, ayrı geri al/yinele. |
 | 2026-11-17 gece | **v0.5** — Haritadaki kişiler | Harita → **Kişiler** sekmesi: krokide dolaşma alanını sürükleme ve kenardan büyütme, yaya şeridinin uçlarını çekme; davranış (dolaş/bekle/otur/yolda yürü), hız, durma mesafesi, konuşma, selamlaşma, yanından geçerken sözler, saldırıya tavır, çarpma/itilme/vurulma sözleri, beden; **Kalabalık** kartı; kimlik değişince görev ve beden kaydı da güncellenir. Oyuncu animasyonlarına oturma/itme/darbe/düşme/kalkma, dövüşe vuruş anı adları. |
 | 2026-11-20 gece | **v0.6** — Sandıklar ve görevler | Harita → **Sandıklar** (krokide sürükleme, içindeki eşya, puanlar, Unreal model/kapak ayarları) ve **Görevler** (adımlar: yazı, tür, haritadan seçilen hedef; sıralama; uyarılar). Kişi/eşya/sandık kimliği değişince görev adımları da güncellenir. Kroki boyutu içeriğe göre (uzak bitiş okla gösterilir); yeni ana harita Köy meydanı ile denendi. |
+| 2026-11-22 gece | **v0.7** — Günlük program, gün-gece, can | Kişi kartında **günlük program** (duraklar, krokide sürüklenir), bakış yönü, kişiye özel can; oyuncunun **can ve dayanıklılık** kartı ve kişilerin **ortak canı**; Harita ayarlarında **Unreal seviyesi**, **Gün ve gece**, **Pozlama**. Krokide **yakınlaştırma/kaydırma**, yakın görünüm ve hepsini sığdır (Köy meydanı gibi büyük haritalar için). |
 
 **Sıradaki adımlar:** Aşama 2 — 3D görünüm (3D Harita sekmesi, yörünge kamerası, glTF modeller,
 taşı/döndür/ölçekle tutamaçları, ışık ve gökyüzü önizlemesi).

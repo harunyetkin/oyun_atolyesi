@@ -1,5 +1,5 @@
 // Tarayıcı testinde (?test=1) kullanılan örnek oyun içeriği.
-// Oyunun (hikaye_oyun) icerik/ klasöründen 2026-11-16'da kopyalandı (kişiler, kalabalık, sandık, görev ve sesler 2026-11-17'de yenilendi); harita kısaltıldı.
+// Oyunun (hikaye_oyun) icerik/ klasöründen 2026-11-16'da kopyalandı (kişiler, kalabalık, sandık, görev ve sesler 2026-11-17'de yenilendi; nitelikler, gün-gece ve bir örnek günlük program 2026-11-22'de eklendi); harita kısaltıldı.
 export const ORNEK_ICERIK: Record<string, any> = {
  "oyun.json": {
   "surum": 1,
@@ -171,6 +171,29 @@ export const ORNEK_ICERIK: Record<string, any> = {
      20
     ],
     "renk": "#2a170c"
+   },
+   "nitelikler": {
+    "not": "Can ve dayanıklılık. Koşma/kaçınma/vuruş/zıplama dayanıklılık harcar; darbe can azaltır. Can biterse ölüm yok: bayılır, bayilma_suresi kadar yatar, can kalkis_can_orani kadar dolup kalkar.",
+    "can": 100,
+    "dayaniklilik": 100,
+    "can_yenilenme": 2,
+    "can_yenilenme_gecikmesi": 8,
+    "dayaniklilik_yenilenme": 26,
+    "dayaniklilik_gecikmesi": 0.9,
+    "tukenme_esigi": 0.3,
+    "kosu_tuketimi": 14,
+    "kacinma_bedeli": 22,
+    "yumruk_bedeli": 7,
+    "guclu_vurus_bedeli": 16,
+    "tekme_bedeli": 12,
+    "ziplama_bedeli": 8,
+    "engel_bedeli": 10,
+    "hafif_darbe": 8,
+    "guclu_darbe": 20,
+    "blok_hasar_carpani": 0.15,
+    "blok_dayaniklilik": 10,
+    "bayilma_suresi": 4,
+    "kalkis_can_orani": 0.35
    }
   },
   "kisiler": {
@@ -186,6 +209,16 @@ export const ORNEK_ICERIK: Record<string, any> = {
    "gezgin_2": {
     "unreal_govde": "/Game/MetaHumans/Kisi_Kadin/BP_Kisi_Kadin"
    }
+  },
+  "kisi_nitelikler": {
+   "not": "Kişilerin (NPC) canı. Hafif darbe can azaltır (başa 1.25 kat); can biterse kişi yere düşer, kalkınca kalkis_can_orani kadar dolar. Güçlü darbe her zaman düşürür. Haritadaki kişide \"nitelikler\" varsa onun değerleri bunların üstüne yazılır.",
+   "can": 60,
+   "hafif_darbe": 12,
+   "guclu_darbe": 30,
+   "blok_hasar_carpani": 0.15,
+   "can_yenilenme": 2,
+   "can_yenilenme_gecikmesi": 8,
+   "kalkis_can_orani": 0.5
   }
  },
  "haritalar/deneme_yolu.json": {
@@ -210,6 +243,20 @@ export const ORNEK_ICERIK: Record<string, any> = {
    "zemin_malzemesi": {
     "doku": "varliklar/dokular/grass004",
     "olcek": 0.35
+   },
+   "zaman": {
+    "not": "Gün-gece döngüsü. gun_suresi_dakika: gerçek dakikada bir oyun günü (24 saat). ogle_yonu: öğlen güneşin geldiği yön (Godot derece). gece_gucu: ay ışığı, güneşin oranı. gece_pozlama: gece otomatik pozlama sapmasi (eksi karanlik), gece_gok_isigi: gece gok isigi orani (2026-11-20: gece de etraf gorunsun).",
+    "baslangic_saati": 10,
+    "gun_suresi_dakika": 48,
+    "en_yuksek_gunes": 58,
+    "ogle_yonu": -30,
+    "gece_gucu": 0.22,
+    "gece_pozlama": -0.85,
+    "gece_gok_isigi": 0.28
+   },
+   "pozlama": {
+    "golge_kontrasti": 0.8,
+    "parlak_kontrasti": 0.85
    }
   },
   "yol": {
@@ -347,7 +394,35 @@ export const ORNEK_ICERIK: Record<string, any> = {
       "Ah!",
       "Delirdin mi?!"
      ]
-    }
+    },
+    "program": [
+     {
+      "saat": 8,
+      "is": "bekle",
+      "yer": [
+       -2,
+       -62
+      ],
+      "aci": 90
+     },
+     {
+      "saat": 13,
+      "is": "dolas",
+      "yer": [
+       6,
+       -40
+      ],
+      "yaricap": 4
+     },
+     {
+      "saat": 19,
+      "is": "otur",
+      "yer": [
+       -12,
+       -88
+      ]
+     }
+    ]
    },
    {
     "id": "gezgin_1",

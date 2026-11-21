@@ -2,10 +2,10 @@
 // tepkileri ve saldırıya uğrayınca tavrı; ayrıca otomatik "kalabalık". Biçim: hikaye_oyun/icerik/BICIM.md.
 // Kişinin Godot görünümü (gorunum, tur: mh) burada düzenlenmez, yalnız özeti gösterilir: Unreal'de beden MetaHuman'dır.
 import { useEffect, useRef } from "react";
-import { Copy, Plus, RotateCcw, Trash2, UserRound, Users } from "lucide-react";
+import { Clock, Copy, Plus, RotateCcw, Trash2, UserRound, Users } from "lucide-react";
 import { useOyun } from "./durum";
 import {
-  DAVRANISLAR, gorevHedefiniYenile, kimlikGecerli, NPC_VARSAYILAN, npcCogalt, npcEkle, npcSeridi, npcUyarilari, SAVAS_TAVIRLARI, SELAMLASMALAR,
+  DAVRANISLAR, gorevHedefiniYenile, KISI_NITELIKLERI, kimlikGecerli, PROGRAM_ISLERI, programDuragiEkle, type ProgramDuragi, NPC_VARSAYILAN, npcCogalt, npcEkle, npcSeridi, npcUyarilari, SAVAS_TAVIRLARI, SELAMLASMALAR,
   TEPKI_TURLERI, unrealYoluSorunu, type Npc,
 } from "./icerik";
 import { AlanGirisi, KimlikGiris, MetinListesi, SayiAlani, SayiKutusu, SecimAlani, Uyarilar, YaziAlani } from "./girisler";
@@ -94,8 +94,12 @@ export function KisilerListesi({ dosya, harita }: { dosya: string; harita: any }
               <div>
                 <SecimAlani deger={n.davranis} secenekler={DAVRANISLAR.map(([d, ad]) => [d, ad])} varsayilan="Dolaşır (varsayılan)" testId={"npc-davranis-" + n.id}
                   degisti={v => alanYaz(n.id, "davranis", v)} />
-                <div className="secim-aciklama">{secimAciklamasi(DAVRANISLAR, n.davranis)}</div>
+                <div className="secim-aciklama">{Array.isArray(n.program) && n.program.length
+                  ? "Günlük programı var: davranışı saatine göre programdaki iş belirler."
+                  : secimAciklamasi(DAVRANISLAR, n.davranis)}</div>
               </div>
+              {(n.grup !== undefined) && <><label title="Kişinin ait olduğu grup (ör. köy); bilgi içindir">Grup</label>
+                <YaziAlani deger={n.grup} testId={"npc-grup-" + n.id} degisti={v => alanYaz(n.id, "grup", v)} /></>}
 
               <div className="kart-alt-baslik">Yer ve hareket</div>
               <label title="Metre. X: yolun sağı/solu (0 = yolun ortası), Z: yol boyunca (ileri = eksi)">Alanın ortası</label>
@@ -141,6 +145,13 @@ export function KisilerListesi({ dosya, harita }: { dosya: string; harita: any }
                 </div>
               </>}
 
+              <label title="Beklerken baktığı yön (derece)">Bakış yönü</label>
+              <SayiAlani alan={{ tur: "sayi", ad: "", birim: "°" }} deger={n.aci} testId={"npc-aci-" + n.id} degisti={v => alanYaz(n.id, "aci", v, "aci:" + n.id)} />
+
+              <div className="kart-alt-baslik">Günlük program</div>
+              <label title="Saati gelen durağın yerine yürür ve oradaki işi yapar. Program varsa davranış yerine bu geçerlidir.">Duraklar</label>
+              <ProgramDuzenleyici n={n} degistir={(fn, anahtar) => npcDegistir(n.id, fn, anahtar)} />
+
               <div className="kart-alt-baslik">Konuşma ve sözler</div>
               <label>Konuşma</label>
               <SecimAlani deger={n.diyalog} secenekler={diyalogSecenekleri} varsayilan="(konuşmaz, yalnız dolaşır)" testId={"npc-diyalog-" + n.id}
@@ -166,14 +177,17 @@ export function KisilerListesi({ dosya, harita }: { dosya: string; harita: any }
                   if (Object.keys(t).length) x.tepkiler = t; else delete x.tepkiler;
                 }, `tepki:${tur}:${n.id}`)} />)}
 
+              <label title="Boş kutular Karakterler → Kişiler'deki ortak değerleri kullanır">Bu kişinin canı</label>
+              <NitelikDuzenleyici n={n} ortak={karakterler?.kisi_nitelikler || {}} degistir={(fn, anahtar) => npcDegistir(n.id, fn, anahtar)} />
+
               <div className="kart-alt-baslik">Görünüş</div>
               <label>Beden (MetaHuman)</label>
               <div>
                 <AlanGirisi alan={{ tur: "unreal", ad: "", ipucu: bedenKarakterlerde || "/Game/MetaHumans/Ad/BP_Ad" }} deger={n.unreal_govde} testId={"npc-govde-" + n.id}
                   degisti={v => alanYaz(n.id, "unreal_govde", v)} />
                 <div className="secim-aciklama">{bedenKarakterlerde
-                  ? "Boş bırakırsan Karakterler → Kişilerin bedenleri'ndeki beden kullanılır."
-                  : "Boşsa Karakterler → Kişilerin bedenleri'ne bakılır; orada da yoksa oyuncunun bedeni kullanılır."}</div>
+                  ? "Boş bırakırsan Karakterler → Kişiler (beden ve can) sekmesindeki beden kullanılır."
+                  : "Boşsa Karakterler → Kişiler (beden ve can) sekmesine bakılır; orada da yoksa oyuncunun bedeni kullanılır."}</div>
               </div>
               {ozet.length > 0 && <>
                 <label title="Godot sürümündeki görünüm; Unreal sürümü okumaz. Burada değiştirilmez.">Eski görünüm <span className="rozet">Godot</span></label>
@@ -190,6 +204,64 @@ export function KisilerListesi({ dosya, harita }: { dosya: string; harita: any }
     </div>
     <KalabalikKarti dosya={dosya} harita={harita} diyalogSecenekleri={diyalogSecenekleri} />
   </>;
+}
+
+/** Günlük program: her satır bir durak (saat, iş, yer, yarıçap / bakış yönü). */
+function ProgramDuzenleyici({ n, degistir }: { n: Npc; degistir: (fn: (n: Npc) => void, anahtar?: string) => void }) {
+  const liste: ProgramDuragi[] = Array.isArray(n.program) ? (n.program as ProgramDuragi[]) : [];
+  const durak = (i: number, fn: (p: ProgramDuragi) => void, anahtar?: string) =>
+    degistir(x => { const p = (x.program as ProgramDuragi[] | undefined)?.[i]; if (p) fn(p); }, anahtar);
+  return (
+    <div className="gorev-adimlari" data-testid={"npc-program-" + n.id}>
+      {liste.map((p, i) => (
+        <div key={i} className="gorev-adimi">
+          <div className="sayi-giris" style={{ width: 92, flex: "none" }} title="Saat (0–24; 7.5 = 07:30)"><span>Saat</span>
+            <SayiKutusu deger={typeof p.saat === "number" ? p.saat : 0} testId={`npc-program-saat-${n.id}-${i}`}
+              degisti={v => durak(i, x => { x.saat = Math.max(0, Math.min(24, v)); })} /></div>
+          <div style={{ width: 120, flex: "none" }}>
+            <SecimAlani deger={p.is} secenekler={PROGRAM_ISLERI} testId={`npc-program-is-${n.id}-${i}`} degisti={v => durak(i, x => { x.is = v || "bekle"; })} />
+          </div>
+          {(["X", "Z"] as const).map((e, j) => <div key={e} className="sayi-giris" style={{ width: 84, flex: "none" }} title={`Yer ${e} (m); boşsa alanın ortası`}><span>{e}</span>
+            <SayiKutusu deger={p.yer?.[j] ?? (n.alan?.merkez?.[j] ?? 0)} testId={`npc-program-yer${j}-${n.id}-${i}`}
+              degisti={v => durak(i, x => { const y: [number, number] = [...(x.yer ?? n.alan?.merkez ?? [0, 0])] as [number, number]; y[j] = v; x.yer = y; })} /></div>)}
+          {p.is === "dolas"
+            ? <div className="sayi-giris" style={{ width: 92, flex: "none" }} title="Dolaşma yarıçapı (m; boşsa 5)"><span>r</span>
+              <SayiKutusu deger={typeof p.yaricap === "number" ? p.yaricap : 5} degisti={v => durak(i, x => { x.yaricap = Math.max(0.5, v); })} /></div>
+            : <div className="sayi-giris" style={{ width: 92, flex: "none" }} title="Bakış yönü (°)"><span>°</span>
+              <SayiKutusu deger={typeof p.aci === "number" ? p.aci : 0} degisti={v => durak(i, x => { x.aci = v; })} /></div>}
+          <button className="ikon-dugme" title="Durağı sil" data-testid={`npc-program-sil-${n.id}-${i}`}
+            onClick={() => degistir(x => { (x.program as ProgramDuragi[]).splice(i, 1); if (!(x.program as ProgramDuragi[]).length) delete x.program; })}><Trash2 size={13} /></button>
+        </div>
+      ))}
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+        <button className="dugme hayalet" data-testid={"npc-program-ekle-" + n.id} onClick={() => degistir(x => programDuragiEkle(x))}><Plus size={13} /> Durak ekle</button>
+        {liste.length > 1 && <button className="dugme hayalet" data-testid={"npc-program-sirala-" + n.id}
+          onClick={() => degistir(x => { (x.program as ProgramDuragi[]).sort((a, b) => (a.saat ?? 0) - (b.saat ?? 0)); })}><Clock size={13} /> Saate göre sırala</button>}
+        {!liste.length && <span className="cok-soluk" style={{ alignSelf: "center" }}>Program yok: kişi bütün gün yukarıdaki davranışı yapar.</span>}
+      </div>
+    </div>
+  );
+}
+
+/** Kişiye özel can değerleri: boş kutu = karakterler.json'daki ortak değer (kutuda soluk görünür). */
+function NitelikDuzenleyici({ n, ortak, degistir }: { n: Npc; ortak: Record<string, unknown>; degistir: (fn: (n: Npc) => void, anahtar?: string) => void }) {
+  const kendi = (n.nitelikler && typeof n.nitelikler === "object" ? n.nitelikler : {}) as Record<string, number>;
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px" }} data-testid={"npc-nitelikler-" + n.id}>
+      {KISI_NITELIKLERI.map(([alan, ad, birim]) => (
+        <div key={alan} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span className="soluk" style={{ fontSize: 12, minWidth: 128 }}>{ad}</span>
+          <SayiAlani alan={{ tur: "sayi", ad: "", birim, min: 0, adim: alan.endsWith("orani") || alan.endsWith("carpani") ? 0.05 : 1 }}
+            deger={kendi[alan]} ipucu={typeof ortak[alan] === "number" ? String(ortak[alan]) : "varsayılan"} testId={`npc-nitelik-${alan}-${n.id}`}
+            degisti={v => degistir(x => {
+              const y = { ...((x.nitelikler as Record<string, number>) || {}) };
+              if (v === undefined) delete y[alan]; else y[alan] = v;
+              if (Object.keys(y).length) x.nitelikler = y; else delete x.nitelikler;
+            }, `nitelik:${alan}:${n.id}`)} />
+        </div>
+      ))}
+    </div>
+  );
 }
 
 function Tepki({ ad, liste, degisti, testId }: { ad: string; liste?: string[]; degisti: (l: string[]) => void; testId: string }) {
