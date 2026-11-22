@@ -65,6 +65,22 @@ sesDugmesi.addEventListener("click", () => {
   sesDugmesiniGuncelle();
 });
 
+// ---------------------------------------------------------------- duraklatma
+const duraklatDugmesi = document.getElementById("duraklat") as HTMLButtonElement;
+const duraklatPaneli = document.getElementById("duraklat-paneli") as HTMLDivElement;
+for (const el of [duraklatDugmesi, duraklatPaneli]) el.addEventListener("pointerdown", e => e.stopPropagation());
+duraklatDugmesi.addEventListener("click", () => oyun.duraklat());
+(document.getElementById("yeniden") as HTMLButtonElement).addEventListener("click", () => { sesiAc(); oyun.yenidenBasla(); });
+window.addEventListener("keydown", e => {
+  if (e.code === "Escape" || e.code === "KeyP") { if (oyun.duraklatildi) oyun.devam(); else oyun.duraklat(); }
+});
+/** Düğmeler yalnız gerektiğinde görünür: duraklat oyun sürerken, "yeniden başla" duraklatılmışken. */
+function dugmeleriGuncelle() {
+  const oynuyor = oyun.durum === "oyun";
+  duraklatDugmesi.hidden = !oynuyor || oyun.duraklatildi;
+  duraklatPaneli.hidden = !(oynuyor && oyun.duraklatildi);
+}
+
 // ---------------------------------------------------------------- döngü (sabit adım: her cihazda aynı fizik)
 const ADIM = 1 / 120;
 let birikim = 0, onceki = performance.now(), duraklatildi = false;
@@ -89,6 +105,7 @@ function kare(simdi: number) {
     olaylariIsle();
   }
   ciz(c, oyun, olcek, ox, oy, durum);
+  dugmeleriGuncelle();
   requestAnimationFrame(kare);
 }
 requestAnimationFrame(kare);
@@ -96,7 +113,7 @@ requestAnimationFrame(kare);
 document.addEventListener("visibilitychange", () => {
   duraklatildi = document.hidden;
   onceki = performance.now();
-  if (document.hidden) oyun.birak();
+  if (document.hidden) { oyun.birak(); oyun.duraklat(); }   // dönünce "devam etmek için dokun" ekranı
 });
 
 // ---------------------------------------------------------------- testler için

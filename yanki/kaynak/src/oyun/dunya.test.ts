@@ -1,17 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { AYAR, H, Oyun, rastgeleUretici } from "./dunya";
+import { AYAR, H, isinmaEgrisi, Oyun, rastgeleUretici } from "./dunya";
 
 /** Oyunu sabit adımlarla ilerletir. */
 function ilerlet(o: Oyun, sn: number, adim = 1 / 120) {
   for (let t = 0; t < sn; t += adim) o.adim(adim);
 }
 
-/** Yarasayı mağaranın ortasında tutan "otomatik pilot": düşüyorsa ve ortanın altındaysa çırpar. */
+/** Yarasayı önündeki serbest geçidin ortasında tutan "otomatik pilot": düşüyorsa ve ortanın altındaysa çırpar. */
 function pilot(o: Oyun, sn: number, adim = 1 / 120) {
   for (let t = 0; t < sn && o.durum === "oyun"; t += adim) {
-    const [ust, alt] = o.sinir(o.yarasaX + 60);
+    let ust = -1e9, alt = 1e9;
+    for (let dx = 0; dx <= 160; dx += 20) { const [u, a] = o.serbestAralik(o.yarasaX + dx); ust = Math.max(ust, u); alt = Math.min(alt, a); }
     const hedef = (ust + alt) / 2;
-    if (o.y > hedef + 20 && o.vy > -100) { o.dokun(); o.birak(); }
+    if (o.y > hedef + 10 && o.vy > -100) { o.dokun(); o.birak(); }
     o.adim(adim);
   }
 }
@@ -87,6 +88,75 @@ describe("Yankı oyun mantığı", () => {
     expect(o.durum).toBe("oyun");
     expect(o.skor).toBeGreaterThan(100);
     expect(o.hiz).toBeGreaterThan(AYAR.hiz);
+  });
+
+  it("ısınma: zorluk ilk ~6000 birimde yumuşak başlar, sonra eski hızında artar", () => {
+    expect(isinmaEgrisi(0)).toBe(0);
+    expect(isinmaEgrisi(1000)).toBeLessThan(100);         // eskiden 1000 olurdu
+    expect(isinmaEgrisi(6000)).toBe(3000);
+    expect(isinmaEgrisi(10000) - isinmaEgrisi(9000)).toBe(1000);
+    const o = new Oyun(3);
+    const [u, a] = o.sinir(AYAR.guvenliBaslangic + 3000);
+    expect(a - u).toBeGreaterThan(AYAR.bosluk - 10);         // ilk 3000 birimde neredeyse hiç daralmaz
+  });
+
+  it("sarkıt ve dikitler: her birinin yanında geçit kalır, iyi uçan yarasa 50 sn yaşar", () => {
+    for (const tohum of [21, 3, 5, 7]) {
+      const o = new Oyun(tohum);
+      o.dokun(); o.birak();
+      pilot(o, 50);
+      expect(o.durum, `tohum ${tohum}: ${o.carpmaNedeni}`).toBe("oyun");
+    }
+    const o2 = new Oyun(21);
+    o2.kam = 30000; o2.W = 6000;
+    (o2 as any).sivrileriUret();
+    expect(o2.sivriler.length).toBeGreaterThan(5);
+    for (const sv of o2.sivriler) {
+      const [u, a] = o2.serbestAralik(sv.x);
+      expect(a - u).toBeGreaterThanOrEqual(AYAR.sivriGecit - 1e-6);
+      expect(sv.boy).toBeGreaterThanOrEqual(45);
+    }
+    expect(o2.sivriler.some(s => s.ust) && o2.sivriler.some(s => !s.ust)).toBe(true);
+  });
+
+  it("sarkıta çarpınca oyun biter", () => {
+    const o = new Oyun(2);
+    o.dokun(); o.birak();
+    const x = o.yarasaX, [u] = o.sinir(x);
+    o.sivriler = [{ x, ust: true, boy: 200, taban: 60 }];
+    o.y = u + 120; o.vy = 0;
+    o.adim(1 / 120);
+    expect(o.durum).toBe("bitti");
+    expect(o.carpmaNedeni).toBe("Sarkıta çarptın");
+    // ucun altından geçen yarasa çarpmaz
+    const o2 = new Oyun(2);
+    o2.dokun(); o2.birak();
+    const [u2] = o2.sinir(o2.yarasaX);
+    o2.sivriler = [{ x: o2.yarasaX, ust: true, boy: 100, taban: 60 }];
+    o2.y = u2 + 140; o2.vy = 0;
+    o2.adim(1 / 120);
+    expect(o2.durum).toBe("oyun");
+  });
+
+  it("duraklat: zaman durur, dokunuş devam ettirir (kanat çırpmadan); yeniden başla yeni mağara açar", () => {
+    const o = new Oyun(6);
+    o.dokun(); o.birak();
+    o.adim(0.1);
+    o.duraklat();
+    const [kam, y] = [o.kam, o.y];
+    for (let i = 0; i < 60; i++) o.adim(1 / 60);
+    expect([o.kam, o.y]).toEqual([kam, y]);
+    o.olaylariAl();
+    o.dokun(); o.birak();
+    expect(o.duraklatildi).toBe(false);
+    expect(o.olaylariAl()).toEqual([]);   // devam ederken kanat çırpmadı
+    o.adim(0.1);
+    expect(o.kam).toBeGreaterThan(kam);
+    const eski = o.tohum;
+    o.duraklat(); o.yenidenBasla();
+    expect(o.durum).toBe("oyun"); expect(o.kam).toBe(0); expect(o.tohum).not.toBe(eski); expect(o.duraklatildi).toBe(false);
+    // menüde ya da bittiğinde duraklatılamaz
+    const m = new Oyun(1); m.duraklat(); expect(m.duraklatildi).toBe(false);
   });
 
   it("böceğe değince puan verir", () => {

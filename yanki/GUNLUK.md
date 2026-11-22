@@ -2,6 +2,38 @@
 
 En yeni girdi en üsttedir.
 
+## 2026-11-23 (gece) — Sarkıtlar, dikitler, duraklat ve yumuşak başlangıç
+**Bu gece yapılanlar**
+- **Sarkıt ve dikitler:** Mağaranın tavanından sarkan ve yerden yükselen sivri kayalar geldi. Duvarlar gibi onlar da **yalnız yankı
+  değince** (ya da yarasanın kendi soluk ışığına girince) görünüyor; çarparsan oyun biter ("Sarkıta çarptın"). Her birinin yanında
+  her zaman geçilecek kadar yer bırakıyorum; oyunun başında (ilk ~10 saniye) hiç yok, ilerledikçe biraz sıklaşıyorlar.
+  Ateş böcekleri artık sivrilerin içine düşmüyor.
+- **Duraklat:** Oyun sırasında sol üstte **❚❚** düğmesi. Basınca oyun durur, "Duraklatıldı — Devam etmek için dokun" yazar ve altında
+  **Yeniden başla** düğmesi çıkar. Telefonda başka uygulamaya geçip dönersen oyun kendiliğinden bu ekranda bekler. Bilgisayarda **Esc** ya da **P**.
+- **Yumuşak başlangıç:** Telefonda denemenden haber gelmediği için zorluğu kendim yumuşattım: hızlanma ve mağaranın daralması ilk
+  ~25 saniyede çok yavaş başlıyor, kıvrımlar da daha yavaş geliyor. Sonrası eskisi gibi zorlaşıyor.
+- Bilgisayarda çift tıklanan **Yanki.html** güncellendi.
+- Testler: 15 birim testi (otomatik pilot 4 farklı mağarada 50 saniye sarkıtlara çarpmadan uçabiliyor; sarkıta çarpınca biter;
+  duraklatınca zaman durur) + 54 otomatik oynanış kontrolü; hepsi geçiyor.
+
+**Nasıl denenir**
+- **Bilgisayarda:** GitHub Desktop'ta **Fetch origin → Pull origin**, `oyun_atolyesi\yanki\Yanki.html`'e çift tıkla. ~10 saniye uç:
+  yankı attıkça tavandan sarkan ve yerden çıkan sivriler görünmeli. **P**'ye bas: oyun durmalı; tekrar Boşluk: devam.
+- **Telefonda** (GitHub Pages açıksa): https://harunyetkin.github.io/oyun_atolyesi/yanki/oyun/ — sol üstteki ❚❚ ile duraklat,
+  başka uygulamaya geçip geri dön: "Devam etmek için dokun" görünmeli.
+
+**Ekran görüntüleri**
+![Sarkıt ve dikit](gunluk/2026-11-23/sarkit_dikit.png)
+![Duraklatıldı](gunluk/2026-11-23/duraklat.png)
+
+**Senin kararın gereken konular**
+- **Zorluk:** Oyunu oynadıysan: başı kolay mı, sarkıtlar çok mu sık? Kısaca yazman yeterli, ayarları ona göre değiştiririm.
+- Önceki sorular hâlâ açık: yarasa (A) soldan sağa mı, (B) aşağıdan yukarı mı uçsun; Mor/Buz/Lav bölümleri ve yol ayrımları uygun mu?
+  Cevabını gece çalışmasının sohbetine yazabilirsin.
+
+**Sıradaki adım**
+- Ölümcül olmayan tehlikeler: örümcek ağı (yavaşlatır) ve su damlası (ağırlaştırır).
+
 ## 2026-11-21 (gece) — Geniş ekrana tam sığıyor, mağara akarak beliriyor
 **Bu gece yapılanlar** (senin ekran görüntülü geri bildirimin)
 - **Ekrana sığma:** Geniş bilgisayar ekranında oyun artık pencerenin tamamını dolduruyor. Önceden oyun alanı belli bir genişlikte

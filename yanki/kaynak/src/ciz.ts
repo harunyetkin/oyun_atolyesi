@@ -130,6 +130,28 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, ox: num
     c.stroke(kenarlar[b]);
   }
 
+  // sarkıt ve dikitler: duvarın oradaki ışığıyla (yankı değince) ve yarasanın yakın ışığıyla görünür
+  for (const sv of o.sivriler) {
+    const sx = sv.x - kx;
+    if (sx < -sv.taban || sx > W + sv.taban) continue;
+    const [u, a] = o.sinir(sv.x);
+    const kok = sv.ust ? u : a, uc = sv.ust ? u + sv.boy : a - sv.boy;
+    const i = Math.round(sv.x / ara);
+    const uzak = Math.hypot(sx - yx, (kok + uc) / 2 - o.y) / (isikYaricap * 1.2);
+    const p = Math.min(1, Math.max(o.parlaklik(i, sv.ust ? 0 : 1) * 1.1, uzak < 1 ? (1 - uzak) * (1 - uzak) * 0.6 : 0));
+    if (p < 0.02) continue;
+    c.beginPath();
+    c.moveTo(sx - sv.taban / 2, kok + (sv.ust ? -3 : 3));
+    c.quadraticCurveTo(sx - sv.taban * 0.18, (kok + uc) / 2, sx, uc);
+    c.quadraticCurveTo(sx + sv.taban * 0.18, (kok + uc) / 2, sx + sv.taban / 2, kok + (sv.ust ? -3 : 3));
+    c.closePath();
+    c.fillStyle = `rgba(${RENK.kaya.join(",")},${0.5 * p})`;
+    c.fill();
+    c.strokeStyle = `rgba(${RENK.kenar.join(",")},${p})`;
+    c.lineWidth = 2.5;
+    c.stroke();
+  }
+
   // yankı dalgaları: ince halkalar
   for (const d of o.dalgalar) {
     const a = (1 - d.r / d.menzil) * (d.buyuk ? 0.55 : 0.35);
@@ -165,7 +187,16 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, ox: num
   // ---------------------------------------------------------------- arayüz
   c.textAlign = "center";
   c.textBaseline = "middle";
-  if (o.durum === "oyun") {
+  if (o.durum === "oyun" && o.duraklatildi) {
+    c.fillStyle = "rgba(7,6,12,0.6)";
+    c.fillRect(0, 0, W, H);
+    c.fillStyle = RENK.yazi;
+    sigdir(c, "Duraklatıldı", W / 2, H * 0.3, 64, 700, W - 40);
+    c.fillStyle = RENK.soluk;
+    sigdir(c, `Skor: ${o.skor}`, W / 2, H * 0.38, 32, 500, W - 40);
+    c.fillStyle = `rgba(236,232,247,${0.55 + 0.45 * Math.sin(performance.now() / 333)})`;
+    sigdir(c, "Devam etmek için dokun", W / 2, H * 0.48, 36, 600, W - 40);
+  } else if (o.durum === "oyun") {
     c.fillStyle = RENK.yazi;
     sigdir(c, String(o.skor), W / 2, 90, 64, 600, W - 40);
     // büyük sonar enerjisi: altta ince çubuk

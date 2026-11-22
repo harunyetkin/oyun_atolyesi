@@ -43,7 +43,8 @@ Sırayla oku: `GERI_BILDIRIM.md` (önce bu!), `PLAN.md`, `YAPILACAKLAR.md`, `GUN
 4. **Test et:**
    - `cd yanki/kaynak && npm run build` hatasız, ardından `python3 yanki/araclar/tek_dosya.py`; `npm test` (oyun mantığı birim testleri; yeni oynanışa test ekle)
    - `python3 yanki/araclar/oyun_testi.py /tmp/yanki_test` (Pixel 7 ve iPhone 14 öykünmesi: açılış, dokunma, büyük yankı,
-     çarpma, yeniden başlama, 7 sn otomatik uçuş, ses düğmesi, konsol hatası, çevrimdışı açılış). Yeni özellik ekleyince kontrol ekle.
+     çarpma, yeniden başlama, 7 sn otomatik uçuş, sarkıt/dikit, duraklat, ses düğmesi, konsol hatası; 4 bilgisayar ekranında tam
+     yeniden çizim; çevrimdışı açılış). Yeni özellik ekleyince kontrol ekle.
    - Ekran görüntülerini **Read ile açıp gözünle kontrol et**; en iyi 1–3'ünü küçültüp `gunluk/YYYY-AA-GG/` altına koy.
 5. **Günlük:** `GUNLUK.md` en üstüne: ne yapıldı, telefonda nasıl denenir, ekran görüntüleri, "Senin kararın gereken konular", sıradaki adım.
 6. **Takip:** `YAPILACAKLAR.md` güncelle.

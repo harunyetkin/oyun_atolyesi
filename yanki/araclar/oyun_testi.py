@@ -24,8 +24,9 @@ ADRES = f"http://127.0.0.1:{sunucu.server_port}/"
 PILOT = """() => { const o = window.__yanki; clearInterval(window.__pilot);
   window.__pilot = setInterval(() => {
     if (o.durum !== 'oyun') return;
-    const [u, a] = o.sinir(o.yarasaX + 60);
-    if (o.y > (u + a) / 2 + 20 && o.vy > -100) { o.dokun(); o.birak(); }
+    let u = -1e9, a = 1e9;
+    for (let dx = 0; dx <= 160; dx += 20) { const [uu, aa] = o.serbestAralik(o.yarasaX + dx); u = Math.max(u, uu); a = Math.min(a, aa); }
+    if (o.y > (u + a) / 2 + 10 && o.vy > -100) { o.dokun(); o.birak(); }
   }, 16); }"""
 
 def oyun(s, ifade):
@@ -76,6 +77,21 @@ with sync_playwright() as p:
         time.sleep(7)
         kontrol("7 sn uçuş: hâlâ oyunda, skor arttı", oyun(s, "o.durum") == "oyun" and oyun(s, "o.skor") > 15, f"{oyun(s, 'o.durum')} skor {oyun(s, 'o.skor')}")
         kontrol("ateş böcekleri var", oyun(s, "o.bocekler.length") > 0)
+        kontrol("sarkıt/dikit üretildi", oyun(s, "o.sivriler.length") > 0, str(oyun(s, "o.kam")))
+        # duraklat: düğme görünür, basınca zaman durur, "yeniden başla" çıkar; dokununca devam
+        kontrol("duraklat düğmesi oyun sırasında görünüyor", s.is_visible("#duraklat"))
+        s.click("#duraklat")
+        k1 = oyun(s, "o.kam"); time.sleep(0.4)
+        kontrol("duraklatınca oyun durdu", oyun(s, "o.duraklatildi") and oyun(s, "o.kam") == k1 and s.is_visible("#yeniden") and not s.is_visible("#duraklat"))
+        s.screenshot(path=f"{CIKTI}/{on}_4_duraklat.png")
+        s.touchscreen.tap(g["width"] / 2, g["height"] / 3)
+        time.sleep(0.15)
+        kontrol("dokununca devam etti", not oyun(s, "o.duraklatildi") and oyun(s, "o.kam") > k1)
+        s.click("#duraklat"); s.click("#yeniden"); time.sleep(0.1)
+        kontrol("'yeniden başla' yeni oyun başlattı", oyun(s, "o.durum") == "oyun" and oyun(s, "o.kam") < 200 and not oyun(s, "o.duraklatildi"))
+        time.sleep(4)
+        # bir sivriyi yarasanın önüne koyup büyük yankıyla aydınlat (ekran görüntüsü için)
+        oyun(s, "(o.sivriler.push({ x: o.yarasaX + 260, ust: true, boy: 150, taban: 64 }), o.sivriler.push({ x: o.yarasaX + 520, ust: false, boy: 140, taban: 60 }))")
         oyun(s, "(o.enerji = 1, o.sonar(true))")
         time.sleep(0.55)
         s.screenshot(path=f"{CIKTI}/{on}_2_ucus.png")

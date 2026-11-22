@@ -32,7 +32,28 @@ export const AYAR = {
   bocekPuani: 5,
   bocekYaricap: 34,
   yenidenBaslamaBeklemesi: 0.7,
+  isinma: 6000,             // zorluk bu kadar yol boyunca yavaş yavaş artar (ilk ~25 sn yumuşak başlangıç)
+  sivriBaslangic: 2500,     // sarkıt ve dikitler bu noktadan sonra başlar
+  sivriAraligi: [650, 1300] as [number, number],   // iki sivri arası (ilerledikçe sıklaşır)
+  sivriBoyu: [60, 150] as [number, number],
+  sivriTaban: [46, 74] as [number, number],
+  sivriGecit: 230,          // sivrinin yanında her zaman kalan en dar geçit
 };
+
+/** Isınma eğrisi: ilk `L` birimde artış yavaş başlar (karesel), sonra normal hızda sürer. Sonuç "etkili ilerleme"dir. */
+export function isinmaEgrisi(ilerleme: number, L = AYAR.isinma): number {
+  if (ilerleme <= 0) return 0;
+  return ilerleme < L ? (ilerleme * ilerleme) / (2 * L) : ilerleme - L / 2;
+}
+
+/** Üçgenin içinde mi (nokta, üç köşe). */
+function ucgendeMi(px: number, py: number, ax: number, ay: number, bx: number, by: number, cx: number, cy: number): boolean {
+  const d1 = (px - bx) * (ay - by) - (ax - bx) * (py - by);
+  const d2 = (px - cx) * (by - cy) - (bx - cx) * (py - cy);
+  const d3 = (px - ax) * (cy - ay) - (cx - ax) * (py - ay);
+  const eksi = d1 < 0 || d2 < 0 || d3 < 0, arti = d1 > 0 || d2 > 0 || d3 > 0;
+  return !(eksi && arti);
+}
 
 /** Yumuşatma ağırlıkları (7 örnek, ortası en ağır). */
 const PUS = [1, 2, 3, 4, 3, 2, 1];
@@ -42,6 +63,8 @@ export type Durum = "menu" | "oyun" | "bitti";
 export type Olay = "basla" | "cirp" | "buyuk_sonar" | "bocek" | "carpma";
 
 export interface Dalga { x: number; y: number; r: number; hiz: number; menzil: number; guc: number; buyuk: boolean }
+/** Sarkıt (tavandan, ust = true) ya da dikit (tabandan): x'te tabanı duvarda, ucu `boy` kadar içeride. */
+export interface Sivri { x: number; ust: boolean; boy: number; taban: number }
 export interface Bocek { x: number; y0: number; y: number; faz: number; alindi: boolean }
 
 /** Tohumlu rastgele sayı üretici (mulberry32): aynı tohum, aynı mağara. */
@@ -74,6 +97,9 @@ export class Oyun {
   buyukKullanildi = false;
   dalgalar: Dalga[] = [];
   bocekler: Bocek[] = [];
+  sivriler: Sivri[] = [];
+  /** Duraklatıldıysa zaman durur; dokununca devam eder (kanat çırpmadan). */
+  duraklatildi = false;
   /** Duvar örneklerinin ışığı: örnek sırası → [tavan, taban, tavan hedefi, taban hedefi] (0–1).
    *  Yankı değince hedef yükselir; görünen parlaklık hedefe kısa sürede yumuşakça yaklaşır, hedef zamanla söner. */
   isik = new Map<number, [number, number, number, number]>();
@@ -82,6 +108,7 @@ export class Oyun {
   private rnd: () => number;
   private faz: number[] = [];
   private sonrakiBocek = 0;
+  private sonrakiSivri = 0;
   private menuDalga = 0;
 
   constructor(public tohum = (Math.random() * 1e9) | 0) {
@@ -91,7 +118,7 @@ export class Oyun {
 
   get skor(): number { return Math.floor(this.kam / 100) + this.bonus; }
   get yarasaX(): number { return this.kam + this.W * AYAR.yarasaKonumu; }
-  get hiz(): number { return Math.min(AYAR.enFazlaHiz, AYAR.hiz + AYAR.hizArtisi * (this.kam / 1000)); }
+  get hiz(): number { return Math.min(AYAR.enFazlaHiz, AYAR.hiz + AYAR.hizArtisi * (isinmaEgrisi(this.kam) / 1000)); }
 
   /** Ekran oranı (genişlik / yükseklik) değişince çağrılır. */
   boyutla(oran: number): void {
@@ -104,17 +131,19 @@ export class Oyun {
     this.faz = [0, 0, 0, 0].map(() => this.rnd() * Math.PI * 2);
     this.kam = 0; this.y = H / 2; this.vy = 0; this.t = 0; this.kanatT = 1;
     this.bonus = 0; this.enerji = 1; this.bitisT = 0; this.basiliSure = 0; this.buyukKullanildi = false;
-    this.dalgalar = []; this.bocekler = []; this.isik.clear(); this.carpmaNedeni = "";
+    this.dalgalar = []; this.bocekler = []; this.sivriler = []; this.isik.clear(); this.carpmaNedeni = "";
+    this.duraklatildi = false;
     this.sonrakiBocek = AYAR.guvenliBaslangic * 0.6;
+    this.sonrakiSivri = AYAR.sivriBaslangic;
     this.menuDalga = 0.4;
   }
 
   /** x noktasında mağaranın tavanı ve tabanı (dünya birimi; y aşağı doğru artar). */
   sinir(x: number): [number, number] {
     const ilerleme = Math.max(0, x - AYAR.guvenliBaslangic);
-    const bosluk = Math.max(AYAR.enDarBosluk, AYAR.bosluk - AYAR.daralma * ilerleme / 1000);
-    // kıvrım başta 0, 1500 birimde tam
-    const kivrim = Math.min(1, ilerleme / 1500);
+    // daralma ısınma eğrisiyle yavaş başlar; kıvrım başta 0, 3000 birimde tam
+    const bosluk = Math.max(AYAR.enDarBosluk, AYAR.bosluk - AYAR.daralma * isinmaEgrisi(ilerleme) / 1000);
+    const kivrim = Math.min(1, ilerleme / 3000);
     const genlik = Math.max(0, (H - bosluk) / 2 - 50) * kivrim;
     const [a, b, c, d] = this.faz;
     const dalga = 0.5 * Math.sin(x * 0.0029 + a) + 0.3 * Math.sin(x * 0.0071 + b) + 0.14 * Math.sin(x * 0.0163 + c) + 0.06 * Math.sin(x * 0.041 + d);
@@ -125,6 +154,7 @@ export class Oyun {
   // ------------------------------------------------------------------ girdi
   /** Ekrana dokunma / tuşa basma. */
   dokun(): void {
+    if (this.duraklatildi) { this.devam(); return; }
     this.basili = true;
     this.basiliSure = 0;
     this.buyukKullanildi = false;
@@ -141,6 +171,34 @@ export class Oyun {
       this.olaylar.push("basla");
       this.cirp();
     }
+  }
+
+  /** Oyunu duraklatır (yalnız oyun sürerken). */
+  duraklat(): void {
+    if (this.durum !== "oyun") return;
+    this.duraklatildi = true;
+    this.basili = false;
+  }
+  devam(): void { this.duraklatildi = false; this.basili = false; }
+  /** Duraklatma ekranından "yeniden başla": yeni mağara, menüye dönmeden hemen başlar. */
+  yenidenBasla(): void {
+    this.sifirla((this.rnd() * 1e9) | 0);
+    this.durum = "oyun";
+    this.olaylar.push("basla");
+    this.cirp();
+  }
+
+  /** x'teki serbest geçit: duvarlar ve o noktadaki sivrilerin ucu çıkarılmış [üst, alt]. */
+  serbestAralik(x: number): [number, number] {
+    let [ust, alt] = this.sinir(x);
+    for (const sv of this.sivriler) {
+      const yari = sv.taban / 2;
+      if (Math.abs(x - sv.x) > yari) continue;
+      const derinlik = sv.boy * (1 - Math.abs(x - sv.x) / yari);
+      const [u, a] = this.sinir(sv.x);
+      if (sv.ust) ust = Math.max(ust, u + derinlik); else alt = Math.min(alt, a - derinlik);
+    }
+    return [ust, alt];
   }
 
   /** Parmak kalkınca / tuş bırakılınca. */
@@ -168,6 +226,7 @@ export class Oyun {
 
   // ------------------------------------------------------------------ zaman
   adim(dt: number): void {
+    if (this.duraklatildi) return;
     this.t += dt;
     this.kanatT += dt;
     this.dalgalariIlerlet(dt);
@@ -202,6 +261,7 @@ export class Oyun {
     this.vy = Math.min(this.vy + AYAR.yercekimi * dt, AYAR.enFazlaDusus);
     this.y += this.vy * dt;
 
+    this.sivrileriUret();
     this.bocekleriGuncelle(dt);
     this.carpismalar();
   }
@@ -241,12 +301,30 @@ export class Oyun {
     this.dalgalar = this.dalgalar.filter(d => d.r < d.menzil);
   }
 
+  /** Sarkıt ve dikitleri ekranın sağından önce üretir. Her sivrinin yanında en az `sivriGecit` kadar geçit kalır. */
+  private sivrileriUret(): void {
+    while (this.sonrakiSivri < this.kam + this.W + 300) {
+      const x = this.sonrakiSivri;
+      const [u, a] = this.sinir(x);
+      const ust = this.rnd() < 0.5;
+      const [b0, b1] = AYAR.sivriBoyu, [t0, t1] = AYAR.sivriTaban;
+      const boy = Math.min(b0 + this.rnd() * (b1 - b0), a - u - AYAR.sivriGecit);
+      const taban = t0 + this.rnd() * (t1 - t0);
+      if (boy >= 45) this.sivriler.push({ x, ust, boy, taban });
+      // ilerledikçe sıklaşır (aralık en fazla %40 kısalır)
+      const sik = Math.max(0.6, 1 - (x - AYAR.sivriBaslangic) / 40000);
+      const [a0, a1] = AYAR.sivriAraligi;
+      this.sonrakiSivri += (a0 + this.rnd() * (a1 - a0)) * sik;
+    }
+    this.sivriler = this.sivriler.filter(sv => sv.x > this.kam - 120);
+  }
+
   private bocekleriGuncelle(dt: number): void {
     // yeni ateş böcekleri ekranın sağından gelir
     while (this.sonrakiBocek < this.kam + this.W + 100) {
       const x = this.sonrakiBocek;
-      const [ust, alt] = this.sinir(x);
-      const pay = 70;
+      const [ust, alt] = this.serbestAralik(x);   // sivrilerin içine düşmesin
+      const pay = 60;
       const y0 = ust + pay + this.rnd() * Math.max(1, alt - ust - 2 * pay);
       this.bocekler.push({ x, y0, y: y0, faz: this.rnd() * Math.PI * 2, alindi: false });
       const [a, b] = AYAR.bocekAraligi;
@@ -267,6 +345,20 @@ export class Oyun {
       if (this.y - r * 0.85 < ust || this.y + r * 0.85 > alt) {
         this.ol(this.y - r < ust ? "Tavana çarptın" : "Yere çarptın");
         return;
+      }
+    }
+    // sarkıt ve dikitler: yarasanın çevresindeki 8 nokta üçgenin içine girerse çarpar
+    for (const sv of this.sivriler) {
+      if (Math.abs(sv.x - x) > sv.taban / 2 + r) continue;
+      const [u, a] = this.sinir(sv.x);
+      const tabanY = sv.ust ? u - 4 : a + 4, ucY = sv.ust ? u + sv.boy : a - sv.boy;
+      for (let k = 0; k < 8; k++) {
+        const aci = (k / 8) * Math.PI * 2;
+        const px = x + Math.cos(aci) * r * 0.8, py = this.y + Math.sin(aci) * r * 0.8;
+        if (ucgendeMi(px, py, sv.x - sv.taban / 2, tabanY, sv.x + sv.taban / 2, tabanY, sv.x, ucY)) {
+          this.ol(sv.ust ? "Sarkıta çarptın" : "Dikite çarptın");
+          return;
+        }
       }
     }
     for (const b of this.bocekler) {

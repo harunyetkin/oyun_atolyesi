@@ -3,10 +3,8 @@
 Her madde yaklaşık bir gecelik çalışmadır. Sıra önemlidir; üstten başla.
 
 ## Sırada
-- [ ] Harun'un telefonda ilk deneme geri bildirimine göre his ayarı (kanat gücü, yerçekimi, mağara genişliği, yankının
-      görünme süresi, büyük yankı enerjisi). Geri bildirim gelmediyse: zorluğu ilk 30 saniyede daha yumuşak artır.
-- [ ] Duraklat düğmesi (sol üst) ve duraklatma ekranı (devam / yeniden başla / ses); arka plandan dönünce "devam için dokun".
-- [ ] Sarkıt ve dikitler (PLAN aşama 3): yalnız yankıyla görünen, çarpınca biten engeller; birim testi + oynanış testi.
+- [ ] Harun'un telefonda deneme geri bildirimine göre his ayarı (kanat gücü, yerçekimi, mağara genişliği, yankının görünme süresi,
+      sarkıt/dikit sıklığı). Geri bildirim gelene kadar bu madde bekler; sıradakine geç.
 - [ ] Ölümcül olmayan tehlikeler: örümcek ağı (yavaşlatır), su damlası (ağırlaştırır); ekranda kısa etki yazısı.
 - [ ] Yankıyı yutan yosun bölgeleri (o bölgede duvarlar görünmez).
 - [ ] Bölüm sistemi: Mor → Buz → Lav (renk, ses, fizik farkı) — Harun'un onayından sonra.
@@ -19,6 +17,11 @@ Her madde yaklaşık bir gecelik çalışmadır. Sıra önemlidir; üstten başl
 - [ ] Ayarlar: titreşimi kapatma
 
 ## Tamamlandı
+- [x] 2026-11-23 (gece) — **Yumuşak başlangıç, duraklat, sarkıt ve dikitler:** zorluk (hızlanma ve daralma) ilk ~6000 birimde
+      `isinmaEgrisi` ile yavaş artıyor, kıvrım 3000 birimde tamamlanıyor. Duraklat düğmesi (sol üst), "Duraklatıldı / devam için
+      dokun" ekranı, "Yeniden başla"; Esc/P; arka plana geçince kendiliğinden duraklıyor. Sarkıt/dikitler (`sivriler`): 2500'den
+      sonra, yanında en az 230 birim geçit, yalnız yankı ya da yarasa ışığıyla görünüyor, çarpışma üçgen içinde nokta testiyle;
+      ateş böcekleri sivrilerin içine düşmüyor (`serbestAralik`). Testler: 15 birim + 54 oynanış kontrolü.
 - [x] 2026-11-21 (gece) — **Geniş ekran ve akıcı mağara (Harun'un geri bildirimi):** oyun alanı her ekran oranında ortalanıp
       ölçekleniyor (dünya genişliği sınırı 1900 → 3200; dışında kalan yerler koyu), her karede bütün tuval temizleniyor
       (sağdaki iz/leke sorunu). Duvar ışığı: yankı değince hedef yükselir, görünen parlaklık 0,09 sn'de yumuşakça yükselir
