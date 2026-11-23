@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   anahtarDegistir, benzersizKimlik, dosyaTuru, esyaCogalt, esyaEkle, esyaUyarilari, haritaKisileri, kimlikGecerli, kimlikYap,
   gorevEkle, gorevHedefiniYenile, gorevHedefleri, gorevUyarilari, sandikCogalt, sandikEkle, sandikUyarilari,
-  kisiUyarilari, programDuragiEkle, npcCogalt, npcEkle, npcSeridi, npcUyarilari, unrealYoluSorunu, yolOku, yolYaz,
+  donusGecisi, gecisCiftiEkle, mekanUyarilari, kisiUyarilari, programDuragiEkle, npcCogalt, npcEkle, npcSeridi, npcUyarilari, unrealYoluSorunu, yolOku, yolYaz,
 } from "./icerik";
 import { HARITA_GRUPLARI, OYUNCU_GRUPLARI } from "./sema";
 import { ORNEK_ICERIK } from "./ornekIcerik";
@@ -85,6 +85,23 @@ describe("oyun içeriği yardımcıları", () => {
     yolcu.program[0].saat = 25; yolcu.program[1].is = "uyu";
     const u = npcUyarilari(h, []).map(x => x.yer + ": " + x.metin).join(" | ");
     expect(u).toMatch(/program 1: Saat 0–24/); expect(u).toMatch(/program 2: Bilinmeyen iş: uyu/);
+  });
+
+  it("mekânlar: kapı çifti ekler (giriş + dönüş), dönüşü bulur, uyarıları bulur", () => {
+    const h: any = structuredClone(ORNEK_ICERIK["haritalar/deneme_yolu.json"]);
+    expect(mekanUyarilari(h)).toEqual([]);
+    const id = gecisCiftiEkle(h, "Fırın");
+    expect(id).toBe("gir_02");                       // gir_00, gir_01 örnekte var
+    const gir = h.gecisler.find((g: any) => g.id === "gir_02"), cik = h.gecisler.find((g: any) => g.id === "cik_02");
+    expect(gir.metin).toBe("Gir: Fırın");
+    expect(donusGecisi(h, gir)).toBe(cik);
+    expect(donusGecisi(h, cik)).toBe(gir);
+    expect(mekanUyarilari(h)).toEqual([]);
+    h.gecisler = h.gecisler.filter((g: any) => g.id !== "cik_02");
+    h.mesaleler[0].tur = "kule"; h.zeminler[0].boyut = [0, 5]; h.ic_mekanlar[0].seviye = "Han";
+    const u = mekanUyarilari(h).map(x => x.yer + ": " + x.metin).join(" | ");
+    expect(u).toMatch(/Gir: Fırın: Varılan yerde geri dönüş kapısı yok/); expect(u).toMatch(/Meşale 1: Bilinmeyen tür: kule/);
+    expect(u).toMatch(/Zemin 1: Eni ve boyu/); expect(u).toMatch(/İç mekân Han \(iç\): Unreal yolu/);
   });
 
   it("sandık ekler, çoğaltır; uyarıları bulur", () => {

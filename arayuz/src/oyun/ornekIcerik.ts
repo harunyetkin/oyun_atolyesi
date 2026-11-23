@@ -1,5 +1,5 @@
 // Tarayıcı testinde (?test=1) kullanılan örnek oyun içeriği.
-// Oyunun (hikaye_oyun) icerik/ klasöründen 2026-11-16'da kopyalandı (kişiler, kalabalık, sandık, görev ve sesler 2026-11-17'de yenilendi; nitelikler, gün-gece ve bir örnek günlük program 2026-11-22'de eklendi); harita kısaltıldı.
+// Oyunun (hikaye_oyun) icerik/ klasöründen 2026-11-16'da kopyalandı (kişiler, kalabalık, sandık, görev ve sesler 2026-11-17'de yenilendi; nitelikler, gün-gece ve bir örnek günlük program 2026-11-22'de; geçiş, meşale, zemin ve iç mekân örnekleri 2026-11-24'te eklendi); harita kısaltıldı.
 export const ORNEK_ICERIK: Record<string, any> = {
  "oyun.json": {
   "surum": 1,
@@ -818,7 +818,138 @@ export const ORNEK_ICERIK: Record<string, any> = {
    "ruzgar_siddeti": 0.35,
    "kus_siddeti": 0.45,
    "darbe": "/Game/sesler/darbe"
-  }
+  },
+  "gecisler": [
+   {
+    "id": "gir_00",
+    "metin": "Gir: Han",
+    "konum": [
+     -5.65,
+     0.0,
+     16.5
+    ],
+    "hedef": [
+     -57.8,
+     0.05,
+     -1196.5
+    ],
+    "hedef_aci": 90.0
+   },
+   {
+    "id": "cik_00",
+    "metin": "Dışarı çık",
+    "konum": [
+     -56.95,
+     0.05,
+     -1196.5
+    ],
+    "hedef": [
+     -4.7,
+     0.05,
+     16.5
+    ],
+    "hedef_aci": -90.0
+   },
+   {
+    "id": "gir_01",
+    "metin": "Gir: Ağa konağı",
+    "konum": [
+     -5.85,
+     0.0,
+     -16.5
+    ],
+    "hedef": [
+     -61.7,
+     0.05,
+     -1232.8
+    ],
+    "hedef_aci": -90.0
+   },
+   {
+    "id": "cik_01",
+    "metin": "Dışarı çık",
+    "konum": [
+     -62.55,
+     0.05,
+     -1232.8
+    ],
+    "hedef": [
+     -4.9,
+     0.05,
+     -16.5
+    ],
+    "hedef_aci": -90.0
+   }
+  ],
+  "mesaleler": [
+   {
+    "tur": "direk",
+    "konum": [
+     -4.5,
+     -8
+    ]
+   },
+   {
+    "tur": "direk",
+    "konum": [
+     4.5,
+     -20
+    ]
+   },
+   {
+    "tur": "duvar",
+    "konum": [
+     5.2,
+     -30
+    ],
+    "yukseklik": 2.1,
+    "aci": 90
+   }
+  ],
+  "mesale_ayari": {
+   "not": "Mesale isigi (kandela) ve erimi (m); gece yanar, gunduz soner. Konumlar tasarim/blender/mesale_yerleri.py.",
+   "guc": 60,
+   "yaricap": 12
+  },
+  "zeminler": [
+   {
+    "merkez": [
+     0,
+     -60
+    ],
+    "boyut": [
+     12,
+     10
+    ],
+    "yukseklik": 0.05,
+    "renk": "#8a8070"
+   }
+  ],
+  "gorunmez_duvarlar": [
+   {
+    "merkez": [
+     9,
+     -100
+    ],
+    "boyut": [
+     1,
+     20
+    ]
+   }
+  ],
+  "ic_mekanlar": [
+   {
+    "id": "han_ici",
+    "ad": "Han (iç)",
+    "seviye": "/Game/Fab/Han/Maps/Han",
+    "konum": [
+     -58,
+     0,
+     -1198
+    ],
+    "aci": 0
+   }
+  ]
  },
  "diyaloglar/yolcu.json": {
   "surum": 1,

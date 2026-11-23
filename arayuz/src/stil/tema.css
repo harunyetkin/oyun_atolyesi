@@ -242,3 +242,9 @@ textarea.giris { resize: vertical; min-height: 34px; line-height: 1.4; }
 .gorev-adimi .adim-no { width: 20px; height: 20px; border-radius: 10px; background: var(--z3); color: var(--yazi2); font-size: 11px; display: grid; place-items: center; flex: none; }
 .kroki-dugmeler { position: absolute; top: 14px; right: 14px; display: flex; gap: 2px; background: rgba(17,19,24,.75); border: 1px solid var(--cizgi); border-radius: 6px; padding: 2px; z-index: 1; }
 .kroki svg.kroki-harita { cursor: grab; } .kroki svg.kroki-harita:active { cursor: grabbing; }
+.mekan-bolumu { background: var(--z1); border: 1px solid var(--cizgi); border-radius: 8px; padding: 8px 12px 12px; }
+.mekan-bolumu > summary { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 2px 0 8px; list-style: none; }
+.mekan-bolumu > summary::-webkit-details-marker { display: none; }
+.mekan-satirlari { display: flex; flex-direction: column; gap: 5px; }
+.mekan-satiri { padding: 3px 4px; border-radius: 6px; border: 1px solid transparent; }
+.mekan-satiri.secili { border-color: var(--vurgu); background: rgba(79,156,247,.08); }

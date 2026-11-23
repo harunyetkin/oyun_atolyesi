@@ -321,6 +321,73 @@ export function gorevUyarilari(harita: any): Uyari[] {
   return sonuc;
 }
 
+// ------------------------------------------------------------------ mekânlar (harita içinde)
+// BICIM.md (2026-11-18): gecisler { id, metin, konum [x,y,z], hedef [x,y,z], hedef_aci }; ic_mekanlar { id, ad, seviye, konum, aci,
+// sil_kutu [x1,z1,x2,z2] }; zeminler / gorunmez_duvarlar / serpme_yok { merkez [x,z], boyut [en,boy] (+ zeminde yukseklik, renk,
+// unreal_klasor, unreal_karo) }. Oyunun kodundan (HikayeOyunModu.cpp): mesaleler { tur: "direk"|"duvar", konum [x,z], yukseklik?, aci? },
+// mesale_ayari { guc (kandela), yaricap (m) }.
+export interface Gecis { id: string; metin: string; konum: [number, number, number]; hedef: [number, number, number]; hedef_aci?: number; [d: string]: unknown }
+
+/** Bir kapı çifti ekler: giriş (yolun yanında) ve dönüş (hedefte); kimlikleri gir_NN / cik_NN. Girişin kimliğini döner. */
+export function gecisCiftiEkle(harita: any, ad = "Yeni yer"): string {
+  const liste: Gecis[] = (harita.gecisler ||= []);
+  const kume = new Set(liste.map(g => g.id));
+  let no = 0;
+  while (kume.has(`gir_${String(no).padStart(2, "0")}`) || kume.has(`cik_${String(no).padStart(2, "0")}`)) no++;
+  const n = String(no).padStart(2, "0");
+  const b = harita.baslangic?.konum ?? [0, 0, 0];
+  const kapi: [number, number, number] = [Math.round((b[0] + 3) * 10) / 10, 0, Math.round((b[2] - 3) * 10) / 10];
+  // iç mekânın yeri: varsayılan olarak köyün çok uzağı (oyun iç sahneleri uzağa koyar)
+  const ic: [number, number, number] = [-60 - no * 10, 0.05, -1200];
+  liste.push({ id: `gir_${n}`, metin: `Gir: ${ad}`, konum: kapi, hedef: [ic[0] - 0.9, ic[1], ic[2]], hedef_aci: 90 });
+  liste.push({ id: `cik_${n}`, metin: "Dışarı çık", konum: ic, hedef: [kapi[0] + 0.9, 0.05, kapi[2]], hedef_aci: -90 });
+  return `gir_${n}`;
+}
+
+/** Bir geçişin dönüş geçişi: konumu bu geçişin hedefine 3 m'den yakın olan ilk geçiş. */
+export function donusGecisi(harita: any, g: Gecis): Gecis | undefined {
+  if (!Array.isArray(g.hedef)) return undefined;
+  return (harita?.gecisler || []).find((x: Gecis) => x !== g && Array.isArray(x.konum)
+    && Math.hypot(x.konum[0] - g.hedef[0], x.konum[2] - g.hedef[2]) < 3);
+}
+
+/** Mekânların sorunları: kimlik, eksik yazı/hedef, dönüşü olmayan geçiş, boyutsuz alan, yanlış seviye yolu, bilinmeyen meşale türü. */
+export function mekanUyarilari(harita: any): Uyari[] {
+  const sonuc: Uyari[] = [];
+  const gorulen = new Set<string>();
+  for (const g of (harita?.gecisler || []) as Gecis[]) {
+    const yer = "Geçiş " + (g.metin || g.id);
+    if (!kimlikGecerli(g.id || "")) sonuc.push({ yer, metin: `Kimlik "${g.id}" yalnız küçük harf, rakam ve _ içermeli` });
+    if (gorulen.has(g.id)) sonuc.push({ yer, metin: `"${g.id}" kimliği iki kez kullanılmış` });
+    gorulen.add(g.id);
+    if (!g.metin) sonuc.push({ yer, metin: "Yazısı boş (oyunda “[F] …” yazısı)" });
+    if (!Array.isArray(g.konum) || g.konum.length !== 3) sonuc.push({ yer, metin: "Kapının yeri yok" });
+    if (!Array.isArray(g.hedef) || g.hedef.length !== 3) sonuc.push({ yer, metin: "Gidilecek yer (hedef) yok" });
+    else if (!donusGecisi(harita, g)) sonuc.push({ yer, metin: "Varılan yerde geri dönüş kapısı yok (oyuncu orada kalır)" });
+  }
+  const icler = new Set<string>();
+  for (const im of harita?.ic_mekanlar || []) {
+    const yer = "İç mekân " + (im.ad || im.id);
+    if (!kimlikGecerli(im.id || "")) sonuc.push({ yer, metin: `Kimlik "${im.id}" yalnız küçük harf, rakam ve _ içermeli` });
+    if (icler.has(im.id)) sonuc.push({ yer, metin: `"${im.id}" kimliği iki kez kullanılmış` });
+    icler.add(im.id);
+    if (!im.seviye) sonuc.push({ yer, metin: "Unreal seviyesi boş" });
+    else { const s = unrealYoluSorunu(im.seviye); if (s) sonuc.push({ yer, metin: s }); }
+  }
+  const adlar: Record<string, string> = { zeminler: "Zemin", gorunmez_duvarlar: "Görünmez duvar", serpme_yok: "Ot serpilmeyen alan" };
+  for (const liste of Object.keys(adlar)) (harita?.[liste] || []).forEach((r: any, i: number) => {
+    const yer = `${adlar[liste]} ${i + 1}`;
+    if (!Array.isArray(r.merkez) || r.merkez.length !== 2) sonuc.push({ yer, metin: "Merkezi yok" });
+    if (!Array.isArray(r.boyut) || r.boyut.length !== 2 || r.boyut[0] <= 0 || r.boyut[1] <= 0) sonuc.push({ yer, metin: "Eni ve boyu sıfırdan büyük olmalı" });
+    if (r.unreal_klasor) { const s = unrealYoluSorunu(r.unreal_klasor); if (s) sonuc.push({ yer, metin: s }); }
+  });
+  (harita?.mesaleler || []).forEach((m: any, i: number) => {
+    if (m.tur !== undefined && m.tur !== "direk" && m.tur !== "duvar") sonuc.push({ yer: `Meşale ${i + 1}`, metin: `Bilinmeyen tür: ${m.tur}` });
+    if (!Array.isArray(m.konum) || m.konum.length !== 2) sonuc.push({ yer: `Meşale ${i + 1}`, metin: "Yeri [x, z] olmalı" });
+  });
+  return sonuc;
+}
+
 // ------------------------------------------------------------------ denetim
 export interface Uyari { yer: string; metin: string }
 

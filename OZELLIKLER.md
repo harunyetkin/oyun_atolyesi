@@ -143,7 +143,8 @@ Durum: ✅ var · 🧩 arayüzü var, işlevi sonra · 🔜 planlı (aşama numa
 | Kişilerin günlük programı (duraklar, krokide sürükleme), kişiye özel ve ortak can, oyuncunun can ve dayanıklılığı | ✅ |
 | Gün-gece döngüsü, pozlama, Unreal seviyesi ayarları | ✅ |
 | Kroki: yakınlaştırma, kaydırma, yakın görünüm, hepsini sığdır | ✅ |
-| Oturaklar, ana menü beden seçimi, model çarpışmaları, iç mekânlar/geçişler, meşaleler, arayüz.json | 🔜 |
+| Mekânlar: kapılar/geçişler, iç mekânlar, meşaleler, zeminler, görünmez duvarlar, ot serpilmeyen alanlar (krokide sürükleme, uyarılar) | ✅ |
+| Dekor nesneleri ve oturaklar, ana menü beden seçimi ve ekipman, model çarpışmaları, arayüz.json | 🔜 |
 | Kapı seçimleri, dekor yerleştirme (3D görünümde) | 🔜2, 🔜4 |
 | Konuşma ağacı, karakter oluşturma, ölçek düzenleyicileri | 🔜4 |
 | "Oyunda dene" | 🔜3 |

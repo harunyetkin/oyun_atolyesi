@@ -5,14 +5,13 @@ Her madde yaklaşık bir günlük çalışmadır. Sıra önemlidir; üstten baş
 > Not (2026-11-15): Oyun Unreal Engine 5.8'e geçti (`hikaye_oyun/unreal`). İçerik biçimi aynı (`icerik/*.json`, BICIM.md); araç yine bu dosyaları düzenler. Godot'ya özel alanları (ör. `tur: mh` görünüm parçaları) yeni iş olarak ekleme; MetaHuman görünüm alanları BICIM.md'ye eklenince araca taşı.
 
 ## Sırada
-- [ ] Oyunun yeni alanları, haritada (kalanlar): **`ic_mekanlar`** ve **`gecisler`**; `zeminler`, `serpme_yok`, `gorunmez_duvarlar`;
-      **`mesaleler`** ve `mesale_ayari` (2026-11-20 köy haritası); nesnede `zemine_oturt`, `"carpisma": "yok"`, `grup`.
-      Önce BICIM.md'deki tanımlarını oku; listeler için kart + krokide gösterim/sürükleme.
 - [ ] Yeni dosyalar: **`arayuz.json`** (renkler, yazı tipleri, logo, menü müziği, yapımcılar, `menu_sahnesi`) düzenleyicisi;
-      karakterler.json'daki yeni oyuncu alanları (`nitelikler`, `oturma.*`, `dovus.tekme_*`, `kamera.omuz_kaydirma` vb.) için şema
-      açıklamaları (şimdilik "yeni" rozetiyle görünüyorlar) ve kökte `kisi_nitelikler`; `tasarim/` klasörü (malzemeler.json, karakterler.json) okunur liste.
-- [ ] Oyunun yeni alanları, kalanlar: dekor nesnesinde **`oturak`** (yön, derinlik, `tasinir`), karakterler.json **`secilebilir_govdeler`** (ana menüdeki
-      karakter seçimi: ad, beden, puanlar), yeni dosya **`modeller.json`** (model çarpışma silindirleri; okunur liste + düzenleme).
+      karakterler.json'daki yeni oyuncu alanları (`oturma.*`, `dovus.tekme_*`, `kamera.omuz_kaydirma` vb.) için şema açıklamaları
+      (şimdilik "yeni" rozetiyle görünüyorlar); `tasarim/` klasörü (malzemeler.json, karakterler.json) okunur liste.
+- [ ] Oyunun yeni alanları, kalanlar: karakterler.json **`secilebilir_govdeler`** (ana menüdeki karakter seçimi: ad, beden, puanlar,
+      `unreal_ekipman[]`: `karisim`, `sarkac`, `dusunce_birak`…), yeni dosya **`modeller.json`** (model çarpışma silindirleri; okunur liste + düzenleme).
+- [ ] Dekor nesneleri (`nesneler`) düzenleyicisi: liste + krokide sürükleme; nesnede `zemine_oturt`, `"carpisma": "yok"`, `grup`,
+      `oturak` (yön, derinlik, `tasinir`), `aktor`. (Köy meydanında şimdilik 0 nesne; dekor Unreal seviyesinde.)
 - [ ] Diyalog seçeneğinde `esya_ver` — konuşma ağacı düzenleyicisiyle birlikte (Aşama 4).
 - [ ] Oyun içeriği ekranında **kapı seçimleri**: soru, kapılar (etiket, renk, puan, ödül, mesaj); krokide kapı çizgisini sürükleme
 (Aşama 2 — 3D görünüm)
@@ -60,6 +59,12 @@ Oyun 2026-11-15'te bu içerik türleriyle oynanabilir oldu; araçta her biri iç
 - [ ] Kabul testi: Kanat Çırp'ı araçta sıfırdan kur, `ornekler/kanat_cirp.json` olarak kaydet, otomatik testle oynat
 
 ## Tamamlandı
+- [x] 2026-11-24 (gece) — **Mekânlar (v0.8):** Harita → **Mekânlar** sekmesi (`Mekanlar.tsx`): **kapılar ve geçişler** (yazı, kapının yeri,
+      gidilen yer, bakış yönü; dönüş kapısına atlama; "kapı çifti ekle" giriş + dönüş, `gecisCiftiEkle`, `donusGecisi`), **iç mekânlar**
+      (kimlik, ad, Unreal seviyesi, konum, açı, silme kutusu), **meşaleler** (direk/duvar, yer, yükseklik, yön; ortak ışık gücü ve erim),
+      **zeminler** (merkez, boyut, yükseklik, renk, malzeme, karo), **görünmez duvarlar**, **ot serpilmeyen alanlar**; uyarılar
+      (`mekanUyarilari`: dönüşü olmayan geçiş vb.). Kroki `mod="mekan"`: kapı, meşale, alan ve iç mekân sürüklenir; etkin olmayan
+      katmanlar tıklamayı engellemez; yakın görünüm uzaktaki iç mekân kapılarını saymaz. 1 birim testi + 10 arayüz kontrolü.
 - [x] 2026-11-22 (gece) — **Günlük program, gün-gece ve can (v0.7):** kişi kartında **Günlük program** (`program`: saat, iş, yer,
       yarıçap / bakış yönü; durak ekle/sil, saate göre sırala; krokide seçili kişinin durakları saatleriyle, sürüklenebilir),
       bakış yönü (`aci`), `grup`, **kişiye özel can** (`nitelikler`; boş kutuda ortak değer). Karakterler: oyuncunun **Can ve

@@ -25,9 +25,16 @@ function yogunSinir(noktalar: [number, number][], tam: Sinir): Sinir {
   return { z0, z1, x0, x1 };
 }
 
+/** Haritadaki dikdörtgen alan listeleri (merkez [x, z], boyut [en, boy]) ve çizim renkleri. */
+export const DIKDORTGENLER = ["zeminler", "gorunmez_duvarlar", "serpme_yok"] as const;
+const DIKDORTGEN_RENK: Record<string, [string, string]> = {
+  zeminler: ["rgba(190,180,160,.28)", "#bfb39a"], gorunmez_duvarlar: ["rgba(240,90,90,.12)", "#f06a6a"], serpme_yok: ["rgba(76,195,138,.08)", "#4cc38a"],
+};
+const SECIM_ONEKI: Record<string, string> = { zeminler: "zemin", gorunmez_duvarlar: "duvar", serpme_yok: "serpme" };
+
 const saatYazisi = (saat: number) => `${Math.floor(saat)}:${String(Math.round((saat % 1) * 60)).padStart(2, "0")}`;
 
-export function Kroki({ dosya, harita, mod = "esya" }: { dosya: string; harita: any; mod?: "esya" | "kisi" | "sandik" }) {
+export function Kroki({ dosya, harita, mod = "esya" }: { dosya: string; harita: any; mod?: "esya" | "kisi" | "sandik" | "mekan" }) {
   const svg = useRef<SVGSVGElement>(null);
   const secili = useOyun(o => o.secili);
   const { degistir, sec } = useOyun.getState();
@@ -45,14 +52,21 @@ export function Kroki({ dosya, harita, mod = "esya" }: { dosya: string; harita: 
   const zler: number[] = yolVar ? [yolBasi, yolSonu] : [];
   let w = yolVar ? genislik / 2 + 6 : 6;
   const noktalar: [number, number][] = [];   // [z, x]: yakın görünüm için
-  const ekle = (x: number | undefined, z: number | undefined, pay = 2) => {
+  const ekle = (x: number | undefined, z: number | undefined, pay = 2, yakinaSay = true) => {
     if (typeof z === "number") zler.push(z + pay, z - pay);
     if (typeof x === "number") w = Math.max(w, Math.abs(x) + pay);
-    if (typeof z === "number" && typeof x === "number") noktalar.push([z, x]);
+    if (yakinaSay && typeof z === "number" && typeof x === "number") noktalar.push([z, x]);
   };
   for (const n of harita?.nesneler || []) ekle(n.konum?.[0], n.konum?.[2], 1);
   for (const e of esyalar) ekle(e.konum?.[0], e.konum?.[2]);
   for (const s of harita?.sandiklar || []) ekle(s.konum?.[0], s.konum?.[2]);
+  // mekânlar: geçişlerin kapıları (hedefleri çoğu zaman uzak bir iç mekândır, sınırlara katılmaz), meşaleler, alanlar, iç mekânlar
+  // geçişlerin yarısı uzaktaki iç mekânlardaki "dışarı çık" kapılarıdır: yakın görünümü kaydırmasınlar
+  for (const g of harita?.gecisler || []) ekle(g.konum?.[0], g.konum?.[2], 1, false);
+  for (const m of harita?.mesaleler || []) ekle(m.konum?.[0], m.konum?.[1], 1);
+  for (const ad of DIKDORTGENLER) for (const r of harita?.[ad] || [])
+    if (Array.isArray(r.merkez) && Array.isArray(r.boyut)) { ekle(r.merkez[0] - r.boyut[0] / 2, r.merkez[1] - r.boyut[1] / 2, 0); ekle(r.merkez[0] + r.boyut[0] / 2, r.merkez[1] + r.boyut[1] / 2, 0); }
+  for (const im of harita?.ic_mekanlar || []) ekle(im.konum?.[0], im.konum?.[2], 2, false);
   for (const k of harita?.kapilar || []) ekle(undefined, k.z);
   for (const n of npcler) {
     if (n.alan?.merkez) ekle(n.alan.merkez[0], n.alan.merkez[1], (n.alan.yaricap ?? NPC_VARSAYILAN.yaricap) + 1);
@@ -141,6 +155,27 @@ export function Kroki({ dosya, harita, mod = "esya" }: { dosya: string; harita: 
   const sandikSurukle = (id: string) => (ev: React.PointerEvent) => surukleBaslat(ev, id, "kroki-sandik:" + id, (x, z, d) => {
     const sd = d.sandiklar?.find((q: any) => q.id === id); if (sd) sd.konum = [ondalik(x), sd.konum?.[1] ?? 0, ondalik(z)];
   });
+  // mekân kipi: geçiş kapısı ve meşale fareye gelir; alan (dikdörtgen) ve iç mekân tutulduğu yerden kayar
+  const gecisSurukle = (id: string) => (ev: React.PointerEvent) => surukleBaslat(ev, "gecis:" + id, "kroki-gecis:" + id, (x, z, d) => {
+    const g = d.gecisler?.find((q: any) => q.id === id); if (g) g.konum = [ondalik(x), g.konum?.[1] ?? 0, ondalik(z)];
+  });
+  const mesaleSurukle = (i: number) => (ev: React.PointerEvent) => surukleBaslat(ev, "mesale:" + i, "kroki-mesale:" + i, (x, z, d) => {
+    const m = d.mesaleler?.[i]; if (m) m.konum = [ondalik(x), ondalik(z)];
+  });
+  const dikdortgenSurukle = (liste: string, i: number) => (ev: React.PointerEvent) => {
+    const r0 = harita?.[liste]?.[i]; if (!r0?.merkez) return;
+    const [mx, mz] = r0.merkez;
+    surukleBaslat(ev, `${SECIM_ONEKI[liste]}:${i}`, `kroki-${liste}:${i}`, (_x, _z, d, dx, dz) => {
+      const r = d[liste]?.[i]; if (r) r.merkez = [ondalik(mx + dx), ondalik(mz + dz)];
+    });
+  };
+  const icMekanSurukle = (id: string) => (ev: React.PointerEvent) => {
+    const im0 = (harita?.ic_mekanlar || []).find((q: any) => q.id === id); if (!im0?.konum) return;
+    const [kx, ky, kz] = im0.konum;
+    surukleBaslat(ev, "ic:" + id, "kroki-ic:" + id, (_x, _z, d, dx, dz) => {
+      const im = d.ic_mekanlar?.find((q: any) => q.id === id); if (im) im.konum = [ondalik(kx + dx), ky, ondalik(kz + dz)];
+    });
+  };
   const npcBul = (d: any, id: string): Npc | undefined => d.npcler?.find((q: Npc) => q.id === id);
   // Alan, tutulduğu yerden kayar (merkez fareye sıçramaz); yaya şeridi de alanla birlikte taşınır.
   const alanTasi = (id: string) => (ev: React.PointerEvent) => {
@@ -180,7 +215,7 @@ export function Kroki({ dosya, harita, mod = "esya" }: { dosya: string; harita: 
     p.yer = [ondalik(x), ondalik(z)];
   });
 
-  const kisiKipi = mod === "kisi", sandikKipi = mod === "sandik", esyaKipi = mod === "esya";
+  const kisiKipi = mod === "kisi", sandikKipi = mod === "sandik", esyaKipi = mod === "esya", mekanKipi = mod === "mekan";
   const seciliKisi = kisiKipi ? npcler.find(n => n.id === secili) : undefined;
   const program: any[] = Array.isArray(seciliKisi?.program) ? (seciliKisi!.program as any[]) : [];
   const durakYeri = (p: any): [number, number] | null =>
@@ -198,10 +233,46 @@ export function Kroki({ dosya, harita, mod = "esya" }: { dosya: string; harita: 
         {yolVar && <rect x={-yolBasi} y={-genislik / 2} width={yolBasi - yolSonu} height={genislik} fill={yol.renk || "#8d8478"} opacity={0.55} />}
         {yolVar && yol.serit !== false && <line x1={-yolBasi} x2={-yolSonu} y1={0} y2={0} stroke="#e9e3d0" strokeWidth={0.15 * s} strokeDasharray={`${1.5 * s} ${1.5 * s}`} opacity={0.6} />}
         {(harita?.nesneler || []).map((n: any, i: number) => n.konum && <circle key={i} cx={-n.konum[2]} cy={n.konum[0]} r={0.45 * s} fill="#6f7686" opacity={0.7} />)}
+        {DIKDORTGENLER.map(liste => (harita?.[liste] || []).map((r: any, i: number) => {
+          if (!Array.isArray(r.merkez) || !Array.isArray(r.boyut)) return null;
+          const anahtar = `${SECIM_ONEKI[liste]}:${i}`, sec_ = mekanKipi && secili === anahtar;
+          const [dolgu, cizgi] = DIKDORTGEN_RENK[liste];
+          return <rect key={anahtar} x={-r.merkez[1] - r.boyut[1] / 2} y={r.merkez[0] - r.boyut[0] / 2} width={r.boyut[1]} height={r.boyut[0]}
+            fill={liste === "zeminler" && /^#[0-9a-f]{6}$/i.test(r.renk || "") ? r.renk + "55" : dolgu} stroke={sec_ ? "#4f9cf7" : cizgi}
+            strokeWidth={(sec_ ? 0.4 : 0.2) * s} strokeDasharray={liste === "zeminler" ? undefined : `${0.8 * s} ${0.5 * s}`}
+            opacity={mekanKipi ? 1 : 0.6} className={mekanKipi ? "kroki-esya" : undefined}
+            onPointerDown={mekanKipi ? dikdortgenSurukle(liste, i) : undefined} pointerEvents={mekanKipi ? undefined : "none"} data-testid={`kroki-${SECIM_ONEKI[liste]}-${i}`} />;
+        }))}
+        {(harita?.ic_mekanlar || []).map((im: any) => {
+          if (!Array.isArray(im.konum)) return null;
+          const sec_ = mekanKipi && secili === "ic:" + im.id, b = (sec_ ? 1.4 : 1.1) * s;
+          return <g key={"ic" + im.id} className={mekanKipi ? "kroki-esya" : undefined} onPointerDown={mekanKipi ? icMekanSurukle(im.id) : undefined} pointerEvents={mekanKipi ? undefined : "none"} data-testid={"kroki-ic-" + im.id}>
+            <polygon points={`${-im.konum[2] - b},${im.konum[0] + b} ${-im.konum[2] - b},${im.konum[0] - 0.2 * b} ${-im.konum[2]},${im.konum[0] - b} ${-im.konum[2] + b},${im.konum[0] - 0.2 * b} ${-im.konum[2] + b},${im.konum[0] + b}`}
+              fill="#7fb6e8" stroke={sec_ ? "#4f9cf7" : "#fff"} strokeWidth={0.2 * s} opacity={mekanKipi ? 1 : 0.6} />
+            {mekanKipi && <text x={-im.konum[2]} y={im.konum[0] + 2.4 * s} className="kroki-yazi">{im.ad || im.id}</text>}
+          </g>;
+        })}
+        {(harita?.gecisler || []).map((g: any) => {
+          if (!Array.isArray(g.konum)) return null;
+          const sec_ = mekanKipi && secili === "gecis:" + g.id, b = (sec_ ? 0.9 : 0.6) * s;
+          const hedefGorunur = sec_ && Array.isArray(g.hedef) && Math.abs(g.hedef[2] - g.konum[2]) < 300 && Math.abs(g.hedef[0] - g.konum[0]) < 300;
+          return <g key={"g" + g.id} className={mekanKipi ? "kroki-esya" : undefined} onPointerDown={mekanKipi ? gecisSurukle(g.id) : undefined} pointerEvents={mekanKipi ? undefined : "none"} data-testid={"kroki-gecis-" + g.id}>
+            {hedefGorunur && <line x1={-g.konum[2]} y1={g.konum[0]} x2={-g.hedef[2]} y2={g.hedef[0]} stroke="#5fd0e0" strokeWidth={0.25 * s} strokeDasharray={`${0.6 * s} ${0.5 * s}`} pointerEvents="none" />}
+            <rect x={-g.konum[2] - b * 0.6} y={g.konum[0] - b} width={1.2 * b} height={2 * b} rx={0.15 * s} fill="#5fd0e0" stroke={sec_ ? "#4f9cf7" : "#0b2a30"} strokeWidth={(sec_ ? 0.35 : 0.15) * s} opacity={mekanKipi ? 1 : 0.55} />
+            {sec_ && <text x={-g.konum[2]} y={g.konum[0] - 1.6 * s} className="kroki-yazi">{g.metin || g.id}</text>}
+          </g>;
+        })}
+        {(harita?.mesaleler || []).map((m: any, i: number) => {
+          if (!Array.isArray(m.konum)) return null;
+          const sec_ = mekanKipi && secili === "mesale:" + i;
+          return <circle key={"m" + i} cx={-m.konum[1]} cy={m.konum[0]} r={(sec_ ? 0.75 : 0.5) * s} fill={m.tur === "duvar" ? "#ffb35c" : "#ffd27a"}
+            stroke={sec_ ? "#4f9cf7" : "#7a3d00"} strokeWidth={(sec_ ? 0.35 : 0.12) * s} opacity={mekanKipi ? 1 : 0.6}
+            className={mekanKipi ? "kroki-esya" : undefined} onPointerDown={mekanKipi ? mesaleSurukle(i) : undefined} pointerEvents={mekanKipi ? undefined : "none"} data-testid={"kroki-mesale-" + i} />;
+        })}
         {(harita?.sandiklar || []).map((sd: any) => {
           if (!sd.konum) return null;
           const sec_ = sandikKipi && secili === sd.id, b = (sec_ ? 1.3 : sandikKipi ? 1 : 0.6) * s;
-          return <g key={sd.id} className={sandikKipi ? "kroki-esya" : undefined} onPointerDown={sandikKipi ? sandikSurukle(sd.id) : undefined} data-testid={"kroki-sandik-" + sd.id}>
+          return <g key={sd.id} className={sandikKipi ? "kroki-esya" : undefined} onPointerDown={sandikKipi ? sandikSurukle(sd.id) : undefined} pointerEvents={sandikKipi ? undefined : "none"} data-testid={"kroki-sandik-" + sd.id}>
             <rect x={-sd.konum[2] - b} y={sd.konum[0] - b * 0.7} width={2 * b} height={1.4 * b} rx={0.2 * s} fill="#c58a3c" opacity={sandikKipi ? 1 : 0.85}
               stroke={sec_ ? "#4f9cf7" : sandikKipi ? "#fff" : "none"} strokeWidth={(sec_ ? 0.4 : 0.2) * s} />
             {sandikKipi && <text x={-sd.konum[2]} y={sd.konum[0] + (sd.konum[0] >= 0 ? 2.6 : -1.8) * s} className="kroki-yazi">{sd.ad || sd.id}</text>}
@@ -215,7 +286,7 @@ export function Kroki({ dosya, harita, mod = "esya" }: { dosya: string; harita: 
           return <g key={n.id} className={kisiKipi ? "kroki-kisi" : undefined} data-testid={"kroki-kisi-" + n.id}>
             {sr && <line x1={-sr.zBas} x2={-sr.zSon} y1={sr.x} y2={sr.x} stroke="#a78bfa" strokeWidth={(sec_ ? 0.5 : 0.3) * s} opacity={0.9} />}
             <circle cx={cx} cy={cy} r={Math.max(r, 0.6 * s)} fill={sec_ ? "rgba(79,156,247,.16)" : "rgba(167,139,250,.08)"} stroke={sec_ ? "#4f9cf7" : "#a78bfa"}
-              strokeWidth={(sec_ ? 0.3 : 0.15) * s} strokeDasharray={sr ? `${0.4 * s} ${0.8 * s}` : `${0.8 * s} ${0.6 * s}`} onPointerDown={kisiKipi ? alanTasi(n.id) : undefined} data-testid={"kroki-alan-" + n.id} />
+              strokeWidth={(sec_ ? 0.3 : 0.15) * s} strokeDasharray={sr ? `${0.4 * s} ${0.8 * s}` : `${0.8 * s} ${0.6 * s}`} onPointerDown={kisiKipi ? alanTasi(n.id) : undefined} pointerEvents={kisiKipi ? undefined : "none"} data-testid={"kroki-alan-" + n.id} />
             <circle cx={cx} cy={cy} r={0.55 * s} fill={sec_ ? "#4f9cf7" : "#a78bfa"} pointerEvents="none" />
             <text x={cx} y={cy + 1.6 * s} className="kroki-yazi mor" pointerEvents="none">{n.ad || n.id}</text>
             {sec_ && <circle cx={cx + Math.max(r, 0.6 * s)} cy={cy} r={0.75 * s} className="kroki-tutamac" onPointerDown={alanBoyutla(n.id)} data-testid={"kroki-yaricap-" + n.id} />}
@@ -238,7 +309,7 @@ export function Kroki({ dosya, harita, mod = "esya" }: { dosya: string; harita: 
             </g>;
           })}
         </g>}
-        {(harita?.kapilar || []).map((k: any) => <g key={k.id}>
+        {(harita?.kapilar || []).map((k: any) => <g key={k.id} pointerEvents="none">
           <line x1={-k.z} x2={-k.z} y1={-kenarY - s} y2={kenarY + s} stroke="#e9b949" strokeWidth={0.5 * s} />
           <text x={-k.z} y={-kenarY - 1.8 * s} className="kroki-yazi sari">{k.id}</text>
         </g>)}
@@ -247,7 +318,7 @@ export function Kroki({ dosya, harita, mod = "esya" }: { dosya: string; harita: 
         {typeof bitisZ === "number" && !bitisIcerde && <text x={-sonZ - s} y={w - 1.5 * s} className="kroki-yazi yesil" style={{ textAnchor: "end" }}>
           bitiş {Math.round(Math.abs(bitisZ - sonZ))} m ileride →</text>}
         {esyalar.map(e => e.konum && <g key={e.id} className={esyaKipi ? "kroki-esya" : undefined} opacity={esyaKipi ? 1 : 0.45}
-          onPointerDown={esyaKipi ? esyaSurukle(e.id) : undefined} data-testid={"kroki-" + e.id}>
+          onPointerDown={esyaKipi ? esyaSurukle(e.id) : undefined} pointerEvents={esyaKipi ? undefined : "none"} data-testid={"kroki-" + e.id}>
           <circle cx={-e.konum[2]} cy={e.konum[0]} r={(esyaKipi && secili === e.id ? 1.3 : 1) * s} fill={e.renk || "#a0703c"}
             stroke={esyaKipi && secili === e.id ? "#4f9cf7" : "#fff"} strokeWidth={(esyaKipi && secili === e.id ? 0.4 : 0.2) * s} />
           {esyaKipi && <text x={-e.konum[2]} y={e.konum[0] + (e.konum[0] >= 0 ? 2.6 : -1.8) * s} className="kroki-yazi">{e.ad || e.id}</text>}
@@ -257,8 +328,11 @@ export function Kroki({ dosya, harita, mod = "esya" }: { dosya: string; harita: 
         <span><i style={{ background: "#4cc38a" }} /> başlangıç / bitiş</span><span><i style={{ background: "#e9b949" }} /> kapılar</span>
         <span><i style={{ background: "#a78bfa" }} /> kişilerin dolaşma alanı{kisiKipi ? " / yaya şeridi" : ""}</span>
         {kisiKipi && <span><i style={{ background: "#f0a35e" }} /> seçili kişinin günlük programı</span>}
+        {mekanKipi && <><span><i style={{ background: "#5fd0e0" }} /> geçişler</span><span><i style={{ background: "#ffd27a" }} /> meşaleler</span>
+          <span><i style={{ background: "#7fb6e8" }} /> iç mekânlar</span><span><i style={{ background: "#bfb39a" }} /> zeminler</span>
+          <span><i style={{ background: "#f06a6a" }} /> görünmez duvarlar</span></>}
         <span><i style={{ background: "#a0703c" }} /> eşyalar</span><span><i style={{ background: "#c58a3c" }} /> sandıklar</span><span><i style={{ background: "#6f7686" }} /> dekor</span>
-        <span className="cok-soluk" style={{ marginLeft: "auto" }}>{kisiKipi ? "alanı ya da program durağını sürükle: taşı · kenardaki noktayı çek: büyüt" : sandikKipi ? "sandığı sürükleyerek taşı" : "üstten görünüş, yaklaşık · yol soldan sağa"}</span>
+        <span className="cok-soluk" style={{ marginLeft: "auto" }}>{kisiKipi ? "alanı ya da program durağını sürükle: taşı · kenardaki noktayı çek: büyüt" : sandikKipi ? "sandığı sürükleyerek taşı" : mekanKipi ? "kapıyı, meşaleyi ya da alanı sürükleyerek taşı" : "üstten görünüş, yaklaşık · yol soldan sağa"}</span>
       </div>
     </div>
   );

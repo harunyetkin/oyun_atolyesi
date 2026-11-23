@@ -1,11 +1,11 @@
 // Oyun içeriği düzenleyicisi: Harun'un 3D oyununun (hikaye_oyun) icerik/*.json dosyalarını
 // kod yazmadan düzenleme ekranı. Şimdilik: karakterler.json (oyuncu ayarları ve kişilerin bedenleri)
-// ve haritalar (kişiler ve kalabalık, yerdeki eşyalar, sandıklar, görevler, Unreal ayarları, yol, ışık). Diğer dosyalar salt okunur gösterilir.
+// ve haritalar (kişiler ve kalabalık, yerdeki eşyalar, sandıklar, görevler, mekânlar, Unreal ayarları, yol, ışık). Diğer dosyalar salt okunur gösterilir.
 // Giriş kutuları girisler.tsx'te, kroki Kroki.tsx'te, kişiler sayfası Kisiler.tsx'tedir.
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Undo2, Redo2, Save, FolderOpen, Home, Users, Map as HaritaIkon, MessageSquare, FileJson, Settings2, UserRound, Package,
-  Plus, Trash2, Copy, Box, Flag, AlertTriangle, RotateCcw, Hand,
+  Plus, Trash2, Copy, Box, Flag, DoorOpen, AlertTriangle, RotateCcw, Hand,
 } from "lucide-react";
 import { useDurum } from "../depo/durum";
 import { useOyun } from "./durum";
@@ -19,6 +19,7 @@ import { AlanGirisi, AlanSatiri, KimlikGiris, PuanDuzenleyici, SayiAlani, Uyaril
 import { Kroki } from "./Kroki";
 import { KisilerListesi as HaritaKisileri } from "./Kisiler";
 import { GorevlerListesi, SandiklarListesi } from "./SandiklarGorevler";
+import { MekanlarListesi } from "./Mekanlar";
 import { MenuCubugu } from "../editor/Cerceve";
 import { komut, kullanilabilir } from "../editor/komutlar";
 
@@ -145,7 +146,7 @@ function KisilerListesi({ dosya, kok, kisiler, npcler, uyarilar }: { dosya: stri
 function HaritaSayfasi({ dosya }: { dosya: string }) {
   const veri = useOyun(o => o.veri[dosya]);
   const oyun = useOyun(o => o.veri["oyun.json"]);
-  const [sekme, setSekme] = useState<"kisiler" | "esyalar" | "sandiklar" | "gorevler" | "ayarlar">("kisiler");
+  const [sekme, setSekme] = useState<"kisiler" | "esyalar" | "sandiklar" | "gorevler" | "mekanlar" | "ayarlar">("kisiler");
   const olcekler: { id: string; ad: string }[] = oyun?.olcekler || [];
   const tanimli = tanimliYollar(HARITA_GRUPLARI);
   return (
@@ -155,6 +156,7 @@ function HaritaSayfasi({ dosya }: { dosya: string }) {
         { id: "esyalar", ad: "Eşyalar", ikon: <Package size={14} />, sayi: (veri?.esyalar || []).length },
         { id: "sandiklar", ad: "Sandıklar", ikon: <Box size={14} />, sayi: (veri?.sandiklar || []).length },
         { id: "gorevler", ad: "Görevler", ikon: <Flag size={14} />, sayi: (veri?.gorevler || []).length },
+        { id: "mekanlar", ad: "Mekânlar", ikon: <DoorOpen size={14} />, sayi: (veri?.gecisler || []).length + (veri?.ic_mekanlar || []).length + (veri?.mesaleler || []).length },
         { id: "ayarlar", ad: "Harita ayarları", ikon: <Settings2 size={14} /> }]} />
       <div className="icerik-sayfa">
         {sekme === "ayarlar"
@@ -162,6 +164,7 @@ function HaritaSayfasi({ dosya }: { dosya: string }) {
           : sekme === "kisiler" ? <HaritaKisileri dosya={dosya} harita={veri} />
           : sekme === "sandiklar" ? <SandiklarListesi dosya={dosya} harita={veri} olcekler={olcekler} />
           : sekme === "gorevler" ? <GorevlerListesi dosya={dosya} harita={veri} />
+          : sekme === "mekanlar" ? <MekanlarListesi dosya={dosya} harita={veri} />
           : <EsyalarListesi dosya={dosya} harita={veri} olcekler={olcekler} />}
       </div>
     </>

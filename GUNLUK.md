@@ -8,6 +8,44 @@ En yeni girdi en üsttedir.
 
 > **2026-11-19 (gece) — Yankı gecesi:** mobil yarasa oyunu Yankı'nın telefonda oynanabilen ilk sürümü kuruldu (ayrıntı ve telefonda deneme adımları: [yanki/GUNLUK.md](yanki/GUNLUK.md)).
 
+## 2026-11-24 (gece) — Köyün kapıları, iç mekânları ve meşaleleri Atölye'de
+**Bu gece yapılanlar**
+- Haritada yeni bir sekme: **Mekânlar**. Köy meydanındaki **88 kapı** (44 giriş + 44 "Dışarı çık"), **43 meşale** ve haritanın özel
+  alanları artık burada düzenleniyor.
+- **Kapılar ve geçişler:** her satırda kapının yazısı ("Gir: Han"), kapının yeri ve oyuncunun gideceği yer. ⇄ düğmesi kapının
+  **dönüş kapısına** atlıyor. **Kapı çifti ekle** bir giriş ve onun "Dışarı çık" kapısını birlikte ekliyor. Dönüş kapısı olmayan bir
+  giriş sarı uyarıyla gösteriliyor (oyuncu içeride mahsur kalmasın).
+- **Meşaleler:** direk ya da duvar meşalesi, yeri, yüksekliği, yönü; üstte bütün meşalelerin **ışık gücü** ve **erimi**.
+- **İç mekânlar** (Unreal'deki hazır sahneler), **zeminler** (kaldırım, meydan), **görünmez duvarlar** ve **ot serpilmeyen alanlar**.
+- **Krokide** kapılar, meşaleler ve alanlar görünüyor ve **sürüklenerek taşınıyor**; listede bir satıra tıklayınca krokide de seçiliyor.
+  "Yakın görünüm" artık köyün kendisini gösteriyor (uzaktaki iç mekân kapıları görünümü kaydırmıyor).
+- Testler: 41 birim testi + Chrome'da 129 otomatik kontrol (10'u bu gece) ve dosya işleri testi; hepsi geçiyor. Gerçek Köy meydanı
+  dosyalarıyla da açtım: 88 kapı ve 43 meşale hatasız ve hızlı (0,3 sn) açılıyor, hiç uyarı yok.
+
+**Nasıl denenir**
+1. GitHub Desktop: **Fetch origin → Pull origin** (`oyun_atolyesi` ve `hikaye_oyun`), sonra `exe_yap.bat`, sonra `OyunAtolyesi.exe`.
+2. **Oyun içeriğini aç → Köy meydanı → Mekânlar.** Krokide sarı meşale noktalarından birini biraz kaydır, **Kaydet**. Oyunda akşam
+   olunca o meşale yeni yerinde yanmalı.
+3. "Gir: Han" satırındaki yazıyı "Gir: Han (açık)" yap, **Kaydet**: oyunda hanın kapısına yaklaşınca yeni yazı görünmeli.
+4. ⇄ düğmesiyle hanın içindeki "Dışarı çık" kapısına atla; satır seçilir.
+
+**Ekran görüntüleri**
+![Köy meydanının mekânları](gunluk/2026-11-24/koy_mekanlar.png)
+![Mekânlar sekmesi](gunluk/2026-11-24/mekanlar.png)
+![Meşaleler ve zeminler](gunluk/2026-11-24/mesaleler_zeminler.png)
+
+**Küçük kararlar (ben seçtim)**
+- Meşale bilgisi BICIM.md'de henüz yazılı değildi; alanları (tür, yer, yükseklik, yön, ışık gücü, erim) oyunun kodundan okudum.
+- Listeler uzun olduğu için her kapı/meşale bir **satır** (kart değil); bölümler başlığına tıklayınca kapanıyor.
+- Yeni kapı çiftinde iç mekân tarafı köyden uzağa (z = -1200) konuyor; oyundaki iç sahneler de böyle uzakta duruyor.
+
+**Senin kararın gereken konular**
+- Haftalık incelemedeki sorular hâlâ açık: Atölye'de sıradaki büyük adım (konuşma ağacı mı, 3D görünüm mü), kroki mi 3D mi.
+  Cevabını gece çalışmasının sohbetine yazabilirsin.
+
+**Sıradaki adım**
+- `arayuz.json` (menü görünüşü) ve ana menüdeki karakter seçimi (seçilebilir bedenler ve ekipmanları).
+
 ## 2026-11-22 (gece) — Kişilerin günlük programı, gün-gece ve can ayarları
 **Bu gece yapılanlar**
 - **Günlük program:** Oyundaki köylülerin artık saat saat bir programı var (ör. demirci 07:00'de dükkânında bekler, 19:00'da hana

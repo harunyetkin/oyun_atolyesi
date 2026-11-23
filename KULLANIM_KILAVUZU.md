@@ -4,7 +4,7 @@ Bu kılavuz, Oyun Atölyesi'ndeki **her ekranı, her düğmeyi ve her menüyü**
 **hangi adımlarla geliştirildiğini** anlatır. Claude her çalışmada kılavuzu günceller.
 Yeni bir düğme eklenince, değişince ya da bir özellik "yakında" olmaktan çıkınca burası da değişir.
 
-> Son güncelleme: 2026-11-22 (gece) · Araç sürümü: 0.7 (Oyun içeriği: karakterler ve can, haritadaki kişiler, günlük programlar, kalabalık, eşyalar, sandıklar, görevler, gün-gece ve harita ayarları)
+> Son güncelleme: 2026-11-24 (gece) · Araç sürümü: 0.8 (Oyun içeriği: karakterler ve can, haritadaki kişiler, günlük programlar, kalabalık, eşyalar, sandıklar, görevler, mekânlar, gün-gece ve harita ayarları)
 
 **İçindekiler**
 1. [Temel kavramlar](#1-temel-kavramlar)
@@ -410,6 +410,22 @@ haritada olmayan bir kimlik yazarsan üstteki **Dikkat** kutusu uyarır.
   Haritada kalabalık yoksa **Kalabalık ekle** düğmesi çıkar; çöp kutusu kalabalığı kaldırır.
 - Sorunlar (iki kez kullanılan kimlik, 3 m/sn'den hızlı kişi, bulunamayan konuşma dosyası, yanlış Unreal yolu, ters yaya şeridi) üstteki **Dikkat** kutusunda listelenir.
 
+**Harita → Mekânlar sekmesi.** Kapılar ve iç mekânlar, meşaleler ve özel alanlar.
+
+![Oyun içeriği: mekânlar](kilavuz/oyun_mekanlar.png)
+
+- Krokide kapılar turkuaz dikdörtgen, meşaleler sarı nokta, iç mekânlar mavi ev, zeminler kahverengi, görünmez duvarlar kırmızı kesikli,
+  ot serpilmeyen alanlar yeşil kesikli. **Hepsi sürüklenerek taşınır**; listede bir satıra tıklayınca krokide seçilir (ve tersi).
+- **Kapılar ve geçişler:** her satır bir kapı: kimlik, oyunda görünen yazı ("[F] Gir: Han"), **kapının yeri** (X, Y, Z) → **gidilen yer** (X, Y, Z)
+  ve varınca bakılan yön (°). ⇄ düğmesi kapının **dönüş kapısına** (gidilen yerdeki kapıya) atlar. **Kapı çifti ekle** bir giriş ve bir
+  dönüş kapısını birlikte ekler (iç mekân uzakta varsayılır; yerlerini sonra düzelt). Dönüş kapısı olmayan giriş **Dikkat** kutusunda uyarılır.
+- **İç mekânlar:** Unreal'de hazır bir sahne (seviye) bu konuma yüklenir: kimlik, ad, seviyenin yolu, konum, açı; istersen **silme kutusu**
+  (kutunun dışındaki her şey silinir).
+- **Meşaleler:** üstte bütün meşalelerin **ışık gücü** ve **erimi**; her satırda tür (**Direk** yere dikili / **Duvar** duvara asılı), yer (X, Z),
+  yükseklik ve yön. **+ Meşale ekle**.
+- **Zeminler** (kaldırım, meydan: merkez, en, boy, yükseklik, renk, malzeme, karo boyu), **Görünmez duvarlar** ve **Ot serpilmeyen alanlar**
+  (merkez, en, boy). Her bölümün başlığına tıklayınca bölüm kapanır/açılır.
+
 **Krokide gezinme:** Sağ üstteki düğmeler: **+ / −** yakınlaştırır ve uzaklaştırır, **yakın görünüm** (çerçeve simgesi) haritanın
 kalabalık bölgesine döner, **hepsini sığdır** (çapraz oklar) her şeyi gösterir. Farenin **tekerleği** imlecin olduğu yere yakınlaştırır;
 **boş bir yeri sürükleyerek** krokiyi kaydırırsın. Büyük haritalarda (ör. Köy meydanı) kroki önce kalabalık bölgeyi gösterir; uzaktaki
@@ -476,6 +492,7 @@ Her satır bir çalışma oturumudur; ayrıntılar GUNLUK.md'de.
 | 2026-11-17 gece | **v0.5** — Haritadaki kişiler | Harita → **Kişiler** sekmesi: krokide dolaşma alanını sürükleme ve kenardan büyütme, yaya şeridinin uçlarını çekme; davranış (dolaş/bekle/otur/yolda yürü), hız, durma mesafesi, konuşma, selamlaşma, yanından geçerken sözler, saldırıya tavır, çarpma/itilme/vurulma sözleri, beden; **Kalabalık** kartı; kimlik değişince görev ve beden kaydı da güncellenir. Oyuncu animasyonlarına oturma/itme/darbe/düşme/kalkma, dövüşe vuruş anı adları. |
 | 2026-11-20 gece | **v0.6** — Sandıklar ve görevler | Harita → **Sandıklar** (krokide sürükleme, içindeki eşya, puanlar, Unreal model/kapak ayarları) ve **Görevler** (adımlar: yazı, tür, haritadan seçilen hedef; sıralama; uyarılar). Kişi/eşya/sandık kimliği değişince görev adımları da güncellenir. Kroki boyutu içeriğe göre (uzak bitiş okla gösterilir); yeni ana harita Köy meydanı ile denendi. |
 | 2026-11-22 gece | **v0.7** — Günlük program, gün-gece, can | Kişi kartında **günlük program** (duraklar, krokide sürüklenir), bakış yönü, kişiye özel can; oyuncunun **can ve dayanıklılık** kartı ve kişilerin **ortak canı**; Harita ayarlarında **Unreal seviyesi**, **Gün ve gece**, **Pozlama**. Krokide **yakınlaştırma/kaydırma**, yakın görünüm ve hepsini sığdır (Köy meydanı gibi büyük haritalar için). |
+| 2026-11-24 gece | **v0.8** — Mekânlar | Harita → **Mekânlar**: kapılar ve geçişler (dönüş kapısına atlama, kapı çifti ekleme), iç mekânlar, meşaleler (ortak ışık gücü/erim), zeminler, görünmez duvarlar, ot serpilmeyen alanlar; hepsi krokide sürüklenir; dönüşü olmayan kapı uyarısı. |
 
 **Sıradaki adımlar:** Aşama 2 — 3D görünüm (3D Harita sekmesi, yörünge kamerası, glTF modeller,
 taşı/döndür/ölçekle tutamaçları, ışık ve gökyüzü önizlemesi).
