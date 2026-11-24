@@ -5,7 +5,6 @@ Her madde yaklaşık bir gecelik çalışmadır. Sıra önemlidir; üstten başl
 ## Sırada
 - [ ] Harun'un telefonda deneme geri bildirimine göre his ayarı (kanat gücü, yerçekimi, mağara genişliği, yankının görünme süresi,
       sarkıt/dikit sıklığı). Geri bildirim gelene kadar bu madde bekler; sıradakine geç.
-- [ ] Ölümcül olmayan tehlikeler: örümcek ağı (yavaşlatır), su damlası (ağırlaştırır); ekranda kısa etki yazısı.
 - [ ] Yankıyı yutan yosun bölgeleri (o bölgede duvarlar görünmez).
 - [ ] Bölüm sistemi: Mor → Buz → Lav (renk, ses, fizik farkı) — Harun'un onayından sonra.
 - [ ] Yol ayrımları — Harun'un onayından sonra.
@@ -17,6 +16,10 @@ Her madde yaklaşık bir gecelik çalışmadır. Sıra önemlidir; üstten başl
 - [ ] Ayarlar: titreşimi kapatma
 
 ## Tamamlandı
+- [x] 2026-11-25 (gece) — **Ölümcül olmayan tehlikeler:** örümcek ağı (kanat gücü ×0,72 ve ilerleme ×0,8, 2,2 sn) ve su damlası
+      (yarasa 330 birim yaklaşınca tavandan kopar; değerse yerçekimi ×1,3, 4 sn). 3600'den sonra, sivrilerin dibine konmaz; yalnız yankı
+      ya da yarasa ışığıyla görünür (`Tehlike.isik`). Uçan yazı ("Ağa takıldın!", "Islandın!"), yarasanın üstünde ağ telleri/damlacıklar,
+      altta kalan süre göstergesi, ses ve kısa titreşim. Testler: 18 birim + 56 oynanış kontrolü.
 - [x] 2026-11-23 (gece) — **Yumuşak başlangıç, duraklat, sarkıt ve dikitler:** zorluk (hızlanma ve daralma) ilk ~6000 birimde
       `isinmaEgrisi` ile yavaş artıyor, kıvrım 3000 birimde tamamlanıyor. Duraklat düğmesi (sol üst), "Duraklatıldı / devam için
       dokun" ekranı, "Yeniden başla"; Esc/P; arka plana geçince kendiliğinden duraklıyor. Sarkıt/dikitler (`sivriler`): 2500'den

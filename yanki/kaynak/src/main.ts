@@ -94,6 +94,7 @@ function olaylariIsle() {
     }
     if (olay === "basla") { eskiRekor = oyun.rekor; durum.yeniRekor = false; }
     if (olay === "bocek") { try { navigator.vibrate?.(12); } catch { /* yok say */ } }
+    if (olay === "ag" || olay === "damla") { try { navigator.vibrate?.(30); } catch { /* yok say */ } }
   }
 }
 function kare(simdi: number) {

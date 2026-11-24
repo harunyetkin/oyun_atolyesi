@@ -41,6 +41,8 @@ export function olayiCal(olay: Olay): void {
     case "buyuk_sonar": ton(900, 2600, 0.35, 0.08, "triangle"); ton(900, 2600, 0.3, 0.03, "triangle", 0.3); break;
     case "bocek": ton(1320, 1320, 0.08, 0.06, "triangle"); ton(1760, 1760, 0.12, 0.05, "triangle", 0.07); break;
     case "carpma": ton(180, 60, 0.35, 0.18, "sawtooth"); break;
+    case "ag": ton(320, 240, 0.25, 0.07, "square"); ton(300, 220, 0.2, 0.04, "square", 0.08); break;   // yapışkan vızıltı
+    case "damla": ton(1900, 900, 0.09, 0.08); ton(1500, 700, 0.08, 0.04, "sine", 0.1); break;        // "plink"
     case "basla": break;
   }
 }

@@ -2,6 +2,38 @@
 
 En yeni girdi en üsttedir.
 
+## 2026-11-25 (gece) — Örümcek ağları ve su damlaları
+**Bu gece yapılanlar**
+- Mağarada artık **öldürmeyen** iki tehlike var (ilk ~15 saniyeden sonra):
+  - **Örümcek ağı:** geçidin ortasında asılı duruyor. Takılırsan **"Ağa takıldın!"** yazıyor, kanatlarına ağ telleri yapışıyor ve
+    2 saniye kadar **kanat çırpışın zayıflıyor**, biraz da yavaşlıyorsun. Dikkatli olmazsan sonra bir sarkıta ya da yere çarpabilirsin.
+  - **Su damlası:** tavanda asılı; yanına yaklaşınca **kopup düşüyor**. Üstüne düşerse **"Islandın!"** yazıyor, kanatlarından su
+    damlıyor ve 4 saniye boyunca **ağırlaşıyorsun** (daha hızlı düşüyorsun, daha sık kanat çırpman gerekiyor).
+- İkisi de duvarlar gibi yalnız **yankı değince** ya da yarasanın yakınına gelince görünüyor. Ekranın altında kalan süre yazıyor
+  ("Ağ: kanat zayıf 1.4 sn"). Her birinin kendi sesi var; telefonda kısa titreşim.
+- Sivrilerin dibine konmuyorlar (aynı yerde hem sarkıt hem ağ olmasın).
+- Bilgisayarda çift tıklanan **Yanki.html** güncellendi.
+- Testler: 18 birim testi (ağ ve damlanın etkisi, damlanın yaklaşınca kopması, etkinin süre sonunda geçmesi, yankıyla görünme) +
+  56 otomatik oynanış kontrolü; hepsi geçiyor.
+
+**Nasıl denenir**
+- **Bilgisayarda:** GitHub Desktop'ta **Fetch origin → Pull origin**, `oyun_atolyesi\yanki\Yanki.html`'e çift tıkla. 15–20 saniye uç;
+  yankı attıkça önünde beyaz bir ağ ya da mavi bir damla görebilirsin. Ağa gir: kanat çırpışın zayıflamalı.
+- **Telefonda** (GitHub Pages açıksa): https://harunyetkin.github.io/oyun_atolyesi/yanki/oyun/
+
+**Ekran görüntüleri**
+![Ağa takılan yarasa, önünde bir damla](gunluk/2026-11-25/ag_ve_damla.png)
+
+**Küçük kararlar (ben seçtim)**
+- Değerler ÖRNEK: ağ kanat gücünü %28 azaltıyor (2,2 sn), damla yerçekimini %30 artırıyor (4 sn). Oynayınca fazla/az gelirse söyle.
+
+**Senin kararın gereken konular**
+- Önceki sorular hâlâ açık: yarasa soldan sağa mı, aşağıdan yukarı mı uçsun; Mor/Buz/Lav bölümleri ve yol ayrımları uygun mu?
+  Cevabını gece çalışmasının sohbetine yazabilirsin.
+
+**Sıradaki adım**
+- Yankıyı yutan yosun bölgeleri (o bölgede duvarlar görünmez); ardından bölüm sistemi (senin onayınla).
+
 ## 2026-11-23 (gece) — Sarkıtlar, dikitler, duraklat ve yumuşak başlangıç
 **Bu gece yapılanlar**
 - **Sarkıt ve dikitler:** Mağaranın tavanından sarkan ve yerden yükselen sivri kayalar geldi. Duvarlar gibi onlar da **yalnız yankı

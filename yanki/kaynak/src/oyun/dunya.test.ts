@@ -159,6 +159,68 @@ describe("Yankı oyun mantığı", () => {
     const m = new Oyun(1); m.duraklat(); expect(m.duraklatildi).toBe(false);
   });
 
+  it("örümcek ağı: takılınca kanat zayıflar ve biraz yavaşlar, yazı çıkar, süre bitince geçer", () => {
+    const o = new Oyun(8);
+    o.dokun(); o.birak();
+    const hiz0 = o.hiz;
+    o.tehlikeler = [{ tur: "ag", x: o.yarasaX + 5, y: o.y, vy: 0, dustu: false, alindi: false, isik: 0 }];
+    o.adim(1 / 120);
+    expect(o.olaylariAl()).toContain("ag");
+    expect(o.etkiler.ag).toBeGreaterThan(2);
+    expect(o.yazilar.map(y => y.metin)).toContain("Ağa takıldın!");
+    expect(o.hiz).toBeLessThan(hiz0);
+    o.dokun(); o.birak();
+    expect(o.vy).toBeCloseTo(-AYAR.kanatGucu * AYAR.agKanatCarpani);
+    for (let i = 0; i < 300; i++) { o.y = H / 2; o.vy = 0; o.adim(1 / 120); }   // 2.5 sn
+    expect(o.etkiler.ag).toBe(0);
+    o.dokun(); o.birak();
+    expect(o.vy).toBe(-AYAR.kanatGucu);
+    expect(o.durum).toBe("oyun");   // öldürmez
+  });
+
+  it("su damlası: yarasa yaklaşınca kopup düşer; değerse ağırlaştırır (yerçekimi artar), öldürmez", () => {
+    const o = new Oyun(8);
+    o.dokun(); o.birak();
+    const [u] = o.sinir(o.yarasaX + 600);
+    o.tehlikeler = [{ tur: "damla", x: o.yarasaX + 600, y: u + 8, vy: 0, dustu: false, alindi: false, isik: 0 }];
+    for (let i = 0; i < 30; i++) { o.y = H / 2; o.vy = 0; o.adim(1 / 120); }
+    expect(o.tehlikeler[0].dustu).toBe(false);
+    o.tehlikeler[0].x = o.yarasaX + 200;
+    o.y = H / 2; o.vy = 0; o.adim(1 / 120);
+    expect(o.tehlikeler[0].dustu).toBe(true);
+    expect(o.tehlikeler[0].vy).toBeGreaterThan(0);
+    // damla yarasaya değer
+    o.tehlikeler = [{ tur: "damla", x: o.yarasaX, y: o.y, vy: 0, dustu: true, alindi: false, isik: 0 }];
+    o.y = H / 2; o.vy = 0; o.adim(1 / 120);
+    expect(o.olaylariAl()).toContain("damla");
+    expect(o.etkiler.islak).toBeGreaterThan(3.5);
+    const y0 = o.y; o.vy = 0; o.adim(0.1);
+    const islakDusus = o.y - y0;
+    o.etkiler.islak = 0; const y1 = o.y; o.vy = 0; o.adim(0.1);
+    expect(islakDusus).toBeGreaterThan((o.y - y1) * 1.2);
+    expect(o.durum).toBe("oyun");
+  });
+
+  it("tehlikeler 3600'den sonra üretilir, sivrilerin dibine konmaz, yankıyla görünür olur", () => {
+    const o = new Oyun(12);
+    o.kam = 20000; o.W = 8000;
+    (o as any).sivrileriUret();
+    (o as any).tehlikeleriGuncelle(0.01);
+    expect(o.tehlikeler.length).toBeGreaterThan(2);
+    expect(o.tehlikeler.some(t => t.tur === "ag") && o.tehlikeler.some(t => t.tur === "damla")).toBe(true);
+    for (const t of o.tehlikeler) {
+      expect(o.sivriler.some(sv => Math.abs(sv.x - t.x) < 120)).toBe(false);
+      if (t.tur === "ag") { const [u, a] = o.serbestAralik(t.x); expect(t.y).toBeGreaterThan(u); expect(t.y).toBeLessThan(a); }
+    }
+    const o2 = new Oyun(12);
+    expect(o2.tehlikeler.length).toBe(0);
+    const t = { tur: "ag" as const, x: o2.yarasaX + 150, y: o2.y, vy: 0, dustu: false, alindi: false, isik: 0 };
+    o2.tehlikeler = [t];
+    o2.dokun(); o2.birak();
+    for (let i = 0; i < 25; i++) { o2.y = H / 2; o2.vy = 0; o2.adim(1 / 120); }
+    expect(t.isik).toBeGreaterThan(0.3);
+  });
+
   it("böceğe değince puan verir", () => {
     const o = new Oyun(2);
     o.dokun(); o.birak();

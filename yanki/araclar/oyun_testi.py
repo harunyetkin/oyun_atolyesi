@@ -92,6 +92,13 @@ with sync_playwright() as p:
         time.sleep(4)
         # bir sivriyi yarasanın önüne koyup büyük yankıyla aydınlat (ekran görüntüsü için)
         oyun(s, "(o.sivriler.push({ x: o.yarasaX + 260, ust: true, boy: 150, taban: 64 }), o.sivriler.push({ x: o.yarasaX + 520, ust: false, boy: 140, taban: 60 }))")
+        # ölümcül olmayan tehlikeler: yarasanın üstüne bir ağ koy → etki ve yazı; önüne bir ağ ve bir damla (ekran görüntüsü için)
+        oyun(s, "o.tehlikeler.push({ tur: 'ag', x: o.yarasaX + 2, y: o.y, vy: 0, dustu: false, alindi: false, isik: 1 })")
+        time.sleep(0.15)
+        kontrol("ağa takılınca kanat zayıfladı ve yazı çıktı, oyun sürüyor", oyun(s, "o.etkiler.ag") > 1 and oyun(s, "o.durum") == "oyun"
+                and "Ağa takıldın!" in oyun(s, "o.yazilar.map(y => y.metin).join()"))
+        oyun(s, "(o.tehlikeler.push({ tur: 'ag', x: o.yarasaX + 170, y: (o.serbestAralik(o.yarasaX + 170)[0] + o.serbestAralik(o.yarasaX + 170)[1]) / 2 - 90, vy: 0, dustu: false, alindi: false, isik: 1 }), "
+                   "o.tehlikeler.push({ tur: 'damla', x: o.yarasaX + 380, y: o.sinir(o.yarasaX + 380)[0] + 8, vy: 0, dustu: false, alindi: false, isik: 1 }))")
         oyun(s, "(o.enerji = 1, o.sonar(true))")
         time.sleep(0.55)
         s.screenshot(path=f"{CIKTI}/{on}_2_ucus.png")

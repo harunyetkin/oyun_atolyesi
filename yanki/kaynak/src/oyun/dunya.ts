@@ -38,6 +38,17 @@ export const AYAR = {
   sivriBoyu: [60, 150] as [number, number],
   sivriTaban: [46, 74] as [number, number],
   sivriGecit: 230,          // sivrinin yanında her zaman kalan en dar geçit
+  // ölümcül olmayan tehlikeler (ÖRNEK değerler; his ayarında değişebilir)
+  tehlikeBaslangic: 3600,
+  tehlikeAraligi: [950, 1800] as [number, number],
+  agYaricap: 30,
+  agSuresi: 2.2,            // ağa takılınca kanat zayıf kalır (sn)
+  agKanatCarpani: 0.72,     // ... kanat gücü bu oranla çarpılır
+  agHizCarpani: 0.8,        // ... ilerleme biraz yavaşlar
+  damlaYaricap: 9,
+  damlaDusmeMesafesi: 330,  // yarasa bu kadar yaklaşınca damla kopar
+  damlaSuresi: 4,           // ıslanınca ağırlaşma süresi (sn)
+  damlaYercekimiCarpani: 1.3,
 };
 
 /** Isınma eğrisi: ilk `L` birimde artış yavaş başlar (karesel), sonra normal hızda sürer. Sonuç "etkili ilerleme"dir. */
@@ -60,11 +71,15 @@ const PUS = [1, 2, 3, 4, 3, 2, 1];
 const PUS_TOPLAM = PUS.reduce((a, b) => a + b, 0);
 
 export type Durum = "menu" | "oyun" | "bitti";
-export type Olay = "basla" | "cirp" | "buyuk_sonar" | "bocek" | "carpma";
+export type Olay = "basla" | "cirp" | "buyuk_sonar" | "bocek" | "carpma" | "ag" | "damla";
 
 export interface Dalga { x: number; y: number; r: number; hiz: number; menzil: number; guc: number; buyuk: boolean }
 /** Sarkıt (tavandan, ust = true) ya da dikit (tabandan): x'te tabanı duvarda, ucu `boy` kadar içeride. */
 export interface Sivri { x: number; ust: boolean; boy: number; taban: number }
+/** Ölümcül olmayan tehlike: örümcek ağı (yerinde asılı) ya da su damlası (tavandan kopup düşer). `isik`: yankıyla görünürlük (0–1). */
+export interface Tehlike { tur: "ag" | "damla"; x: number; y: number; vy: number; dustu: boolean; alindi: boolean; isik: number }
+/** Ekranda kısa süre görünen yazı (ör. "Ağa takıldın!"). */
+export interface Yazi { metin: string; renk: string; x: number; y: number; omur: number }
 export interface Bocek { x: number; y0: number; y: number; faz: number; alindi: boolean }
 
 /** Tohumlu rastgele sayı üretici (mulberry32): aynı tohum, aynı mağara. */
@@ -98,6 +113,10 @@ export class Oyun {
   dalgalar: Dalga[] = [];
   bocekler: Bocek[] = [];
   sivriler: Sivri[] = [];
+  tehlikeler: Tehlike[] = [];
+  yazilar: Yazi[] = [];
+  /** Süren etkiler (kalan saniye): ağa takılma (kanat zayıf) ve ıslanma (ağırlaşma). */
+  etkiler = { ag: 0, islak: 0 };
   /** Duraklatıldıysa zaman durur; dokununca devam eder (kanat çırpmadan). */
   duraklatildi = false;
   /** Duvar örneklerinin ışığı: örnek sırası → [tavan, taban, tavan hedefi, taban hedefi] (0–1).
@@ -109,6 +128,7 @@ export class Oyun {
   private faz: number[] = [];
   private sonrakiBocek = 0;
   private sonrakiSivri = 0;
+  private sonrakiTehlike = 0;
   private menuDalga = 0;
 
   constructor(public tohum = (Math.random() * 1e9) | 0) {
@@ -118,7 +138,10 @@ export class Oyun {
 
   get skor(): number { return Math.floor(this.kam / 100) + this.bonus; }
   get yarasaX(): number { return this.kam + this.W * AYAR.yarasaKonumu; }
-  get hiz(): number { return Math.min(AYAR.enFazlaHiz, AYAR.hiz + AYAR.hizArtisi * (isinmaEgrisi(this.kam) / 1000)); }
+  get hiz(): number {
+    const h = Math.min(AYAR.enFazlaHiz, AYAR.hiz + AYAR.hizArtisi * (isinmaEgrisi(this.kam) / 1000));
+    return this.etkiler.ag > 0 ? h * AYAR.agHizCarpani : h;
+  }
 
   /** Ekran oranı (genişlik / yükseklik) değişince çağrılır. */
   boyutla(oran: number): void {
@@ -132,6 +155,8 @@ export class Oyun {
     this.kam = 0; this.y = H / 2; this.vy = 0; this.t = 0; this.kanatT = 1;
     this.bonus = 0; this.enerji = 1; this.bitisT = 0; this.basiliSure = 0; this.buyukKullanildi = false;
     this.dalgalar = []; this.bocekler = []; this.sivriler = []; this.isik.clear(); this.carpmaNedeni = "";
+    this.tehlikeler = []; this.yazilar = []; this.etkiler = { ag: 0, islak: 0 };
+    this.sonrakiTehlike = AYAR.tehlikeBaslangic;
     this.duraklatildi = false;
     this.sonrakiBocek = AYAR.guvenliBaslangic * 0.6;
     this.sonrakiSivri = AYAR.sivriBaslangic;
@@ -206,7 +231,7 @@ export class Oyun {
 
   /** Kanat çırp: yukarı it ve küçük bir yankı gönder. */
   cirp(): void {
-    this.vy = -AYAR.kanatGucu;
+    this.vy = -AYAR.kanatGucu * (this.etkiler.ag > 0 ? AYAR.agKanatCarpani : 1);
     this.kanatT = 0;
     this.sonar(false);
     this.olaylar.push("cirp");
@@ -257,11 +282,18 @@ export class Oyun {
     }
     this.enerji = Math.min(1, this.enerji + AYAR.enerjiDolumu * dt);
 
+    this.etkiler.ag = Math.max(0, this.etkiler.ag - dt);
+    this.etkiler.islak = Math.max(0, this.etkiler.islak - dt);
+    for (const y of this.yazilar) { y.y -= 50 * dt; y.omur -= dt; }
+    this.yazilar = this.yazilar.filter(y => y.omur > 0);
+
     this.kam += this.hiz * dt;
-    this.vy = Math.min(this.vy + AYAR.yercekimi * dt, AYAR.enFazlaDusus);
+    const g = AYAR.yercekimi * (this.etkiler.islak > 0 ? AYAR.damlaYercekimiCarpani : 1);
+    this.vy = Math.min(this.vy + g * dt, AYAR.enFazlaDusus);
     this.y += this.vy * dt;
 
     this.sivrileriUret();
+    this.tehlikeleriGuncelle(dt);
     this.bocekleriGuncelle(dt);
     this.carpismalar();
   }
@@ -319,6 +351,39 @@ export class Oyun {
     this.sivriler = this.sivriler.filter(sv => sv.x > this.kam - 120);
   }
 
+  /** Örümcek ağı ve su damlalarını üretir, damlaları düşürür. Ağ geçidin içinde, sivrilerden uzakta asılı durur. */
+  private tehlikeleriGuncelle(dt: number): void {
+    while (this.sonrakiTehlike < this.kam + this.W + 200) {
+      const x = this.sonrakiTehlike;
+      const [u, a] = this.serbestAralik(x);
+      const sivriYakin = this.sivriler.some(sv => Math.abs(sv.x - x) < 120);
+      if (!sivriYakin) {
+        if (this.rnd() < 0.5) {
+          const pay = AYAR.agYaricap + 50;
+          const y = u + pay + this.rnd() * Math.max(1, a - u - 2 * pay);
+          this.tehlikeler.push({ tur: "ag", x, y, vy: 0, dustu: false, alindi: false, isik: 0 });
+        } else {
+          this.tehlikeler.push({ tur: "damla", x, y: this.sinir(x)[0] + 8, vy: 0, dustu: false, alindi: false, isik: 0 });
+        }
+      }
+      const [t0, t1] = AYAR.tehlikeAraligi;
+      this.sonrakiTehlike += t0 + this.rnd() * (t1 - t0);
+    }
+    const bx = this.yarasaX;
+    for (const t of this.tehlikeler) {
+      if (t.tur !== "damla") continue;
+      if (!t.dustu && t.x - bx < AYAR.damlaDusmeMesafesi) t.dustu = true;
+      if (t.dustu) { t.vy += 1300 * dt; t.y += t.vy * dt; }
+    }
+    // yankıyla görünürlük: dalga cephesi değince parlar, sonra söner
+    const son = Math.exp(-dt / AYAR.sonmeSuresi);
+    for (const t of this.tehlikeler) {
+      t.isik *= son;
+      for (const d of this.dalgalar) if (Math.abs(Math.hypot(t.x - d.x, t.y - d.y) - d.r) < AYAR.dalgaKalinligi + 12) t.isik = Math.max(t.isik, d.guc);
+    }
+    this.tehlikeler = this.tehlikeler.filter(t => !t.alindi && t.x > this.kam - 80 && t.y < H + 40 && !(t.tur === "damla" && t.y > this.sinir(t.x)[1]));
+  }
+
   private bocekleriGuncelle(dt: number): void {
     // yeni ateş böcekleri ekranın sağından gelir
     while (this.sonrakiBocek < this.kam + this.W + 100) {
@@ -359,6 +424,21 @@ export class Oyun {
           this.ol(sv.ust ? "Sarkıta çarptın" : "Dikite çarptın");
           return;
         }
+      }
+    }
+    for (const t of this.tehlikeler) {
+      if (t.alindi) continue;
+      const yar = t.tur === "ag" ? AYAR.agYaricap * 0.85 : AYAR.damlaYaricap;
+      if (Math.hypot(t.x - x, t.y - this.y) >= yar + r * 0.8) continue;
+      t.alindi = true;
+      if (t.tur === "ag") {
+        this.etkiler.ag = AYAR.agSuresi;
+        this.yazilar.push({ metin: "Ağa takıldın!", renk: "#e8e4f2", x: x + 30, y: this.y - 40, omur: 1.2 });
+        this.olaylar.push("ag");
+      } else {
+        this.etkiler.islak = AYAR.damlaSuresi;
+        this.yazilar.push({ metin: "Islandın!", renk: "#8cc8ff", x: x + 30, y: this.y - 40, omur: 1.2 });
+        this.olaylar.push("damla");
       }
     }
     for (const b of this.bocekler) {

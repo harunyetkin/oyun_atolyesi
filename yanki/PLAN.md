@@ -19,7 +19,7 @@ denemesi ve araçtaki "Karanlık Mağara" örneği; Harun'un kararıyla 2026-11-
 2. **Telefonda yayın ve his ayarı:** GitHub Pages bağlantısı, Harun'un telefonda denemesi; zorluk eğrisi, yankının süresi,
    kanat gücü gibi ayarların Harun'un geri bildirimine göre ince ayarı; titreşim/ses ayarları; "duraklat" düğmesi ✅ (2026-11-23).
 3. **Mağaranın içi (ÖNERİ):** sarkıt ve dikitler (çarpınca biter) ✅ (2026-11-23), **ölümcül olmayan tehlikeler**: örümcek ağı (yavaşlatır),
-   su damlası (ağırlaştırır), yankıyı yutan yosun (o bölgede duvarlar görünmez). Ateş böceği sürüleri.
+   su damlası (ağırlaştırır) ✅ (2026-11-25), yankıyı yutan yosun (o bölgede duvarlar görünmez). Ateş böceği sürüleri.
 4. **Bölümler (ÖNERİ):** Mor mağara → **Buz** (kaygan rüzgâr, parlak yankı) → **Lav** (sıcak hava akımı yukarı iter, kızıl ışık);
    bölüm geçişinde renk ve ses değişimi; **yol ayrımları** (iki tünelden birini seç: biri kısa ve dar, biri uzun ve böcekli).
 5. **İlerleme (ÖNERİ):** toplanan ateş böcekleriyle açılan yarasa renkleri/kanat izleri, günlük mağara (herkes aynı tohum),

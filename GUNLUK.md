@@ -2,6 +2,8 @@
 
 En yeni girdi en üsttedir.
 
+> **2026-11-25 (gece) — Yankı gecesi:** örümcek ağları ve su damlaları (öldürmeyen tehlikeler) (ayrıntı: [yanki/GUNLUK.md](yanki/GUNLUK.md)).
+
 > **2026-11-23 (gece) — Yankı gecesi:** sarkıt ve dikitler, duraklat düğmesi, yumuşak başlangıç (ayrıntı: [yanki/GUNLUK.md](yanki/GUNLUK.md)).
 
 > **2026-11-21 (gece) — Yankı gecesi:** geniş ekrana tam sığma ve mağaranın akarak belirmesi düzeltildi (ayrıntı: [yanki/GUNLUK.md](yanki/GUNLUK.md)).

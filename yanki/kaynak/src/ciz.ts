@@ -152,6 +152,40 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, ox: num
     c.stroke();
   }
 
+  // ölümcül olmayan tehlikeler: yankı değince ve yarasanın ışığına girince görünür
+  for (const t of o.tehlikeler) {
+    const tx = t.x - kx;
+    if (tx < -60 || tx > W + 60) continue;
+    const uzak = Math.hypot(tx - yx, t.y - o.y) / (isikYaricap * 1.2);
+    const p = Math.min(1, Math.max(t.isik, uzak < 1 ? (1 - uzak) * (1 - uzak) * 0.7 : 0));
+    if (p < 0.03) continue;
+    if (t.tur === "ag") {
+      // örümcek ağı: 8 kol ve 3 halka, tavana tutunan ince bir iple
+      const R = AYAR.agYaricap;
+      c.strokeStyle = `rgba(232,228,242,${0.75 * p})`;
+      c.lineWidth = 1.4;
+      c.beginPath();
+      for (let k = 0; k < 8; k++) { const a = (k / 8) * Math.PI * 2 + 0.2; c.moveTo(tx, t.y); c.lineTo(tx + Math.cos(a) * R, t.y + Math.sin(a) * R); }
+      for (const h of [0.35, 0.65, 0.95]) {
+        for (let k = 0; k <= 8; k++) { const a = (k / 8) * Math.PI * 2 + 0.2; const px = tx + Math.cos(a) * R * h, py = t.y + Math.sin(a) * R * h; if (k === 0) c.moveTo(px, py); else c.lineTo(px, py); }
+      }
+      const [u] = o.sinir(t.x);
+      c.moveTo(tx, t.y - R); c.lineTo(tx, u);
+      c.stroke();
+    } else {
+      // su damlası: ucu yukarı bakan damla, üstünde parıltı
+      const r = AYAR.damlaYaricap;
+      c.fillStyle = `rgba(140,200,255,${0.85 * p})`;
+      c.beginPath();
+      c.moveTo(tx, t.y - r * 2.2);
+      c.quadraticCurveTo(tx + r * 1.1, t.y - r * 0.2, tx, t.y + r);
+      c.quadraticCurveTo(tx - r * 1.1, t.y - r * 0.2, tx, t.y - r * 2.2);
+      c.fill();
+      c.fillStyle = `rgba(255,255,255,${0.8 * p})`;
+      c.beginPath(); c.arc(tx - r * 0.3, t.y - r * 0.2, r * 0.25, 0, Math.PI * 2); c.fill();
+    }
+  }
+
   // yankı dalgaları: ince halkalar
   for (const d of o.dalgalar) {
     const a = (1 - d.r / d.menzil) * (d.buyuk ? 0.55 : 0.35);
@@ -183,6 +217,30 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, ox: num
   const kanat = o.kanatT < 0.22 ? Math.cos((o.kanatT / 0.22) * Math.PI) : 0.25 * Math.sin(o.t * 7) - 0.2;
   const egim = Math.max(-0.5, Math.min(0.6, o.vy / 1600));
   yarasaCiz(c, yx, o.y, AYAR.yarasaYaricap * 1.25, kanat, egim);
+  if (o.etkiler.ag > 0) {   // kanatlara yapışmış ağ telleri
+    c.strokeStyle = `rgba(232,228,242,${Math.min(1, o.etkiler.ag) * 0.8})`;
+    c.lineWidth = 1.2;
+    c.beginPath();
+    for (const [a, b] of [[-28, -6], [-10, 8], [6, -10], [22, 6], [-20, 10]]) { c.moveTo(yx + a, o.y - 12); c.lineTo(yx + b, o.y + 10); }
+    c.stroke();
+  }
+  if (o.etkiler.islak > 0) {   // kanatlardan süzülen damlacıklar
+    c.fillStyle = `rgba(140,200,255,${Math.min(1, o.etkiler.islak) * 0.8})`;
+    for (let k = 0; k < 3; k++) {
+      const dy = ((o.t * 90 + k * 13) % 30);
+      c.beginPath(); c.arc(yx - 18 + k * 18, o.y + 14 + dy, 2.2, 0, Math.PI * 2); c.fill();
+    }
+  }
+  for (const yz of o.yazilar) {
+    c.globalAlpha = Math.min(1, yz.omur * 2);
+    c.fillStyle = yz.renk;
+    c.font = "600 30px system-ui, sans-serif";
+    c.textAlign = "left";
+    // yazı yarasanın yanında başlar, ekranın içinde kalır (dar telefonda sola taşmasın)
+    c.fillText(yz.metin, Math.max(12, Math.min(yz.x - kx, W - c.measureText(yz.metin).width - 12)), yz.y);
+  }
+  c.globalAlpha = 1;
+  c.textAlign = "center";
 
   // ---------------------------------------------------------------- arayüz
   c.textAlign = "center";
@@ -207,6 +265,8 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, ox: num
     c.fillRect(bx, by, bw * o.enerji, 10);
     c.fillStyle = RENK.soluk;
     sigdir(c, o.enerji >= 1 ? "Büyük yankı hazır: basılı tut" : "Büyük yankı doluyor", W / 2, by + 34, 22, 500, W - 40);
+    const etki = [o.etkiler.ag > 0 ? `Ağ: kanat zayıf ${o.etkiler.ag.toFixed(1)} sn` : "", o.etkiler.islak > 0 ? `Islak: ağır ${o.etkiler.islak.toFixed(1)} sn` : ""].filter(Boolean).join("  ·  ");
+    if (etki) { c.fillStyle = "#c9e4ff"; sigdir(c, etki, W / 2, by - 26, 22, 600, W - 40); }
   } else if (o.durum === "menu") {
     c.fillStyle = "rgba(7,6,12,0.45)";   // yazılar duvarların önünde okunsun
     c.fillRect(0, 0, W, H);
