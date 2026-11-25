@@ -2,6 +2,13 @@
 
 En yeni girdi en üsttedir.
 
+## 2026-11-25 (gündüz) — Önü tamamen kör (senin isteğin)
+- Yarasanın kendi ışığını kaldırdım: artık yakınındaki duvarlar, sarkıtlar, ağlar ve damlalar kendiliğinden görünmüyor.
+- **Ateş böcekleri de artık parlamıyor**: onları da yalnız yankı değdiğinde, kısa bir süre görüyorsun; sonra sönüyorlar.
+- Ekranda yarasanın kendisi ve yankı halkaları dışında hiçbir şey yok; her şeyi yankıyla bulman gerekiyor.
+- Testlere bir piksel denetimi ekledim: yankı yokken ekranın ön tarafında parlayan hiçbir nokta olmamalı (geçiyor). 19 birim + 58 oynanış kontrolü.
+- **Denemek için:** GitHub Desktop'ta Fetch/Pull, sonra `Yanki.html`'e çift tıkla (ya da sohbetteki dosyayı indir).
+
 ## 2026-11-25 (gece) — Örümcek ağları ve su damlaları
 **Bu gece yapılanlar**
 - Mağarada artık **öldürmeyen** iki tehlike var (ilk ~15 saniyeden sonra):

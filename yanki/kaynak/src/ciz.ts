@@ -88,7 +88,6 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, ox: num
   const kx = o.kam;
   const yx = o.yarasaX - kx;
   // yarasanın kendi soluk ışığı (yakındaki duvarlar hafifçe görünür)
-  const isikYaricap = 120;
   const ara = AYAR.ornekAraligi;
   const ilk = Math.floor(kx / ara) - 1, son = Math.ceil((kx + W) / ara) + 1;
 
@@ -106,9 +105,8 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, ox: num
     const x0 = i * ara - kx, x1 = x0 + ara;
     for (const k of [0, 1] as const) {
       const y0 = onceki[k], y1 = sonraki[k];
-      const uzak = Math.hypot(x0 + ara / 2 - yx, (y0 + y1) / 2 - o.y) / isikYaricap;
-      const yakin = uzak < 1 ? (1 - uzak) * (1 - uzak) * 0.55 : 0;   // yarasanın ışığı da yumuşak kenarlı
-      const p = Math.min(1, Math.max((o.parlaklik(i, k) + o.parlaklik(i + 1, k)) / 2, yakin));
+      // önü tamamen karanlık: duvarı yalnız yankı gösterir (yarasanın kendi ışığı yok)
+      const p = Math.min(1, (o.parlaklik(i, k) + o.parlaklik(i + 1, k)) / 2);
       const b = Math.round(p * BASAMAK);
       if (b === 0) continue;
       dolu.add(b);
@@ -137,8 +135,7 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, ox: num
     const [u, a] = o.sinir(sv.x);
     const kok = sv.ust ? u : a, uc = sv.ust ? u + sv.boy : a - sv.boy;
     const i = Math.round(sv.x / ara);
-    const uzak = Math.hypot(sx - yx, (kok + uc) / 2 - o.y) / (isikYaricap * 1.2);
-    const p = Math.min(1, Math.max(o.parlaklik(i, sv.ust ? 0 : 1) * 1.1, uzak < 1 ? (1 - uzak) * (1 - uzak) * 0.6 : 0));
+    const p = Math.min(1, o.parlaklik(i, sv.ust ? 0 : 1) * 1.1);
     if (p < 0.02) continue;
     c.beginPath();
     c.moveTo(sx - sv.taban / 2, kok + (sv.ust ? -3 : 3));
@@ -156,8 +153,7 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, ox: num
   for (const t of o.tehlikeler) {
     const tx = t.x - kx;
     if (tx < -60 || tx > W + 60) continue;
-    const uzak = Math.hypot(tx - yx, t.y - o.y) / (isikYaricap * 1.2);
-    const p = Math.min(1, Math.max(t.isik, uzak < 1 ? (1 - uzak) * (1 - uzak) * 0.7 : 0));
+    const p = Math.min(1, t.isik);
     if (p < 0.03) continue;
     if (t.tur === "ag") {
       // örümcek ağı: 8 kol ve 3 halka, tavana tutunan ince bir iple
@@ -201,19 +197,21 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, ox: num
   for (const b of o.bocekler) {
     const bx = b.x - kx;
     if (bx < -60 || bx > W + 60) continue;
+    if (b.isik < 0.03) continue;   // ateş böceği de yalnız yankı değince görünür
     const titreme = 0.75 + 0.25 * Math.sin(b.faz * 9);
     const boy = 62 * titreme;
-    c.globalAlpha = titreme;
+    c.globalAlpha = titreme * Math.min(1, b.isik);
     c.drawImage(resim, bx - boy / 2, b.y - boy / 2, boy, boy);
   }
   c.globalAlpha = 1;
 
-  // yarasa ve çevresindeki hafif ışık
-  const hale = c.createRadialGradient(yx, o.y, 0, yx, o.y, isikYaricap);
-  hale.addColorStop(0, "rgba(160,140,220,0.18)");
+  // yarasanın çevresinde yalnız çok küçük, soluk bir hale (yarasayı seçebilmek için; hiçbir şeyi aydınlatmaz)
+  const haleR = 46;
+  const hale = c.createRadialGradient(yx, o.y, 0, yx, o.y, haleR);
+  hale.addColorStop(0, "rgba(160,140,220,0.12)");
   hale.addColorStop(1, "rgba(160,140,220,0)");
   c.fillStyle = hale;
-  c.fillRect(yx - isikYaricap, o.y - isikYaricap, isikYaricap * 2, isikYaricap * 2);
+  c.fillRect(yx - haleR, o.y - haleR, haleR * 2, haleR * 2);
   const kanat = o.kanatT < 0.22 ? Math.cos((o.kanatT / 0.22) * Math.PI) : 0.25 * Math.sin(o.t * 7) - 0.2;
   const egim = Math.max(-0.5, Math.min(0.6, o.vy / 1600));
   yarasaCiz(c, yx, o.y, AYAR.yarasaYaricap * 1.25, kanat, egim);

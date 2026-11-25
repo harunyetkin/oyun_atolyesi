@@ -221,10 +221,27 @@ describe("Yankı oyun mantığı", () => {
     expect(t.isik).toBeGreaterThan(0.3);
   });
 
+  it("önü kör: ateş böcekleri ve tehlikeler kendiliğinden görünmez, yalnız yankı değince görünür ve söner", () => {
+    const o = new Oyun(13);
+    o.dokun(); o.birak();
+    for (let i = 0; i < 240; i++) { o.y = H / 2; o.vy = 0; o.adim(1 / 120); }   // ilk yankı söndü
+    o.dalgalar = [];
+    const b = { x: o.yarasaX + 700, y0: o.y + 150, y: o.y + 150, faz: 0, alindi: false, isik: 0 };   // yarasanın yolunda değil
+    o.bocekler.push(b);
+    for (let i = 0; i < 60; i++) { o.y = H / 2; o.vy = 0; o.adim(1 / 120); }
+    expect(b.isik).toBe(0);                    // yankı yoksa görünmez
+    o.enerji = 1; o.sonar(true);
+    for (let i = 0; i < 70; i++) { o.y = H / 2; o.vy = 0; o.adim(1 / 120); }
+    expect(b.isik).toBeGreaterThan(0.3);       // yankı değdi
+    const tepe = b.isik;
+    for (let i = 0; i < 180; i++) { o.y = H / 2; o.vy = 0; o.dalgalar = []; o.adim(1 / 120); }
+    expect(b.isik).toBeLessThan(tepe * 0.4);   // ve sönüyor
+  });
+
   it("böceğe değince puan verir", () => {
     const o = new Oyun(2);
     o.dokun(); o.birak();
-    o.bocekler.push({ x: o.yarasaX + 5, y0: o.y, y: o.y, faz: 0, alindi: false });
+    o.bocekler.push({ x: o.yarasaX + 5, y0: o.y, y: o.y, faz: 0, alindi: false, isik: 0 });
     o.adim(1 / 120);
     expect(o.bonus).toBe(AYAR.bocekPuani);
     expect(o.olaylariAl()).toContain("bocek");

@@ -24,6 +24,8 @@ Yankı gecesinde `yanki/` dışına dokunma (kök `GUNLUK.md`'ye tek satırlık 
 - `PLAN.md`, `YAPILACAKLAR.md`, `GUNLUK.md` (en yeni üstte), `GERI_BILDIRIM.md`, `KREDILER.md`, `gunluk/YYYY-AA-GG/` (ekran görüntüleri).
 
 ## Mobil kurallar
+- **Önü kör (Harun'un kararı 2026-11-25):** yankı değmeden hiçbir şey görünmez (duvar, sivri, tehlike, ateş böceği dahil). Yarasanın
+  kendi ışığı hiçbir şeyi aydınlatmaz; yeni eklenen her nesne de yalnız yankıyla (`Oyun.yankiIsigi`) görünür olmalı. Testte piksel denetimi var.
 - Önce **dikey telefon**. Dünya yüksekliği her zaman 1000 birim; genişlik ekran oranına göre (`Oyun.boyutla`).
   Yazılar `sigdir` ile ekrana sığdırılır; dar ekranda taşan yazı bırakma.
 - Kontrol tek parmakla: dokun = kanat çırp + küçük yankı, basılı tut = büyük yankı. Bilgisayarda Boşluk/↑/W.

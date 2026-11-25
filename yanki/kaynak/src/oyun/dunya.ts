@@ -80,7 +80,8 @@ export interface Sivri { x: number; ust: boolean; boy: number; taban: number }
 export interface Tehlike { tur: "ag" | "damla"; x: number; y: number; vy: number; dustu: boolean; alindi: boolean; isik: number }
 /** Ekranda kısa süre görünen yazı (ör. "Ağa takıldın!"). */
 export interface Yazi { metin: string; renk: string; x: number; y: number; omur: number }
-export interface Bocek { x: number; y0: number; y: number; faz: number; alindi: boolean }
+/** Ateş böceği. `isik`: yankıyla görünürlük (0–1); kendi kendine parlamaz, yalnız yankı değince görünür (Harun'un kararı 2026-11-25). */
+export interface Bocek { x: number; y0: number; y: number; faz: number; alindi: boolean; isik: number }
 
 /** Tohumlu rastgele sayı üretici (mulberry32): aynı tohum, aynı mağara. */
 export function rastgeleUretici(tohum: number): () => number {
@@ -377,11 +378,16 @@ export class Oyun {
     }
     // yankıyla görünürlük: dalga cephesi değince parlar, sonra söner
     const son = Math.exp(-dt / AYAR.sonmeSuresi);
-    for (const t of this.tehlikeler) {
-      t.isik *= son;
-      for (const d of this.dalgalar) if (Math.abs(Math.hypot(t.x - d.x, t.y - d.y) - d.r) < AYAR.dalgaKalinligi + 12) t.isik = Math.max(t.isik, d.guc);
-    }
+    for (const t of this.tehlikeler) t.isik = this.yankiIsigi(t.x, t.y, t.isik * son);
     this.tehlikeler = this.tehlikeler.filter(t => !t.alindi && t.x > this.kam - 80 && t.y < H + 40 && !(t.tur === "damla" && t.y > this.sinir(t.x)[1]));
+  }
+
+  /** Bir noktanın yankı ışığı: bir dalganın cephesi o noktadan geçiyorsa dalganın gücü, yoksa verilen (sönmekte olan) değer.
+   *  Önü karanlıktır: yarasanın kendi ışığı hiçbir şeyi göstermez, yalnız yankı gösterir. */
+  yankiIsigi(x: number, y: number, mevcut: number): number {
+    let v = mevcut;
+    for (const d of this.dalgalar) if (Math.abs(Math.hypot(x - d.x, y - d.y) - d.r) < AYAR.dalgaKalinligi + 12) v = Math.max(v, d.guc);
+    return v;
   }
 
   private bocekleriGuncelle(dt: number): void {
@@ -391,13 +397,15 @@ export class Oyun {
       const [ust, alt] = this.serbestAralik(x);   // sivrilerin içine düşmesin
       const pay = 60;
       const y0 = ust + pay + this.rnd() * Math.max(1, alt - ust - 2 * pay);
-      this.bocekler.push({ x, y0, y: y0, faz: this.rnd() * Math.PI * 2, alindi: false });
+      this.bocekler.push({ x, y0, y: y0, faz: this.rnd() * Math.PI * 2, alindi: false, isik: 0 });
       const [a, b] = AYAR.bocekAraligi;
       this.sonrakiBocek += a + this.rnd() * (b - a);
     }
+    const son = Math.exp(-dt / AYAR.sonmeSuresi);
     for (const b of this.bocekler) {
       b.faz += dt;
       b.y = b.y0 + Math.sin(b.faz * 2.2) * 14;
+      b.isik = this.yankiIsigi(b.x, b.y, b.isik * son);
     }
     this.bocekler = this.bocekler.filter(b => !b.alindi && b.x > this.kam - 60);
   }

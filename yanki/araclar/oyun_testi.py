@@ -77,6 +77,19 @@ with sync_playwright() as p:
         time.sleep(7)
         kontrol("7 sn uçuş: hâlâ oyunda, skor arttı", oyun(s, "o.durum") == "oyun" and oyun(s, "o.skor") > 15, f"{oyun(s, 'o.durum')} skor {oyun(s, 'o.skor')}")
         kontrol("ateş böcekleri var", oyun(s, "o.bocekler.length") > 0)
+        # önü kör: yankı olmadan ekranın ön tarafında hiçbir şey (duvar, böcek, sivri, tehlike) görünmemeli
+        parlak = s.evaluate("""() => new Promise(r => {
+            const o = window.__yanki, eski = o.sonar;
+            o.sonar = () => true; o.dalgalar = []; o.isik.clear();
+            for (const b of o.bocekler) b.isik = 0; for (const t of o.tehlikeler) t.isik = 0;
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              const c = document.getElementById('oyun'), g = c.getContext('2d'), w = c.width, h = c.height;
+              const d = g.getImageData(Math.round(w * 0.55), Math.round(h * 0.15), Math.round(w * 0.43), Math.round(h * 0.6)).data;
+              let en = 0; for (let i = 0; i < d.length; i += 4) en = Math.max(en, d[i], d[i + 1], d[i + 2]);
+              o.sonar = eski; r(en);
+            }));
+          })""")
+        kontrol("önü karanlık: yankı yokken ön tarafta hiçbir şey görünmüyor", parlak < 40, f"en parlak piksel {parlak}")
         kontrol("sarkıt/dikit üretildi", oyun(s, "o.sivriler.length") > 0, str(oyun(s, "o.kam")))
         # duraklat: düğme görünür, basınca zaman durur, "yeniden başla" çıkar; dokununca devam
         kontrol("duraklat düğmesi oyun sırasında görünüyor", s.is_visible("#duraklat"))
