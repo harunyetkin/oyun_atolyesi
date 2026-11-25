@@ -344,6 +344,9 @@ Oyun Atölyesi, 3D hikâye oyununun (`hikaye_oyun`) **içerik dosyalarını** ko
 Oyun bu dosyaları her açılışta okur; yani burada değiştirip **kaydedince**, oyunu yeniden başlatman yeter
 (Unreal'de derleme gerekmez).
 
+> **Her kutunun ne işe yaradığı** ayrı bir belgede: **ALAN_REHBERI.md** (alan alan açıklama, birim ve örnekler).
+> Araçta da her kutunun altında aynı kısa açıklama yazar.
+
 **Nasıl açılır:** Başlangıç ekranında **Oyun içeriğini aç** (ya da Oyun menüsü → Oyun içeriğini aç…, **Ctrl+Shift+O**).
 İlk seferde bir klasör seçme penceresi açılır: oyunun ana klasörünü seç (GitHub Desktop'un indirdiği
 `hikaye_oyun` klasörü; içinde `icerik` klasörü olan). Seçim hatırlanır.
@@ -493,6 +496,7 @@ Her satır bir çalışma oturumudur; ayrıntılar GUNLUK.md'de.
 | 2026-11-20 gece | **v0.6** — Sandıklar ve görevler | Harita → **Sandıklar** (krokide sürükleme, içindeki eşya, puanlar, Unreal model/kapak ayarları) ve **Görevler** (adımlar: yazı, tür, haritadan seçilen hedef; sıralama; uyarılar). Kişi/eşya/sandık kimliği değişince görev adımları da güncellenir. Kroki boyutu içeriğe göre (uzak bitiş okla gösterilir); yeni ana harita Köy meydanı ile denendi. |
 | 2026-11-22 gece | **v0.7** — Günlük program, gün-gece, can | Kişi kartında **günlük program** (duraklar, krokide sürüklenir), bakış yönü, kişiye özel can; oyuncunun **can ve dayanıklılık** kartı ve kişilerin **ortak canı**; Harita ayarlarında **Unreal seviyesi**, **Gün ve gece**, **Pozlama**. Krokide **yakınlaştırma/kaydırma**, yakın görünüm ve hepsini sığdır (Köy meydanı gibi büyük haritalar için). |
 | 2026-11-24 gece | **v0.8** — Mekânlar | Harita → **Mekânlar**: kapılar ve geçişler (dönüş kapısına atlama, kapı çifti ekleme), iç mekânlar, meşaleler (ortak ışık gücü/erim), zeminler, görünmez duvarlar, ot serpilmeyen alanlar; hepsi krokide sürüklenir; dönüşü olmayan kapı uyarısı. |
+| 2026-11-25 | Alan rehberi | **ALAN_REHBERI.md**: Oyun içeriğindeki her kutunun ne işe yaradığı; açıklaması eksik 129 alana açıklama yazıldı (araçta kutunun altında görünür). Rehberin form tabloları araçtan otomatik üretilir, testi eskiyince uyarır. |
 
 **Sıradaki adımlar:** Aşama 2 — 3D görünüm (3D Harita sekmesi, yörünge kamerası, glTF modeller,
 taşı/döndür/ölçekle tutamaçları, ışık ve gökyüzü önizlemesi).

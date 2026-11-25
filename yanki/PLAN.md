@@ -28,6 +28,10 @@ denemesi ve araçtaki "Karanlık Mağara" örneği; Harun'un kararıyla 2026-11-
    ayar sayfası ve yandan görünüşlü bölüm düzenleyicisi (sarkıt/dikit, ağ, damla, ateş böceği tek tek konur ve sürüklenir).
    Sonsuz rastgele mağara da kalır.
 
+7. **Mağaza uygulaması (Harun'un kararı 2026-11-25):** Capacitor kabuğuyla Android ve iOS uygulaması, GitHub Actions ile otomatik
+   paketleme; ayarlar ekranı, öğretici, ilerleme kaydı, başarımlar, müzik, dil, erişilebilirlik gibi bir mobil oyunda olması gereken her şey
+   zamanla eklenir (liste YAPILACAKLAR'da). **Oyun tam testten geçip Harun onaylamadan mağazaya yüklenmez;** hesapları Harun açar.
+
 ## Kabul ölçütleri
 - Her sürüm telefonda (Pixel 7 / iPhone 14 öykünmesi) otomatik testten geçer, 60 kare/sn hedefinde çalışır.
 - Yeni oyuncu hiçbir açıklama okumadan ilk 10 saniyede nasıl oynanacağını anlar (menüdeki üç satır yeter).

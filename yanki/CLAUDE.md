@@ -35,6 +35,11 @@ Yankı gecesinde `yanki/` dışına dokunma (kök `GUNLUK.md`'ye tek satırlık 
 - `localStorage` her zaman `try/catch` içinde (gizli sekmede hata verebilir).
 - `?test=1` → çevrimdışı çalışma kaydedilmez; `?tohum=N` → hep aynı mağara (testler için). `window.__yanki` test kancasıdır.
 
+## Mobil oyun bütünlüğü (Harun'un sürekli görevi, 2026-11-25)
+- Bir mobil oyunda olması gereken her şey (ayarlar, öğretici, kayıt, başarımlar, müzik, dil, erişilebilirlik, uygulama kabuğu, paketleme…)
+  zamanla eklenir. Listesi YAPILACAKLAR'da "Mobil oyunda olması gerekenler"; yeni bir eksik fark edersen oraya ekle.
+- **Mağazaya yükleme yok:** Google Play / App Store'a gönderim ancak bütün testler geçip Harun onaylayınca. Hesap açmak ve ücret Harun'un kararı.
+
 ## Her çalışmanın başında
 Sırayla oku: `GERI_BILDIRIM.md` (önce bu!), `PLAN.md`, `YAPILACAKLAR.md`, `GUNLUK.md`'nin son girdisi.
 

@@ -62,6 +62,9 @@ Test için: `pip install playwright --break-system-packages` (yoksa); Chrome `/u
    rozeti kalkan özellikleri düzelt; "Geliştirme adımları" tablosuna o günün satırını ekle; görseller
    eskidiyse `kilavuz/` altındaki ekran görüntülerini yenile. Kılavuzu her seferinde Harun'a ayrıca
    gönderme ve günlükte/özet mesajda öne çıkarma; Harun en sonunda isteyince teslim edilecek.
+   **`ALAN_REHBERI.md`'yi de güncel tut** (Harun'un isteği 2026-11-25): forma eklenen her alana `sema.ts`'de açıklama yaz
+   (test eksik açıklamayı yakalar) ve `cd arayuz && REHBER_YAZ=1 npx vitest run rehber` ile tabloları yenile; liste düzenleyicilere
+   (kişi, eşya, sandık, görev, mekân…) eklenen alanları rehberin elle yazılan bölümlerine işle.
 8. **Commit ve push:** `main` dalına, Türkçe mesajla: `git -c push.negotiate=true push origin main`
 
 ## Kurallar
