@@ -128,24 +128,53 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, ox: num
     c.stroke(kenarlar[b]);
   }
 
-  // sarkıt ve dikitler: duvarın oradaki ışığıyla (yankı değince) ve yarasanın yakın ışığıyla görünür
+  // Sarkıt ve dikitler: duvardan uzayan kaya. Kökü duvarın içine gömülür ve genişler, kenarları hafif pürüzlü ve eğridir;
+  // duvarın kenar çizgisi sivrinin altında kalır, sivrinin kenar çizgisi duvarınkine bağlanır (ayrı bir üçgen gibi durmaz).
+  // Görünürlük duvarın o noktadaki yankı ışığıyla aynıdır.
   for (const sv of o.sivriler) {
     const sx = sv.x - kx;
     if (sx < -sv.taban || sx > W + sv.taban) continue;
-    const [u, a] = o.sinir(sv.x);
-    const kok = sv.ust ? u : a, uc = sv.ust ? u + sv.boy : a - sv.boy;
     const i = Math.round(sv.x / ara);
     const p = Math.min(1, o.parlaklik(i, sv.ust ? 0 : 1) * 1.1);
     if (p < 0.02) continue;
-    c.beginPath();
-    c.moveTo(sx - sv.taban / 2, kok + (sv.ust ? -3 : 3));
-    c.quadraticCurveTo(sx - sv.taban * 0.18, (kok + uc) / 2, sx, uc);
-    c.quadraticCurveTo(sx + sv.taban * 0.18, (kok + uc) / 2, sx + sv.taban / 2, kok + (sv.ust ? -3 : 3));
-    c.closePath();
-    c.fillStyle = `rgba(${RENK.kaya.join(",")},${0.5 * p})`;
-    c.fill();
+    const yon = sv.ust ? 1 : -1;                       // kökten uca doğru (tavanda aşağı, tabanda yukarı)
+    const kenarY = (x: number) => o.sinir(sv.x + x)[sv.ust ? 0 : 1];
+    const tohum = sv.x * 0.0137;
+    const ADIM = 10;
+    const sol: [number, number][] = [], sag: [number, number][] = [];
+    for (let k = 0; k <= ADIM; k++) {
+      const t = k / ADIM;                              // 0 kök, 1 uç
+      // genişlik: kökte duvara yayılır (x1.5), ortada içe kavisli, uçta sivri
+      const gen = (sv.taban / 2) * (Math.pow(1 - t, 0.85) + 0.5 * Math.pow(1 - t, 6));
+      const purus = k > 0 && k < ADIM ? Math.sin(tohum * 7 + k * 2.3) * 2.2 + Math.sin(tohum * 3 + k * 5.1) * 1.4 : 0;
+      const egri = Math.sin(t * Math.PI) * sv.taban * 0.06 * Math.sin(tohum * 11);   // hafif yana eğilme
+      const yL = kenarY(-gen) + yon * (t * sv.boy - (k === 0 ? 8 : 0));
+      const yR = kenarY(gen) + yon * (t * sv.boy - (k === 0 ? 8 : 0));
+      sol.push([sx - gen + purus + egri, k === ADIM ? kenarY(0) + yon * sv.boy : yL]);
+      sag.push([sx + gen - purus * 0.7 + egri, k === ADIM ? kenarY(0) + yon * sv.boy : yR]);
+    }
+    const yol = new Path2D();
+    yol.moveTo(sol[0][0], sol[0][1]);
+    for (const [x, y] of sol) yol.lineTo(x, y);
+    for (let k = sag.length - 1; k >= 0; k--) yol.lineTo(sag[k][0], sag[k][1]);
+    yol.closePath();
+    c.fillStyle = RENK.arka2;                          // altındaki duvar kenar çizgisini örter
+    c.fill(yol);
+    const kokY = kenarY(0), ucY = kokY + yon * sv.boy;
+    const gr = c.createLinearGradient(sx, kokY, sx, ucY);
+    gr.addColorStop(0, `rgba(${RENK.kaya.join(",")},${0.62 * p})`);
+    gr.addColorStop(1, `rgba(${RENK.kaya.join(",")},${0.28 * p})`);
+    c.fillStyle = gr;
+    c.fill(yol);
+    // yalnız yanlar çizilir (kökte duvarın kenar çizgisine bağlanır)
     c.strokeStyle = `rgba(${RENK.kenar.join(",")},${p})`;
     c.lineWidth = 2.5;
+    c.lineJoin = "round";
+    c.beginPath();
+    c.moveTo(sol[0][0], kenarY(sol[0][0] - sx));            // duvarın kenarından başla
+    for (let k = 1; k < sol.length; k++) c.lineTo(sol[k][0], sol[k][1]);
+    for (let k = sag.length - 2; k >= 1; k--) c.lineTo(sag[k][0], sag[k][1]);
+    c.lineTo(sag[0][0], kenarY(sag[0][0] - sx));
     c.stroke();
   }
 

@@ -3,6 +3,19 @@
 Her madde yaklaşık bir gecelik çalışmadır. Sıra önemlidir; üstten başla.
 
 ## Sırada
+- [ ] **(Harun'un kararı 2026-11-25 — önce bu) Yankı'yı Oyun Atölyesi'nden düzenlenebilir yap: ayarlar + el yapımı bölümler.**
+      Yankı tarafındaki iş (Atölye tarafındaki düzenleyici ayrı iş, kök YAPILACAKLAR'da):
+      1. Biçim: `yanki/icerik/yanki.json` (`surum: 1`) ve `yanki/icerik/BICIM.md` (her alan, türü, örneği). İçerik:
+         `ayarlar` (bugünkü `AYAR`daki her şey: fizik, yankı, mağara, sarkıt/dikit sıklığı-boyu-tabanı-geçidi, ağ, damla, böcek, ısınma),
+         `bolumler: [ { id, ad, aciklama, uzunluk, duvar: { tohum } ya da { noktalar: [ { x, ust, alt } ] },
+         sivriler: [ { x, ust, boy, taban } ], tehlikeler: [ { tur: "ag"|"damla", x, y? } ], bocekler: [ { x, y } ] } ]`.
+      2. Oyun içeriği şu sırayla bulur: `window.YANKI_ICERIK` (tek dosyalık Yanki.html'e gömülü) → `fetch("icerik.json")`
+         (Pages) → koddaki varsayılanlar. Eksik alan varsayılana düşer. `araclar/tek_dosya.py` JSON'u Yanki.html'e gömer;
+         derleme `yanki/oyun/icerik.json`'u da yazar.
+      3. Oyun: menüde **Sonsuz mağara** (bugünkü rastgele) ve bölüm listesi. Bölümde mağara noktalardan (ya da sabit tohumdan)
+         çizilir, sivri/tehlike/böcek yalnız listedekilerdir; bölüm sonunda "Bölüm bitti" ekranı ve süre/skor.
+      4. Testler: JSON doğrulama (birim), bölümün aynı kalması (aynı girdi → aynı mağara), oynanış testinde bir bölümü baştan sona
+         otomatik pilotla bitirme; Yanki.html'in gömülü içerikle açılması.
 - [ ] Harun'un telefonda deneme geri bildirimine göre his ayarı (kanat gücü, yerçekimi, mağara genişliği, yankının görünme süresi,
       sarkıt/dikit sıklığı). Geri bildirim gelene kadar bu madde bekler; sıradakine geç.
 - [ ] Yankıyı yutan yosun bölgeleri (o bölgede duvarlar görünmez).

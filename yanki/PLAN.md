@@ -24,7 +24,9 @@ denemesi ve araçtaki "Karanlık Mağara" örneği; Harun'un kararıyla 2026-11-
    bölüm geçişinde renk ve ses değişimi; **yol ayrımları** (iki tünelden birini seç: biri kısa ve dar, biri uzun ve böcekli).
 5. **İlerleme (ÖNERİ):** toplanan ateş böcekleriyle açılan yarasa renkleri/kanat izleri, günlük mağara (herkes aynı tohum),
    başarımlar.
-6. **Oyun Atölyesi bağlantısı (ÖNERİ):** `AYAR` ve bölüm tanımları JSON'a taşınır; araçta düzenlenip telefonda denenir.
+6. **Oyun Atölyesi bağlantısı (Harun'un kararı 2026-11-25):** ayarlar ve **el yapımı bölümler** `yanki/icerik/yanki.json`'da; Atölye'de
+   ayar sayfası ve yandan görünüşlü bölüm düzenleyicisi (sarkıt/dikit, ağ, damla, ateş böceği tek tek konur ve sürüklenir).
+   Sonsuz rastgele mağara da kalır.
 
 ## Kabul ölçütleri
 - Her sürüm telefonda (Pixel 7 / iPhone 14 öykünmesi) otomatik testten geçer, 60 kare/sn hedefinde çalışır.

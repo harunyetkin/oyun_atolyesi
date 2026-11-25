@@ -2,6 +2,13 @@
 
 En yeni girdi en üsttedir.
 
+## 2026-11-25 (gündüz, 2) — Sarkıtlar artık duvardan uzuyor; Atölye'den düzenleme planı
+- Sarkıt ve dikitlerin görünüşü değişti: kökleri duvarın içine gömülü ve genişliyor, kenarları hafif pürüzlü ve eğri; kenar çizgileri
+  duvarın kenar çizgisine bağlanıyor. Artık duvarın üstüne konmuş üçgen gibi değil, kayadan uzayan sivri gibi görünüyorlar.
+- Senin seçiminle (**ayarlar + el yapımı bölüm**) iki iş sıraya girdi: Yankı gecesinde Yankı'nın ayarları ve bölümleri bir dosyaya
+  (`yanki/icerik/yanki.json`) taşınacak ve menüye bölümler gelecek; ardından Atölye gecesinde Oyun Atölyesi'ne **Yankı düzenleyicisi**
+  gelecek (ayarlar ve yandan görünüşlü bölüm düzenleyicide sarkıt/dikitleri tek tek koyup sürükleme).
+
 ## 2026-11-25 (gündüz) — Önü tamamen kör (senin isteğin)
 - Yarasanın kendi ışığını kaldırdım: artık yakınındaki duvarlar, sarkıtlar, ağlar ve damlalar kendiliğinden görünmüyor.
 - **Ateş böcekleri de artık parlamıyor**: onları da yalnız yankı değdiğinde, kısa bir süre görüyorsun; sonra sönüyorlar.

@@ -5,6 +5,17 @@ Her madde yaklaşık bir günlük çalışmadır. Sıra önemlidir; üstten baş
 > Not (2026-11-15): Oyun Unreal Engine 5.8'e geçti (`hikaye_oyun/unreal`). İçerik biçimi aynı (`icerik/*.json`, BICIM.md); araç yine bu dosyaları düzenler. Godot'ya özel alanları (ör. `tur: mh` görünüm parçaları) yeni iş olarak ekleme; MetaHuman görünüm alanları BICIM.md'ye eklenince araca taşı.
 
 ## Sırada
+- [ ] **(Harun'un kararı 2026-11-25 — önce bu) Yankı düzenleyicisi.** Yankı'nın `yanki/icerik/yanki.json` biçimi Yankı gecesinde
+      hazırlanır (yanki/YAPILACAKLAR); o hazır değilse önce onu bekle ve sıradaki işe geç. Hazırsa:
+      1. Başlangıç ekranında **Yankı'yı düzenle** (ve Oyun menüsünde komut). Dosya yolu: Atölye'nin bulunduğu depodaki `yanki/icerik/yanki.json`
+         (yoksa klasör seçtir ve hatırla; `atolye.py`'ye yol güvenlikli oku/yaz, kayıttan önce yedek).
+      2. **Ayarlar** sekmesi: şemadan kartlar (fizik, yankı, mağara, sarkıt/dikit, ağ, damla, ateş böceği, ısınma), birimler ve açıklamalar.
+      3. **Bölümler** sekmesi: bölüm listesi (ekle/çoğalt/sil, ad, uzunluk) ve **yandan görünüşlü bölüm düzenleyici**: mağara duvarı
+         (tavan/taban noktaları sürüklenir), **sarkıt ve dikitler** (tıkla-ekle, sürükle-taşı, ucundan çekerek boy, kenarından taban),
+         ağ, damla ve ateş böcekleri; yakınlaştır/kaydır; geçit darlığı uyarısı (yarasanın geçemeyeceği yerler kırmızı).
+      4. **Kaydet** JSON'u yazar ve `yanki/Yanki.html`'i gömülü içerikle yeniden üretir (Python'da, `tek_dosya.py` mantığı; Node gerekmez)
+         ve `yanki/oyun/icerik.json`'u günceller. **Oyna** düğmesi Yanki.html'i (ya da seçili bölümü) tarayıcıda açar.
+      5. Birim testleri (biçim, geçit denetimi) ve arayüz testi; KULLANIM_KILAVUZU'na "Yankı düzenleyicisi" bölümü.
 - [ ] Yeni dosyalar: **`arayuz.json`** (renkler, yazı tipleri, logo, menü müziği, yapımcılar, `menu_sahnesi`) düzenleyicisi;
       karakterler.json'daki yeni oyuncu alanları (`oturma.*`, `dovus.tekme_*`, `kamera.omuz_kaydirma` vb.) için şema açıklamaları
       (şimdilik "yeni" rozetiyle görünüyorlar); `tasarim/` klasörü (malzemeler.json, karakterler.json) okunur liste.

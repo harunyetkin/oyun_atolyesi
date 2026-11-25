@@ -10,5 +10,7 @@ neyi değiştirmek istersin. GitHub sitesinde bu dosyayı açıp sağ üstteki k
 - 
 
 ## İşlendi
+- 2026-11-25 — "Sarkıt ve dikitler duvarların içinden gelmiyor, üçgen gibi üstünde duruyor" → aynı gün düzeltildi: kökü duvara gömülü, genişleyen, pürüzlü kaya; kenarı duvarın kenar çizgisine bağlanıyor.
+- 2026-11-25 — "Oyun Atölyesi'nde sarkıt ve dikitleri elle nasıl düzenlerim?" → Harun'un seçimi: **ayarlar + el yapımı bölüm**. İki projede de YAPILACAKLAR'ın başına eklendi (Yankı: JSON biçimi ve bölüm modu; Atölye: Yankı düzenleyicisi).
 - 2026-11-25 — "Önümüzün tamamen kör olması gerekli, ateş böcekleri dahil hiçbir şey görünmemeli" → aynı gün yapıldı: yarasanın kendi ışığı kaldırıldı; duvarlar, sarkıtlar, ağ, damla ve ateş böcekleri yalnız yankı değince görünüyor.
 - 2026-11-19 — "İnternet sayfasına tam sığmamış; yarasa ilerledikçe mapin kalanı pencereler halinde açılıyor, akıcı bir geçiş olmalı" (ekran görüntüsüyle) → 2026-11-21 gecesi düzeltildi (bkz. GUNLUK).
