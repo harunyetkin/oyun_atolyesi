@@ -144,6 +144,8 @@ Durum: ✅ var · 🧩 arayüzü var, işlevi sonra · 🔜 planlı (aşama numa
 | Gün-gece döngüsü, pozlama, Unreal seviyesi ayarları | ✅ |
 | Kroki: yakınlaştırma, kaydırma, yakın görünüm, hepsini sığdır | ✅ |
 | Mekânlar: kapılar/geçişler, iç mekânlar, meşaleler, zeminler, görünmez duvarlar, ot serpilmeyen alanlar (krokide sürükleme, uyarılar) | ✅ |
+| Arayüz (arayuz.json): menü renkleri (boş = varsayılan, saydamlık), yazı tipleri, logo, müzik, ana menü ışığı, yapımcılar ekranı | ✅ |
+| Alan rehberi (ALAN_REHBERI.md): her alanın açıklaması, araçtan otomatik üretilen tablolar | ✅ |
 | Dekor nesneleri ve oturaklar, ana menü beden seçimi ve ekipman, model çarpışmaları, arayüz.json | 🔜 |
 | Kapı seçimleri, dekor yerleştirme (3D görünümde) | 🔜2, 🔜4 |
 | Konuşma ağacı, karakter oluşturma, ölçek düzenleyicileri | 🔜4 |

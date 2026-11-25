@@ -357,7 +357,7 @@ Oyun bu dosyaları her açılışta okur; yani burada değiştirip **kaydedince*
 | Yer | Ne var |
 |---|---|
 | Üst çubuk | Geri al / Yinele, **Kaydet (n)** (n = kaydedilmemiş dosya sayısı), **Değişiklikleri at**, **Klasörü değiştir**, **Başlangıç** |
-| Sol | **İçerik dosyaları**: Karakterler, Haritalar, Diyaloglar, Diğer. Sarı nokta = kaydedilmemiş değişiklik var |
+| Sol | **İçerik dosyaları**: Karakterler, Haritalar, Diyaloglar, Genel (Arayüz), Diğer. Sarı nokta = kaydedilmemiş değişiklik var |
 | Orta | Seçili dosyanın düzenleyicisi |
 | Alt | Oyun klasörü ve açık dosya |
 
@@ -368,7 +368,12 @@ Oyun bu dosyaları her açılışta okur; yani burada değiştirip **kaydedince*
 - **Can ve dayanıklılık:** can, dayanıklılık, yenilenmeler, tükenme eşiği, koşu/kaçınma/yumruk/tekme/zıplama bedelleri, darbelerde can kaybı, gard, bayılma süresi.
 - **Hareket**, **Kaçınma**, **Kamera**, **Animasyon geçişi**, **Dövüş**, **Doğallık**, **Etkileşim anları** (0–1 arası; kaydırıcı da var),
   **Çanta** (göster, konum, boyut, renk), **Animasyonlar** (her hareketin Unreal yolu; oturma, itme, darbe alma, yere düşme, yerden kalkma dahil),
-  **Animasyon yuvaları**. Dövüş kartında yumruğun değdiği an (0–1) da var.
+  **Animasyon yuvaları**. Dövüş kartında yumruğun ve tekmenin değdiği an (0–1), yumruk/tekme mesafeleri ve "en uzak an"lar da var.
+- **Bankta oturma:** otur-kalk animasyonunun oturuş/kalkış saniyeleri, banka yürüme hızı, otururken sırayla oynayan **bekleme
+  hareketleri** (Unreal yolu listesi: **Yol ekle** ile eklenir, çöp kutusuyla kaldırılır), otururken konuşma ve oturuş yerinin cm ayarları.
+- **Kamera** kartında omuz kamerası (sağa/yukarı kaydırma), koşarken geride kalma ve görüş genişlemesi; **Etkileşim anları** kartında
+  sandık açma ve yerden alma anları, animasyonun yalnız bir bölümünü oynatmak için başlangıç/bitiş saniyeleri.
+- Oyun dosyasındaki açıklama notları (ör. "Bankta oturma (Park Life)…") kartın üstünde soluk yazıyla **Oyunun notu** olarak görünür.
 - Her sayının yanında birimi yazar (cm/sn, °, sn…). Kutuyu **boş bırakırsan** oyun kendi varsayılanını kullanır.
   Virgül de nokta da olur. Kutudayken **↑/↓** tuşları değeri bir adım artırıp azaltır (Shift ile 10 adım).
 - Oyuna sonradan eklenen ve henüz açıklaması yazılmamış bir ayar da ilgili kartta **yeni** rozetiyle görünür ve düzenlenebilir.
@@ -469,6 +474,15 @@ kişileri görmek için “hepsini sığdır”a bas.
 **Harita → Harita ayarları sekmesi.** Genel (ad, tema, not), **Unreal seviyesi** (zemin ve yollar Unreal'deki elle kurulmuş seviyedeyse anahtar açık; seviyenin yolu), **Gün ve gece** (başlangıç saati, bir oyun gününün gerçek dakika olarak süresi, öğlen güneşin yüksekliği ve yönü, ay ışığı, gece pozlaması ve gece gök ışığı), **Pozlama ve ışık gölgeleri** (gölge ve parlak kontrastı, lamba ışıklarının gölgesi), **Unreal: dekor, zemin ve yol yüzeyi** (model açı düzeltmesi,
 zemin/yol malzeme klasörleri ve karo boyları), Yol (uzunluk, genişlik, renkler, orta şerit), Işık ve gökyüzü, Başlangıç ve bitiş.
 
+**Genel → Arayüz (menü ve ekran)** (`arayuz.json`). Oyunun menülerinin ve ekran yazılarının görünüşü:
+- **Renkler:** yazı, vurgu, panel, soluk yazı, olumlu, menü şeridi, karartma, pasif. Kutu boşsa oyunun kendi rengi kullanılır
+  ("oyunun varsayılanı" yazar). Renk kutusuna tıklayıp seçebilir ya da `#rrggbb` yazabilirsin; renk verilince yanında **saydamlık
+  kaydırıcısı** çıkar (sağ = tam opak; `#rrggbbaa` olarak kaydedilir). **Varsayılana dön** rengi boşaltır. Geçersiz yazı kabul edilmez.
+- **Yazı tipleri, logo ve müzik:** büyük ve orta yazı tipinin, logonun ve menü müziğinin Unreal yolları.
+- **Ana menü sahnesi:** arkadaki karakterin ışığa göre duruş açısı ve dolgu ışığının gücü.
+- **Yapımcılar ekranı:** bölümler (başlık + satırlar). Her satır iki sütun: solda iş ya da eser, sağda kişi ya da kaynak. Oklarla
+  sıralanır, çöp kutusuyla silinir; **Satır ekle**, **Bölüm ekle**.
+
 **Diyaloglar ve diğer dosyalar** şimdilik yalnızca okunur gösterilir <kbd>Aşama 4</kbd>.
 
 **Kaydetme ve güvenlik**
@@ -497,6 +511,7 @@ Her satır bir çalışma oturumudur; ayrıntılar GUNLUK.md'de.
 | 2026-11-22 gece | **v0.7** — Günlük program, gün-gece, can | Kişi kartında **günlük program** (duraklar, krokide sürüklenir), bakış yönü, kişiye özel can; oyuncunun **can ve dayanıklılık** kartı ve kişilerin **ortak canı**; Harita ayarlarında **Unreal seviyesi**, **Gün ve gece**, **Pozlama**. Krokide **yakınlaştırma/kaydırma**, yakın görünüm ve hepsini sığdır (Köy meydanı gibi büyük haritalar için). |
 | 2026-11-24 gece | **v0.8** — Mekânlar | Harita → **Mekânlar**: kapılar ve geçişler (dönüş kapısına atlama, kapı çifti ekleme), iç mekânlar, meşaleler (ortak ışık gücü/erim), zeminler, görünmez duvarlar, ot serpilmeyen alanlar; hepsi krokide sürüklenir; dönüşü olmayan kapı uyarısı. |
 | 2026-11-25 | Alan rehberi | **ALAN_REHBERI.md**: Oyun içeriğindeki her kutunun ne işe yaradığı; açıklaması eksik 129 alana açıklama yazıldı (araçta kutunun altında görünür). Rehberin form tabloları araçtan otomatik üretilir, testi eskiyince uyarır. |
+| 2026-11-26 gece | **v0.9** — Arayüz ve oyuncunun yeni ayarları | **Genel → Arayüz** (`arayuz.json`): menü renkleri (boş = oyunun rengi, saydamlık kaydırıcısı), yazı tipleri, logo, menü müziği, ana menü ışığı, **Yapımcılar ekranı** düzenleyicisi. Oyuncuya **Bankta oturma** kartı (bekleme hareketleri listesi), omuz kamerası, tekme mesafeleri/anları, vuruşların en uzak anları, sandık açma ve yerden alma ayarları, 16 yeni animasyon yolu; 59 yeni alan adlı ve açıklamalı. Oyunun notları kartın üstünde. |
 
 **Sıradaki adımlar:** Aşama 2 — 3D görünüm (3D Harita sekmesi, yörünge kamerası, glTF modeller,
 taşı/döndür/ölçekle tutamaçları, ışık ve gökyüzü önizlemesi).

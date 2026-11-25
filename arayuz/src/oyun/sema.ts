@@ -7,8 +7,9 @@ export type Alan =
   | { tur: "anahtar"; ad: string; aciklama?: string; acik?: string; kapali?: string; mantik?: boolean }   // 1 / 0 (mantik: true/false)
   | { tur: "yazi"; ad: string; aciklama?: string; ipucu?: string; cokSatir?: boolean }
   | { tur: "unreal"; ad: string; aciklama?: string; ipucu?: string }                      // /Game/... yolu
-  | { tur: "renk"; ad: string; aciklama?: string }
-  | { tur: "vektor"; ad: string; birim?: string; eksenler?: [string, string, string]; aciklama?: string };
+  | { tur: "renk"; ad: string; aciklama?: string; bosOlabilir?: boolean; saydam?: boolean }   // bosOlabilir: "" = varsayılan; saydam: #rrggbbaa
+  | { tur: "vektor"; ad: string; birim?: string; eksenler?: string[]; aciklama?: string }     // eksen sayısı kadar sayı (varsayılan 3)
+  | { tur: "yollar"; ad: string; aciklama?: string; ipucu?: string };                        // Unreal yolu listesi
 
 export interface Grup {
   baslik: string;
@@ -108,6 +109,10 @@ export const OYUNCU_GRUPLARI: Grup[] = [
       ["kamera.otomatik_takip", { tur: "anahtar", ad: "Otomatik arkaya geçme", aciklama: "Fare durunca kamera yavaşça karakterin arkasına döner." }],
       ["kamera.otomatik_takip_gecikmesi", sayi("…başlama gecikmesi", "sn", { min: 0, adim: 0.1 })],
       ["kamera.otomatik_takip_hizi", sayi("…hızı", "×", { min: 0, adim: 0.1 })],
+      ["kamera.omuz_kaydirma", { tur: "vektor", ad: "Omuz kaydırma", birim: "cm", eksenler: ["Sağa", "Yukarı"], aciklama: "Kamera karakterin omzunun üstünden bakar: sağa ve yukarı kayma. Eksi sağa = sol omuz." }],
+      ["kamera.takip_en_fazla_geri", sayi("Koşarken en fazla geride kalma", "cm", { min: 0, adim: 10, aciklama: "Koşarken kamera karakterin en fazla bu kadar gerisinde kalır (0 = sınırsız)." })],
+      ["kamera.kosu_gorus_artisi", sayi("Koşarken görüş genişlemesi", "°", { min: 0, aciklama: "Koşarken görüş açısı bu kadar genişler; hız hissi verir." })],
+      ["kamera.asagidan_bakista_yaklasma", sayi("Aşağıdan bakışta yaklaşma", "", { min: 0, max: 0.8, adim: 0.05, aciklama: "Aşağıdan yukarı bakarken kamera bu oranda karaktere yaklaşır (yere gömülmesin)." })],
     ],
     digerleri: { yol: "kamera", tur: "sayi" } },
   { baslik: "Animasyon geçişi",
@@ -122,6 +127,15 @@ export const OYUNCU_GRUPLARI: Grup[] = [
       ["dovus.kombo_acilisi", oran("Kombo açılışı", "Vuruşun hangi noktasından sonra sıradaki başlayabilir (0–1).")],
       ["dovus.vurus_ani", oran("Yumruğun değdiği an", "Animasyonun hangi noktasında yumruk hedefe değer (0–1).")],
       ["dovus.guclu_vurus_ani", oran("Güçlü yumruğun değdiği an")],
+      ["dovus.tekme_vurus_ani", oran("Tekmenin değdiği an", "Tekme animasyonunun hangi noktasında ayak hedefe değer (0–1).")],
+      ["dovus.guclu_tekme_vurus_ani", oran("Güçlü tekmenin değdiği an", "Güçlü tekmede ayağın değdiği an (0–1).")],
+      ["dovus.yerde_vurus_ani", oran("Yerdekine vuruşun değdiği an", "Yerde yatana vuruşta darbenin değdiği an (0–1).")],
+      ["dovus.vurus_mesafesi", sayi("Yumruk mesafesi", "cm", { min: 0, aciklama: "Yumruklaşırken iki gövdenin ortası arası ideal uzaklık; oyuncu ve kişiler bu mesafeye gelir." })],
+      ["dovus.tekme_mesafesi", sayi("Tekme mesafesi", "cm", { min: 0, aciklama: "Tekmede ideal uzaklık (bacak koldan uzun). Boşsa yumruk mesafesi." })],
+      ["dovus.guclu_tekme_mesafesi", sayi("Güçlü tekme mesafesi", "cm", { min: 0, aciklama: "Güçlü tekmede ideal uzaklık. Boşsa yumruk mesafesi." })],
+      ...([["yumruk_1", "Yumruk 1"], ["yumruk_2", "Yumruk 2"], ["yumruk_3", "Yumruk 3"], ["guclu_yumruk", "Güçlü yumruk"], ["tekme", "Tekme"], ["guclu_tekme", "Güçlü tekme"]] as [string, string][])
+        .map(([k, ad]): [string, Alan] => ["dovus.tepe_anlari." + k, sayi(`En uzak an: ${ad}`, "sn", { min: 0, adim: 0.01,
+          aciklama: "Animasyonda el ya da ayağın en ileri uzandığı saniye. Erken değen vuruş buradan geri döner (uzuv hedefin içine girmez). Animasyon değişince yeniden ölçülmeli." })]),
     ],
     digerleri: { yol: "dovus", tur: "sayi" } },
   { baslik: "Doğallık (beden dili)",
@@ -146,8 +160,37 @@ export const OYUNCU_GRUPLARI: Grup[] = [
       ["etkilesim.cantaya_birakma_ani", oran("Çantaya bırakma")],
       ["etkilesim.kapi_itme_ani", oran("Kapıyı itme")],
       ["etkilesim.kapi_kapama_ani", oran("Kapıyı kapama")],
+      ["etkilesim.sandik_acma_ani", oran("Sandık kapağını kaldırma")],
+      ["etkilesim.yerden_alma_ani", oran("Yerden eşya alma")],
+      ["etkilesim.esya_alma_el_alti", sayi("Eşya alırken elin en alçak yeri", "cm", { min: 0, aciklama: "Animasyonda elin inebildiği en alçak yer (ayak tabanından). Eşya daha alçaktaysa karakter belden biraz daha eğilir." })],
+      ["etkilesim.sandik_acma_el_alti", sayi("Sandık açarken elin en alçak yeri", "cm", { min: 0, aciklama: "Sandık açma animasyonunda elin en alçak yeri; sandık daha alçaksa karakter eğilir." })],
+      ...([["esya_alma", "Eşya alma"], ["sandik_acma", "Sandık açma"], ["kapi_acma", "Kapı açma"], ["kapi_kapama", "Kapı kapama"], ["cantaya_koyma", "Çantaya koyma"]] as [string, string][])
+        .flatMap(([k, ad]): [string, Alan][] => [
+          ["etkilesim." + k + "_bas", sayi(`${ad}: başlangıç`, "sn", { min: 0, adim: 0.1, aciklama: `${ad} animasyonunun yalnız bir bölümü oynasın diye başladığı saniye. Boşsa en baştan.` })],
+          ["etkilesim." + k + "_son", sayi(`${ad}: bitiş`, "sn", { min: 0, adim: 0.1, aciklama: `${ad} animasyonunun bittiği saniye. Boşsa sonuna kadar. Yukarıdaki "an"lar bu aralığa göredir.` })],
+        ]),
     ],
     digerleri: { yol: "etkilesim", tur: "sayi" } },
+  { baslik: "Bankta oturma",
+    aciklama: "Oyuncu (ve kişiler) banka yürür, arkasını döner, otur-kalk animasyonunun oturuş bölümüyle oturur; otururken bekleme hareketleri sırayla değişir. Mesafeler cm, süreler saniye.",
+    alanlar: [
+      ["oturma.gecis_animasyonu", { tur: "unreal", ad: "Otur-kalk animasyonu", ipucu: "/Game/Animasyonlar/...", aciklama: "Oturma ve kalkma bölümlerini içeren tek animasyon." }],
+      ["oturma.oturus_baslangici", sayi("Oturuş: başlangıç", "sn", { min: 0, adim: 0.1, aciklama: "Otur-kalk animasyonunda oturmanın başladığı saniye." })],
+      ["oturma.oturus_sonu", sayi("Oturuş: bitiş", "sn", { min: 0, adim: 0.1, aciklama: "Oturmanın bittiği saniye." })],
+      ["oturma.kalkis_baslangici", sayi("Kalkış: başlangıç", "sn", { min: 0, adim: 0.1, aciklama: "Kalkmanın başladığı saniye." })],
+      ["oturma.kalkis_sonu", sayi("Kalkış: bitiş", "sn", { min: 0, adim: 0.1, aciklama: "Kalkmanın bittiği saniye." })],
+      ["oturma.yaklasma_hizi", sayi("Banka yürüme hızı", "×", { min: 0, adim: 0.05, aciklama: "Banka giderken yürüme hızının katı (0,75 = biraz yavaş)." })],
+      ["oturma.beklemeler", { tur: "yollar", ad: "Otururken bekleme hareketleri", ipucu: "/Game/Animasyonlar/...", aciklama: "Otururken sırayla (rastgele) oynayan animasyonlar. Boşsa Animasyonlar kartındaki \"Bankta oturma\"." }],
+      ["oturma.konusma", { tur: "unreal", ad: "Otururken konuşma", ipucu: "/Game/Animasyonlar/...", aciklama: "Oyuncu oturan biriyle konuşunca onun oynadığı animasyon." }],
+      ["oturma.animasyon_oturak_yuksekligi", sayi("Animasyonun oturak yüksekliği", "cm", { min: 0, aciklama: "Oturma animasyonlarının yapıldığı oturak yüksekliği (42). Daha yüksek sandalyede oturan o kadar kaldırılır." })],
+      ["oturma.kalca_geride", sayi("Kalça ayakların gerisinde", "cm", { min: 0, aciklama: "Animasyonda kalçanın ayakların ne kadar gerisinde olduğu (ölçüm yokken kullanılır)." })],
+      ["oturma.arkaliktan", sayi("Arkalıktan uzaklık", "cm", { min: 0, aciklama: "Kalça arkalıktan en az bu kadar önde durur." })],
+      ["oturma.kalca_yuksekligi", sayi("Kalça yüzeyin üstünde", "cm", { aciklama: "Kalça kemiği oturma yüzeyinin bu kadar üstünde durur; karakter oturağa gömülüyorsa artır, havada duruyorsa azalt." })],
+      ["oturma.diz_payi", sayi("Dizlerin ön kenardan payı", "cm", { min: 0, aciklama: "Dizler oturağın ön kenarından en az bu kadar önde (baldır kenarın içinden geçmesin)." })],
+      ["oturma.diz_onde", sayi("Diz kalçanın önünde", "cm", { min: 0, aciklama: "Ölçüm yokken dizin kalçanın önündeki uzaklığı." })],
+      ["oturma.el_onde", sayi("Ellerin uzandığı mesafe", "cm", { min: 0, aciklama: "Otururken ellerin kalçanın önüne uzandığı en büyük mesafe; önde masa varsa kalça masa kenarından en az bu kadar geride durur." })],
+    ],
+    digerleri: { yol: "oturma", tur: "sayi" } },
   { baslik: "Çanta",
     alanlar: [
       ["canta.goster", { tur: "anahtar", ad: "Çantayı göster" }],
@@ -166,6 +209,12 @@ export const OYUNCU_GRUPLARI: Grup[] = [
       ["konusma", "Konuşma (kişiler)"], ["konusma_jest", "Cevap verirken jest"],
       ["oturma", "Bankta oturma (döngü)"], ["itme", "İtme (G)"], ["darbe_alma", "Darbe alma (vurulunca)"],
       ["yere_dusme", "Yere düşme"], ["yerden_kalkma", "Yerden kalkma"],
+      ["tekme", "Tekme (R)"], ["guclu_tekme", "Güçlü tekme"], ["yerdekine_vurus", "Yerdekine vuruş"], ["gard_darbe", "Gardda darbe karşılama"],
+      ["kisi_gard", "Kişilerin gard duruşu"], ["sendeleme", "Sendeleme (itilince)"],
+      ["kisi_darbe_on_bas", "Kişi: önden başa darbe"], ["kisi_darbe_on_govde", "Kişi: önden gövdeye darbe"],
+      ["kisi_darbe_sol", "Kişi: soldan darbe"], ["kisi_darbe_sag", "Kişi: sağdan darbe"],
+      ["yerden_alma", "Yerden alma (eğilme)"], ["yerden_alma_devam", "Yerden alma (doğrulma)"], ["sandik_acma", "Sandık açma"],
+      ["engel_atlama", "Engelin üstünden atlama"], ["tirmanma_alcak", "Alçak yere tırmanma"], ["tirmanma", "Yüksek yere tırmanma"],
     ] as [string, string][]).map(([k, ad]): [string, Alan] => ["animasyonlar." + k, { tur: "unreal", ad, ipucu: "/Game/Animasyonlar/..." }]),
     digerleri: { yol: "animasyonlar", tur: "unreal" } },
   { baslik: "Animasyon yuvaları",
@@ -273,6 +322,36 @@ export const KISI_NITELIK_GRUBU: Grup = { baslik: "Kişilerin canı (ortak)", ac
   ],
   digerleri: { yol: "", tur: "sayi" } };
 
+// ------------------------------------------------------------------ arayuz.json (menülerin ve ekranın görünüşü)
+const arayuzRengi = (ad: string, aciklama: string): Alan => ({ tur: "renk", ad, aciklama, bosOlabilir: true, saydam: true });
+export const ARAYUZ_GRUPLARI: Grup[] = [
+  { baslik: "Renkler", acikBaslar: true,
+    aciklama: "Menülerin ve oyun içi yazıların renkleri. Boş bırakılan renk oyunun kendi rengini kullanır. Kaydırıcı saydamlığı ayarlar.",
+    alanlar: [
+      ["renkler.yazi", arayuzRengi("Yazı", "Menü ve ekrandaki genel yazı rengi.")],
+      ["renkler.vurgu", arayuzRengi("Vurgu", "Seçili menü satırı, başlıklar ve önemli yazılar.")],
+      ["renkler.panel", arayuzRengi("Panel", "Menü kutularının ve pencerelerin arka planı (yarı saydam olabilir).")],
+      ["renkler.soluk", arayuzRengi("Soluk yazı", "İpuçları ve ikinci derecede yazılar.")],
+      ["renkler.olumlu", arayuzRengi("Olumlu", "Başarı ve onay yazıları (ör. görev tamamlandı).")],
+      ["renkler.menu_seridi", arayuzRengi("Menü şeridi", "Ana menüde seçeneklerin durduğu şeridin rengi.")],
+      ["renkler.karartma", arayuzRengi("Karartma", "Menü açıkken oyunun üstüne çekilen perde (genelde yarı saydam siyah).")],
+      ["renkler.pasif", arayuzRengi("Pasif", "Seçilemeyen (henüz açılmamış) menü satırları.")],
+    ] },
+  { baslik: "Yazı tipleri, logo ve müzik", acikBaslar: true,
+    alanlar: [
+      ["yazi_tipleri.buyuk", { tur: "unreal", ad: "Büyük yazı tipi", ipucu: "/Game/Arayuz/Yazitipi/...", aciklama: "Başlıklar ve menü seçenekleri. Boşsa motorun yazı tipi." }],
+      ["yazi_tipleri.orta", { tur: "unreal", ad: "Orta yazı tipi", ipucu: "/Game/Arayuz/Yazitipi/...", aciklama: "Açıklamalar ve ekrandaki küçük yazılar. Boşsa motorun yazı tipi." }],
+      ["logo", { tur: "unreal", ad: "Logo", ipucu: "/Game/Arayuz/T_Logo", aciklama: "Ana menüde oyunun adının yerine görünen resim (doku). Boşsa ad yazıyla çıkar." }],
+      ["menu_muzigi", { tur: "unreal", ad: "Menü müziği", ipucu: "/Game/Sesler/Menu", aciklama: "Ana menüde dönen müzik. Boşsa menü sessiz." }],
+    ] },
+  { baslik: "Ana menü sahnesi", acikBaslar: true,
+    aciklama: "Ana menüde arkada duran karakterin ışığı.",
+    alanlar: [
+      ["menu_sahnesi.gunese_aci", sayi("Işığa göre duruş açısı", "°", { aciklama: "Karakter güneşe (gece aya) dönük durur; yüzü ile ışık arasındaki açı. 0 = ışık tam karşıdan, düz; büyüdükçe yüzde gölge artar." })],
+      ["menu_sahnesi.dolgu_isigi", sayi("Dolgu ışığı", "kandela", { min: 0, aciklama: "Kameranın yanındaki gölgesiz yumuşak ışık; yüzdeki koyu gölgeleri açar. 0 = kapalı." })],
+    ] },
+];
+
 /** Bir grup listesinde tanımlı bütün yollar (digerleri hesabı için). */
 export const tanimliYollar = (gruplar: Grup[]) => new Set(gruplar.flatMap(g => g.alanlar.map(([y]) => y)));
 
@@ -342,6 +421,8 @@ const OYUNCU_ACIKLAMA: Record<string, string> = {
   "etkilesim.cantaya_birakma_ani": "Çantaya koyma animasyonunda eşyanın elden kaybolduğu an.",
   "etkilesim.kapi_itme_ani": "Kapı açma animasyonunda kapının dönmeye başladığı an.",
   "etkilesim.kapi_kapama_ani": "Kapı kapama animasyonunda kapının kapanmaya başladığı an.",
+  "etkilesim.sandik_acma_ani": "Sandık açma animasyonunda kapağın kalkmaya başladığı an.",
+  "etkilesim.yerden_alma_ani": "Yerden alma animasyonunda elin eşyayı kavradığı an.",
   "canta.goster": "Oyuncunun sırtında çanta görünsün mü?",
   "canta.boyut": "Çanta kutusunun eni, boyu, yüksekliği.",
   "canta.renk": "Çantanın rengi.",
@@ -358,6 +439,14 @@ const ANIM_ACIKLAMA: Record<string, string> = {
   konusma: "kişiler konuşurken", konusma_jest: "oyuncu cevap verirken (el-kol hareketi)",
   oturma: "bankta otururken (döngü)", itme: "G ile birini iterken", darbe_alma: "vurulunca",
   yere_dusme: "can bitip yere düşerken", yerden_kalkma: "bayıldıktan sonra kalkarken",
+  tekme: "R ile tekme atarken", guclu_tekme: "güçlü tekmede", yerdekine_vurus: "yerde yatan birine vururken",
+  gard_darbe: "gard alınmışken gelen darbeyi karşılarken", kisi_gard: "kişiler kavgada gard aldığında (boşsa oyuncunun gard animasyonu)",
+  sendeleme: "bir kişi önden itilince geriye sendelerken",
+  kisi_darbe_on_bas: "kişi önden başına vurulunca", kisi_darbe_on_govde: "kişi önden gövdesine vurulunca",
+  kisi_darbe_sol: "kişi soldan vurulunca", kisi_darbe_sag: "kişi sağdan vurulunca",
+  yerden_alma: "yerdeki bir eşyayı almak için eğilirken (ilk parça)", yerden_alma_devam: "eşyayı alıp doğrulurken (ikinci parça)",
+  sandik_acma: "sandık açarken", engel_atlama: "alçak bir engelin üstünden atlarken (boşsa zıplama)",
+  tirmanma_alcak: "bel hizasında bir yere tırmanırken", tirmanma: "omuz hizasında bir yere tırmanırken",
 };
 for (const [k, ne] of Object.entries(ANIM_ACIKLAMA)) OYUNCU_ACIKLAMA["animasyonlar." + k] = `Bu animasyon ${ne} oynar. Boşsa o an animasyonsuz geçer.`;
 

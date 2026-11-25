@@ -121,6 +121,10 @@ _Oyuna sonradan eklenen ve burada adı olmayan `oyuncu.nitelikler` alanları da 
 | **Otomatik arkaya geçme** | Fare durunca kamera yavaşça karakterin arkasına döner. | açık/kapalı | `oyuncu.kamera.otomatik_takip` |
 | **…başlama gecikmesi** | Fare durduktan kaç saniye sonra kamera arkaya dönmeye başlar. | sayı (sn) | `oyuncu.kamera.otomatik_takip_gecikmesi` |
 | **…hızı** | Arkaya dönüşün hızı. | sayı (×) | `oyuncu.kamera.otomatik_takip_hizi` |
+| **Omuz kaydırma** | Kamera karakterin omzunun üstünden bakar: sağa ve yukarı kayma. Eksi sağa = sol omuz. | Sağa, Yukarı (cm) | `oyuncu.kamera.omuz_kaydirma` |
+| **Koşarken en fazla geride kalma** | Koşarken kamera karakterin en fazla bu kadar gerisinde kalır (0 = sınırsız). | sayı (cm) | `oyuncu.kamera.takip_en_fazla_geri` |
+| **Koşarken görüş genişlemesi** | Koşarken görüş açısı bu kadar genişler; hız hissi verir. | sayı (°) | `oyuncu.kamera.kosu_gorus_artisi` |
+| **Aşağıdan bakışta yaklaşma** | Aşağıdan yukarı bakarken kamera bu oranda karaktere yaklaşır (yere gömülmesin). | sayı 0–0.8 | `oyuncu.kamera.asagidan_bakista_yaklasma` |
 
 _Oyuna sonradan eklenen ve burada adı olmayan `oyuncu.kamera` alanları da kartın altında "yeni" rozetiyle görünür._
 
@@ -141,6 +145,18 @@ _Oyuna sonradan eklenen ve burada adı olmayan `oyuncu.animasyon` alanları da k
 | **Kombo açılışı** | Vuruşun hangi noktasından sonra sıradaki başlayabilir (0–1). | sayı 0–1 | `oyuncu.dovus.kombo_acilisi` |
 | **Yumruğun değdiği an** | Animasyonun hangi noktasında yumruk hedefe değer (0–1). | sayı 0–1 | `oyuncu.dovus.vurus_ani` |
 | **Güçlü yumruğun değdiği an** | Güçlü yumruk animasyonunun hangi noktasında (0–1) hedefe değer. | sayı 0–1 | `oyuncu.dovus.guclu_vurus_ani` |
+| **Tekmenin değdiği an** | Tekme animasyonunun hangi noktasında ayak hedefe değer (0–1). | sayı 0–1 | `oyuncu.dovus.tekme_vurus_ani` |
+| **Güçlü tekmenin değdiği an** | Güçlü tekmede ayağın değdiği an (0–1). | sayı 0–1 | `oyuncu.dovus.guclu_tekme_vurus_ani` |
+| **Yerdekine vuruşun değdiği an** | Yerde yatana vuruşta darbenin değdiği an (0–1). | sayı 0–1 | `oyuncu.dovus.yerde_vurus_ani` |
+| **Yumruk mesafesi** | Yumruklaşırken iki gövdenin ortası arası ideal uzaklık; oyuncu ve kişiler bu mesafeye gelir. | sayı (cm) | `oyuncu.dovus.vurus_mesafesi` |
+| **Tekme mesafesi** | Tekmede ideal uzaklık (bacak koldan uzun). Boşsa yumruk mesafesi. | sayı (cm) | `oyuncu.dovus.tekme_mesafesi` |
+| **Güçlü tekme mesafesi** | Güçlü tekmede ideal uzaklık. Boşsa yumruk mesafesi. | sayı (cm) | `oyuncu.dovus.guclu_tekme_mesafesi` |
+| **En uzak an: Yumruk 1** | Animasyonda el ya da ayağın en ileri uzandığı saniye. Erken değen vuruş buradan geri döner (uzuv hedefin içine girmez). Animasyon değişince yeniden ölçülmeli. | sayı (sn) | `oyuncu.dovus.tepe_anlari.yumruk_1` |
+| **En uzak an: Yumruk 2** | Animasyonda el ya da ayağın en ileri uzandığı saniye. Erken değen vuruş buradan geri döner (uzuv hedefin içine girmez). Animasyon değişince yeniden ölçülmeli. | sayı (sn) | `oyuncu.dovus.tepe_anlari.yumruk_2` |
+| **En uzak an: Yumruk 3** | Animasyonda el ya da ayağın en ileri uzandığı saniye. Erken değen vuruş buradan geri döner (uzuv hedefin içine girmez). Animasyon değişince yeniden ölçülmeli. | sayı (sn) | `oyuncu.dovus.tepe_anlari.yumruk_3` |
+| **En uzak an: Güçlü yumruk** | Animasyonda el ya da ayağın en ileri uzandığı saniye. Erken değen vuruş buradan geri döner (uzuv hedefin içine girmez). Animasyon değişince yeniden ölçülmeli. | sayı (sn) | `oyuncu.dovus.tepe_anlari.guclu_yumruk` |
+| **En uzak an: Tekme** | Animasyonda el ya da ayağın en ileri uzandığı saniye. Erken değen vuruş buradan geri döner (uzuv hedefin içine girmez). Animasyon değişince yeniden ölçülmeli. | sayı (sn) | `oyuncu.dovus.tepe_anlari.tekme` |
+| **En uzak an: Güçlü tekme** | Animasyonda el ya da ayağın en ileri uzandığı saniye. Erken değen vuruş buradan geri döner (uzuv hedefin içine girmez). Animasyon değişince yeniden ölçülmeli. | sayı (sn) | `oyuncu.dovus.tepe_anlari.guclu_tekme` |
 
 _Oyuna sonradan eklenen ve burada adı olmayan `oyuncu.dovus` alanları da kartın altında "yeni" rozetiyle görünür._
 
@@ -172,16 +188,54 @@ Animasyonun hangi noktasında (0 = başı, 1 = sonu) elin eşyayı tuttuğu, bı
 | **Çantaya bırakma** | Çantaya koyma animasyonunda eşyanın elden kaybolduğu an. | sayı 0–1 | `oyuncu.etkilesim.cantaya_birakma_ani` |
 | **Kapıyı itme** | Kapı açma animasyonunda kapının dönmeye başladığı an. | sayı 0–1 | `oyuncu.etkilesim.kapi_itme_ani` |
 | **Kapıyı kapama** | Kapı kapama animasyonunda kapının kapanmaya başladığı an. | sayı 0–1 | `oyuncu.etkilesim.kapi_kapama_ani` |
+| **Sandık kapağını kaldırma** | Sandık açma animasyonunda kapağın kalkmaya başladığı an. | sayı 0–1 | `oyuncu.etkilesim.sandik_acma_ani` |
+| **Yerden eşya alma** | Yerden alma animasyonunda elin eşyayı kavradığı an. | sayı 0–1 | `oyuncu.etkilesim.yerden_alma_ani` |
+| **Eşya alırken elin en alçak yeri** | Animasyonda elin inebildiği en alçak yer (ayak tabanından). Eşya daha alçaktaysa karakter belden biraz daha eğilir. | sayı (cm) | `oyuncu.etkilesim.esya_alma_el_alti` |
+| **Sandık açarken elin en alçak yeri** | Sandık açma animasyonunda elin en alçak yeri; sandık daha alçaksa karakter eğilir. | sayı (cm) | `oyuncu.etkilesim.sandik_acma_el_alti` |
+| **Eşya alma: başlangıç** | Eşya alma animasyonunun yalnız bir bölümü oynasın diye başladığı saniye. Boşsa en baştan. | sayı (sn) | `oyuncu.etkilesim.esya_alma_bas` |
+| **Eşya alma: bitiş** | Eşya alma animasyonunun bittiği saniye. Boşsa sonuna kadar. Yukarıdaki "an"lar bu aralığa göredir. | sayı (sn) | `oyuncu.etkilesim.esya_alma_son` |
+| **Sandık açma: başlangıç** | Sandık açma animasyonunun yalnız bir bölümü oynasın diye başladığı saniye. Boşsa en baştan. | sayı (sn) | `oyuncu.etkilesim.sandik_acma_bas` |
+| **Sandık açma: bitiş** | Sandık açma animasyonunun bittiği saniye. Boşsa sonuna kadar. Yukarıdaki "an"lar bu aralığa göredir. | sayı (sn) | `oyuncu.etkilesim.sandik_acma_son` |
+| **Kapı açma: başlangıç** | Kapı açma animasyonunun yalnız bir bölümü oynasın diye başladığı saniye. Boşsa en baştan. | sayı (sn) | `oyuncu.etkilesim.kapi_acma_bas` |
+| **Kapı açma: bitiş** | Kapı açma animasyonunun bittiği saniye. Boşsa sonuna kadar. Yukarıdaki "an"lar bu aralığa göredir. | sayı (sn) | `oyuncu.etkilesim.kapi_acma_son` |
+| **Kapı kapama: başlangıç** | Kapı kapama animasyonunun yalnız bir bölümü oynasın diye başladığı saniye. Boşsa en baştan. | sayı (sn) | `oyuncu.etkilesim.kapi_kapama_bas` |
+| **Kapı kapama: bitiş** | Kapı kapama animasyonunun bittiği saniye. Boşsa sonuna kadar. Yukarıdaki "an"lar bu aralığa göredir. | sayı (sn) | `oyuncu.etkilesim.kapi_kapama_son` |
+| **Çantaya koyma: başlangıç** | Çantaya koyma animasyonunun yalnız bir bölümü oynasın diye başladığı saniye. Boşsa en baştan. | sayı (sn) | `oyuncu.etkilesim.cantaya_koyma_bas` |
+| **Çantaya koyma: bitiş** | Çantaya koyma animasyonunun bittiği saniye. Boşsa sonuna kadar. Yukarıdaki "an"lar bu aralığa göredir. | sayı (sn) | `oyuncu.etkilesim.cantaya_koyma_son` |
 
 _Oyuna sonradan eklenen ve burada adı olmayan `oyuncu.etkilesim` alanları da kartın altında "yeni" rozetiyle görünür._
+
+#### Bankta oturma
+
+Oyuncu (ve kişiler) banka yürür, arkasını döner, otur-kalk animasyonunun oturuş bölümüyle oturur; otururken bekleme hareketleri sırayla değişir. Mesafeler cm, süreler saniye.
+
+| Alan | Ne işe yarar | Tür / birim | Dosyadaki adı |
+|---|---|---|---|
+| **Otur-kalk animasyonu** | Oturma ve kalkma bölümlerini içeren tek animasyon. | Unreal yolu | `oyuncu.oturma.gecis_animasyonu` |
+| **Oturuş: başlangıç** | Otur-kalk animasyonunda oturmanın başladığı saniye. | sayı (sn) | `oyuncu.oturma.oturus_baslangici` |
+| **Oturuş: bitiş** | Oturmanın bittiği saniye. | sayı (sn) | `oyuncu.oturma.oturus_sonu` |
+| **Kalkış: başlangıç** | Kalkmanın başladığı saniye. | sayı (sn) | `oyuncu.oturma.kalkis_baslangici` |
+| **Kalkış: bitiş** | Kalkmanın bittiği saniye. | sayı (sn) | `oyuncu.oturma.kalkis_sonu` |
+| **Banka yürüme hızı** | Banka giderken yürüme hızının katı (0,75 = biraz yavaş). | sayı (×) | `oyuncu.oturma.yaklasma_hizi` |
+| **Otururken bekleme hareketleri** | Otururken sırayla (rastgele) oynayan animasyonlar. Boşsa Animasyonlar kartındaki "Bankta oturma". | Unreal yolu listesi | `oyuncu.oturma.beklemeler` |
+| **Otururken konuşma** | Oyuncu oturan biriyle konuşunca onun oynadığı animasyon. | Unreal yolu | `oyuncu.oturma.konusma` |
+| **Animasyonun oturak yüksekliği** | Oturma animasyonlarının yapıldığı oturak yüksekliği (42). Daha yüksek sandalyede oturan o kadar kaldırılır. | sayı (cm) | `oyuncu.oturma.animasyon_oturak_yuksekligi` |
+| **Kalça ayakların gerisinde** | Animasyonda kalçanın ayakların ne kadar gerisinde olduğu (ölçüm yokken kullanılır). | sayı (cm) | `oyuncu.oturma.kalca_geride` |
+| **Arkalıktan uzaklık** | Kalça arkalıktan en az bu kadar önde durur. | sayı (cm) | `oyuncu.oturma.arkaliktan` |
+| **Kalça yüzeyin üstünde** | Kalça kemiği oturma yüzeyinin bu kadar üstünde durur; karakter oturağa gömülüyorsa artır, havada duruyorsa azalt. | sayı (cm) | `oyuncu.oturma.kalca_yuksekligi` |
+| **Dizlerin ön kenardan payı** | Dizler oturağın ön kenarından en az bu kadar önde (baldır kenarın içinden geçmesin). | sayı (cm) | `oyuncu.oturma.diz_payi` |
+| **Diz kalçanın önünde** | Ölçüm yokken dizin kalçanın önündeki uzaklığı. | sayı (cm) | `oyuncu.oturma.diz_onde` |
+| **Ellerin uzandığı mesafe** | Otururken ellerin kalçanın önüne uzandığı en büyük mesafe; önde masa varsa kalça masa kenarından en az bu kadar geride durur. | sayı (cm) | `oyuncu.oturma.el_onde` |
+
+_Oyuna sonradan eklenen ve burada adı olmayan `oyuncu.oturma` alanları da kartın altında "yeni" rozetiyle görünür._
 
 #### Çanta
 
 | Alan | Ne işe yarar | Tür / birim | Dosyadaki adı |
 |---|---|---|---|
 | **Çantayı göster** | Oyuncunun sırtında çanta görünsün mü? | açık/kapalı | `oyuncu.canta.goster` |
-| **Konum** | Kapsül merkezine göre. | 3 sayı (cm) | `oyuncu.canta.konum` |
-| **Boyut** | Çanta kutusunun eni, boyu, yüksekliği. | 3 sayı (cm) | `oyuncu.canta.boyut` |
+| **Konum** | Kapsül merkezine göre. | İleri, Sağ, Yukarı (cm) | `oyuncu.canta.konum` |
+| **Boyut** | Çanta kutusunun eni, boyu, yüksekliği. | X, Y, Z (cm) | `oyuncu.canta.boyut` |
 | **Renk** | Çantanın rengi. | renk | `oyuncu.canta.renk` |
 
 #### Animasyonlar
@@ -215,6 +269,22 @@ Her hareketin Unreal animasyon yolu. Boş bırakılan atlanır.
 | **Darbe alma (vurulunca)** | Bu animasyon vurulunca oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.darbe_alma` |
 | **Yere düşme** | Bu animasyon can bitip yere düşerken oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.yere_dusme` |
 | **Yerden kalkma** | Bu animasyon bayıldıktan sonra kalkarken oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.yerden_kalkma` |
+| **Tekme (R)** | Bu animasyon R ile tekme atarken oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.tekme` |
+| **Güçlü tekme** | Bu animasyon güçlü tekmede oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.guclu_tekme` |
+| **Yerdekine vuruş** | Bu animasyon yerde yatan birine vururken oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.yerdekine_vurus` |
+| **Gardda darbe karşılama** | Bu animasyon gard alınmışken gelen darbeyi karşılarken oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.gard_darbe` |
+| **Kişilerin gard duruşu** | Bu animasyon kişiler kavgada gard aldığında (boşsa oyuncunun gard animasyonu) oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.kisi_gard` |
+| **Sendeleme (itilince)** | Bu animasyon bir kişi önden itilince geriye sendelerken oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.sendeleme` |
+| **Kişi: önden başa darbe** | Bu animasyon kişi önden başına vurulunca oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.kisi_darbe_on_bas` |
+| **Kişi: önden gövdeye darbe** | Bu animasyon kişi önden gövdesine vurulunca oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.kisi_darbe_on_govde` |
+| **Kişi: soldan darbe** | Bu animasyon kişi soldan vurulunca oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.kisi_darbe_sol` |
+| **Kişi: sağdan darbe** | Bu animasyon kişi sağdan vurulunca oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.kisi_darbe_sag` |
+| **Yerden alma (eğilme)** | Bu animasyon yerdeki bir eşyayı almak için eğilirken (ilk parça) oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.yerden_alma` |
+| **Yerden alma (doğrulma)** | Bu animasyon eşyayı alıp doğrulurken (ikinci parça) oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.yerden_alma_devam` |
+| **Sandık açma** | Bu animasyon sandık açarken oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.sandik_acma` |
+| **Engelin üstünden atlama** | Bu animasyon alçak bir engelin üstünden atlarken (boşsa zıplama) oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.engel_atlama` |
+| **Alçak yere tırmanma** | Bu animasyon bel hizasında bir yere tırmanırken oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.tirmanma_alcak` |
+| **Yüksek yere tırmanma** | Bu animasyon omuz hizasında bir yere tırmanırken oynar. Boşsa o an animasyonsuz geçer. | Unreal yolu | `oyuncu.animasyonlar.tirmanma` |
 
 _Oyuna sonradan eklenen ve burada adı olmayan `oyuncu.animasyonlar` alanları da kartın altında "yeni" rozetiyle görünür._
 
@@ -345,10 +415,45 @@ _Oyuna sonradan eklenen ve burada adı olmayan `sesler` alanları da kartın alt
 
 | Alan | Ne işe yarar | Tür / birim | Dosyadaki adı |
 |---|---|---|---|
-| **Başlangıç noktası** | Yeni oyunda oyuncunun belirdiği nokta (x sağ, y yukarı, z ileri; metre). Krokide sürüklenebilir. | 3 sayı (m) | `baslangic.konum` |
+| **Başlangıç noktası** | Yeni oyunda oyuncunun belirdiği nokta (x sağ, y yukarı, z ileri; metre). Krokide sürüklenebilir. | X, Y, Z (m) | `baslangic.konum` |
 | **Başlangıç yönü** | Oyuncunun başlangıçta baktığı yön. | sayı (°) | `baslangic.aci` |
 | **Bitiş kemeri (z)** | Bitiş kemerinin yol üstündeki yeri. Oyuncu buradan geçince bölüm biter (seviye zemini kapalıyken). | sayı (m) | `bitis.z` |
 | **Bitiş yazısı** | Bitişe varınca ekranda çıkan yazı. | yazı | `bitis.metin` |
+
+### Genel → Arayüz (`arayuz.json`)
+
+#### Renkler
+
+Menülerin ve oyun içi yazıların renkleri. Boş bırakılan renk oyunun kendi rengini kullanır. Kaydırıcı saydamlığı ayarlar.
+
+| Alan | Ne işe yarar | Tür / birim | Dosyadaki adı |
+|---|---|---|---|
+| **Yazı** | Menü ve ekrandaki genel yazı rengi. | renk (saydamlıkla; boş = varsayılan) | `renkler.yazi` |
+| **Vurgu** | Seçili menü satırı, başlıklar ve önemli yazılar. | renk (saydamlıkla; boş = varsayılan) | `renkler.vurgu` |
+| **Panel** | Menü kutularının ve pencerelerin arka planı (yarı saydam olabilir). | renk (saydamlıkla; boş = varsayılan) | `renkler.panel` |
+| **Soluk yazı** | İpuçları ve ikinci derecede yazılar. | renk (saydamlıkla; boş = varsayılan) | `renkler.soluk` |
+| **Olumlu** | Başarı ve onay yazıları (ör. görev tamamlandı). | renk (saydamlıkla; boş = varsayılan) | `renkler.olumlu` |
+| **Menü şeridi** | Ana menüde seçeneklerin durduğu şeridin rengi. | renk (saydamlıkla; boş = varsayılan) | `renkler.menu_seridi` |
+| **Karartma** | Menü açıkken oyunun üstüne çekilen perde (genelde yarı saydam siyah). | renk (saydamlıkla; boş = varsayılan) | `renkler.karartma` |
+| **Pasif** | Seçilemeyen (henüz açılmamış) menü satırları. | renk (saydamlıkla; boş = varsayılan) | `renkler.pasif` |
+
+#### Yazı tipleri, logo ve müzik
+
+| Alan | Ne işe yarar | Tür / birim | Dosyadaki adı |
+|---|---|---|---|
+| **Büyük yazı tipi** | Başlıklar ve menü seçenekleri. Boşsa motorun yazı tipi. | Unreal yolu | `yazi_tipleri.buyuk` |
+| **Orta yazı tipi** | Açıklamalar ve ekrandaki küçük yazılar. Boşsa motorun yazı tipi. | Unreal yolu | `yazi_tipleri.orta` |
+| **Logo** | Ana menüde oyunun adının yerine görünen resim (doku). Boşsa ad yazıyla çıkar. | Unreal yolu | `logo` |
+| **Menü müziği** | Ana menüde dönen müzik. Boşsa menü sessiz. | Unreal yolu | `menu_muzigi` |
+
+#### Ana menü sahnesi
+
+Ana menüde arkada duran karakterin ışığı.
+
+| Alan | Ne işe yarar | Tür / birim | Dosyadaki adı |
+|---|---|---|---|
+| **Işığa göre duruş açısı** | Karakter güneşe (gece aya) dönük durur; yüzü ile ışık arasındaki açı. 0 = ışık tam karşıdan, düz; büyüdükçe yüzde gölge artar. | sayı (°) | `menu_sahnesi.gunese_aci` |
+| **Dolgu ışığı** | Kameranın yanındaki gölgesiz yumuşak ışık; yüzdeki koyu gölgeleri açar. 0 = kapalı. | sayı (kandela) | `menu_sahnesi.dolgu_isigi` |
 
 <!-- OTOMATIK BITTI -->
 
@@ -448,7 +553,17 @@ Açılabilir sandıklar. Açınca içindeki eşya çantaya girer.
 | **Beden (MetaHuman)** | O kişinin Unreal bedeni. Boşsa oyuncunun bedenini kullanır. |
 | **Animasyon Blueprint'i** | Kişiye özel animasyon düzeni. Boşsa oyuncununki. |
 
-## 8. Kroki (haritanın kuşbakışı çizimi)
+## 8. Genel → Arayüz: Yapımcılar ekranı
+
+Renkler, yazı tipleri, logo, müzik ve ana menü ışığı 1. bölümün sonundaki "Genel → Arayüz" tablolarında.
+
+| Alan | Ne işe yarar |
+|---|---|
+| **Bölüm başlığı** | Yapımcılar ekranındaki bir başlık (ör. "Animasyonlar"). Oklarla sıralanır, çöp kutusuyla silinir. |
+| **Satır: sol sütun** | İş ya da eser (ör. "Unreal Engine 5"). |
+| **Satır: sağ sütun** | Kişi ya da kaynak (ör. "Epic Games"). Boşsa satır tek sütun yazılır. Dosyada iki sütun `Sol \| Sağ` olarak saklanır. |
+
+## 9. Kroki (haritanın kuşbakışı çizimi)
 
 Kişiler, Eşyalar, Sandıklar ve Mekânlar sekmelerinin üstünde durur. Fare tekerleği yakınlaştırır, boş yeri sürüklemek kaydırır,
 **Sığdır** her şeyi gösterir, **Yakın görünüm** kalabalık bölgeye odaklanır. Yalnız açık sekmenin nesneleri tutulup sürüklenebilir;

@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Undo2, Redo2, Save, FolderOpen, Home, Users, Map as HaritaIkon, MessageSquare, FileJson, Settings2, UserRound, Package,
-  Plus, Trash2, Copy, Box, Flag, DoorOpen, AlertTriangle, RotateCcw, Hand,
+  Plus, Trash2, Copy, Box, Flag, DoorOpen, AlertTriangle, RotateCcw, Hand, Palette,
 } from "lucide-react";
 import { useDurum } from "../depo/durum";
 import { useOyun } from "./durum";
@@ -17,6 +17,8 @@ import {
 import { Kart, RenkGiris } from "../editor/Ortak";
 import { AlanGirisi, AlanSatiri, KimlikGiris, PuanDuzenleyici, SayiAlani, Uyarilar, VektorAlani, YaziAlani } from "./girisler";
 import { Kroki } from "./Kroki";
+import { GrupKarti } from "./GrupKarti";
+import { ArayuzSayfasi } from "./Arayuz";
 import { KisilerListesi as HaritaKisileri } from "./Kisiler";
 import { GorevlerListesi, SandiklarListesi } from "./SandiklarGorevler";
 import { MekanlarListesi } from "./Mekanlar";
@@ -24,36 +26,6 @@ import { MenuCubugu } from "../editor/Cerceve";
 import { komut, kullanilabilir } from "../editor/komutlar";
 
 
-/** Bir şema grubunu kart olarak çizer. `onEk` dosya içindeki kök yol (ör. "oyuncu"). */
-function GrupKarti({ grup, dosya, onEk, kok, tanimli }: { grup: Grup; dosya: string; onEk: string; kok: any; tanimli: Set<string> }) {
-  const degistir = useOyun.getState().degistir;
-  const tam = (yol: string) => (onEk ? onEk + "." + yol : yol);
-  const yaz = (yol: string, v: unknown) => degistir(dosya, d => yolYaz(d, tam(yol), v), "alan:" + dosya + ":" + tam(yol));
-  // Şemada olmayan ama dosyada bulunan alanlar (oyuna sonradan eklenenler)
-  const digerleri: [string, Alan][] = [];
-  if (grup.digerleri) {
-    const sozluk = yolOku(kok, grup.digerleri.yol);
-    if (sozluk && typeof sozluk === "object" && !Array.isArray(sozluk)) {
-      for (const [k, v] of Object.entries(sozluk)) {
-        const yol = grup.digerleri.yol ? grup.digerleri.yol + "." + k : k;
-        if (tanimli.has(yol)) continue;
-        if (v !== null && typeof v === "object") continue;   // iç içe sözlükler kendi kartlarında
-        const tur = typeof v === "number" ? "sayi" : typeof v === "string" && k === "not" ? "yazi" : grup.digerleri.tur;
-        digerleri.push([yol, tur === "sayi" ? { tur: "sayi", ad: k } : tur === "unreal" ? { tur: "unreal", ad: k } : { tur: "yazi", ad: k }]);
-      }
-    }
-  }
-  return (
-    <Kart baslik={grup.baslik} acikBaslar={grup.acikBaslar ?? false}>
-      {grup.aciklama && <div className="grup-aciklama">{grup.aciklama}</div>}
-      {[...grup.alanlar, ...digerleri].map(([yol, alan]) => (
-        <AlanSatiri key={yol} alan={alan} yeni={digerleri.some(d => d[0] === yol)}>
-          <AlanGirisi alan={alan} deger={yolOku(kok, yol)} degisti={v => yaz(yol, v)} testId={"alan-" + tam(yol)} />
-        </AlanSatiri>
-      ))}
-    </Kart>
-  );
-}
 
 
 function SayfaSekmeleri<T extends string>({ sekmeler, aktif, sec }: { sekmeler: { id: T; ad: string; ikon: ReactNode; sayi?: number }[]; aktif: T; sec: (t: T) => void }) {
@@ -262,13 +234,14 @@ function HamGorunum({ dosya }: { dosya: string }) {
 // ================================================================== ekran
 const dosyaIkonu = (yol: string) => {
   const t = dosyaTuru(yol);
-  return t === "karakterler" ? <Users size={14} /> : t === "harita" ? <HaritaIkon size={14} /> : t === "diyalog" ? <MessageSquare size={14} /> : <FileJson size={14} />;
+  return t === "karakterler" ? <Users size={14} /> : t === "arayuz" ? <Palette size={14} /> : t === "harita" ? <HaritaIkon size={14} /> : t === "diyalog" ? <MessageSquare size={14} /> : <FileJson size={14} />;
 };
 const dosyaAdi = (yol: string, veri: any) => {
   const t = dosyaTuru(yol);
   if (t === "karakterler") return "Karakterler";
   if (t === "oyun") return "Genel (ölçekler)";
   if (t === "karakter_olusturma") return "Karakter oluşturma";
+  if (t === "arayuz") return "Arayüz (menü ve ekran)";
   return veri?.ad || veri?.id || yol.split("/").pop()!.replace(/\.json$/, "");
 };
 
@@ -281,6 +254,7 @@ function DosyaListesi() {
     ["Karakterler", dosyalar.filter(d => dosyaTuru(d) === "karakterler")],
     ["Haritalar", dosyalar.filter(d => dosyaTuru(d) === "harita")],
     ["Diyaloglar", dosyalar.filter(d => dosyaTuru(d) === "diyalog")],
+    ["Genel", dosyalar.filter(d => dosyaTuru(d) === "arayuz")],
     ["Diğer", dosyalar.filter(d => ["oyun", "karakter_olusturma", "diger"].includes(dosyaTuru(d)))],
   ];
   return (
@@ -288,7 +262,7 @@ function DosyaListesi() {
       {gruplar.filter(([, l]) => l.length).map(([baslik, liste]) => <div key={baslik}>
         <div className="liste-baslik">{baslik}</div>
         {liste.map(d => {
-          const duzenlenir = ["karakterler", "harita"].includes(dosyaTuru(d));
+          const duzenlenir = ["karakterler", "harita", "arayuz"].includes(dosyaTuru(d));
           return (
             <div key={d} className={"satir" + (d === acik ? " secili" : "")} onClick={() => useOyun.getState().dosyaAc(d)} data-testid={"dosya-" + d} title={d}>
               {dosyaIkonu(d)}<span className="ad" style={duzenlenir ? undefined : { color: "var(--yazi3)" }}>{dosyaAdi(d, veri[d])}</span>
@@ -355,6 +329,7 @@ export function OyunIcerigiEkrani() {
           {!acik ? <div className="bos-durum">Soldan bir dosya seç.</div>
             : tur === "karakterler" ? <KarakterlerSayfasi dosya={acik} />
             : tur === "harita" ? <HaritaSayfasi key={acik} dosya={acik} />
+            : tur === "arayuz" ? <ArayuzSayfasi dosya={acik} />
             : <HamGorunum dosya={acik} />}
         </div>
       </div>

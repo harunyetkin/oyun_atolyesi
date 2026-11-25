@@ -57,7 +57,7 @@ export const useOyun = create<OyunDurum>((set, get) => ({
       catch { /* bozuk JSON: listede kalır, açılınca uyarı gösterilir */ }
     }
     const onceki = get().acik;
-    const acik = onceki && onceki in veri ? onceki : dosyalar.find(d => d in veri) || null;
+    const acik = onceki && onceki in veri ? onceki : ("karakterler.json" in veri ? "karakterler.json" : dosyalar.find(d => d in veri) || null);  // ilk açılışta Karakterler
     set({ depo, klasor, dosyalar, veri, kayitli, acik, secili: null, geri: [], ileri: [] });
   },
 

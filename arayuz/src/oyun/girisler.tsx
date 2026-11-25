@@ -75,17 +75,51 @@ export function Anahtar({ deger, degisti, alan, testId }: { deger: unknown; degi
 }
 
 export function VektorAlani({ deger, degisti, alan }: { deger: unknown; degisti: (v: number[]) => void; alan: Extract<Alan, { tur: "vektor" }> }) {
-  const v = Array.isArray(deger) && deger.length === 3 ? (deger as number[]) : [0, 0, 0];
   const eksen = alan.eksenler || ["X", "Y", "Z"];
+  const n = eksen.length;
+  const v = Array.isArray(deger) && deger.length === n ? (deger as number[]) : new Array(n).fill(0);
   return (
     <div className="vektor">
-      {[0, 1, 2].map(i => (
-        <div key={i} className="sayi-giris" title={eksen[i]}>
-          <span>{eksen[i]}</span>
-          <SayiKutusu deger={v[i]} degisti={n => { const y = [...v]; y[i] = n; degisti(y); }} />
+      {eksen.map((ad, i) => (
+        <div key={i} className="sayi-giris" title={ad}>
+          <span>{ad}</span>
+          <SayiKutusu deger={v[i]} degisti={x => { const y = [...v]; y[i] = x; degisti(y); }} />
         </div>
       ))}
       {alan.birim && <span className="birim">{alan.birim}</span>}
+    </div>
+  );
+}
+
+const RENK6 = /^#[0-9a-f]{6}$/i, RENK8 = /^#[0-9a-f]{8}$/i;
+/** Boş bırakılabilen (oyunun varsayılanı) ve isteğe bağlı saydamlığı olan renk kutusu (#rrggbb ya da #rrggbbaa). */
+export function RenkAlani({ deger, degisti, alan, testId }: { deger: unknown; degisti: (v: string) => void; alan: Extract<Alan, { tur: "renk" }>; testId?: string }) {
+  const d = typeof deger === "string" && (RENK6.test(deger) || (alan.saydam && RENK8.test(deger))) ? deger.toLowerCase() : "";
+  const temel = d ? d.slice(0, 7) : "#808080";
+  const saydamlik = d.length === 9 ? parseInt(d.slice(7), 16) : 255;
+  const [metin, setMetin] = useState(d);
+  useEffect(() => setMetin(d), [d]);
+  const yap = (renk: string, a: number) => renk + (alan.saydam && a < 255 ? Math.round(a).toString(16).padStart(2, "0") : "");
+  const uygula = () => {
+    const t = metin.trim().toLowerCase();
+    if (t === "" && alan.bosOlabilir) { if (d) degisti(""); return; }
+    if (RENK6.test(t) || (alan.saydam && RENK8.test(t))) { if (t !== d) degisti(t); return; }
+    setMetin(d);
+  };
+  return (
+    <div className="alan-satir" data-testid={testId}>
+      <input type="color" value={temel} onChange={e => degisti(yap(e.target.value, saydamlik))} title="Renk seç" />
+      <input className="giris" style={{ width: 110, flex: "none" }} value={metin} placeholder={alan.bosOlabilir ? "varsayılan" : ""}
+        onChange={e => setMetin(e.target.value)} onBlur={uygula} onKeyDown={e => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+        data-testid={testId && testId + "-metin"} />
+      {alan.saydam && d && <>
+        <input type="range" min={0} max={255} value={saydamlik} title="Görünürlük (sağ = tam opak)" style={{ width: 90 }}
+          onChange={e => degisti(yap(temel, Number(e.target.value)))} data-testid={testId && testId + "-saydam"} />
+        <span className="birim">%{Math.round(saydamlik / 2.55)}</span>
+      </>}
+      {alan.bosOlabilir && (d
+        ? <button className="dugme hayalet" onClick={() => degisti("")} title="Oyunun kendi rengine dön" data-testid={testId && testId + "-sifirla"}>varsayılana dön</button>
+        : <span className="soluk" style={{ fontSize: 11 }}>oyunun varsayılanı</span>)}
     </div>
   );
 }
@@ -104,9 +138,11 @@ export function AlanGirisi({ alan, deger, degisti, testId }: { alan: Alan; deger
   switch (alan.tur) {
     case "sayi": return <SayiAlani alan={alan} deger={deger} degisti={degisti} testId={testId} />;
     case "anahtar": return <Anahtar alan={alan} deger={deger} degisti={degisti} testId={testId} />;
-    case "renk": return <RenkGiris deger={typeof deger === "string" && /^#[0-9a-f]{6}$/i.test(deger) ? deger : "#808080"} degisti={degisti} />;
+    case "renk": return alan.bosOlabilir || alan.saydam ? <RenkAlani alan={alan} deger={deger} degisti={degisti} testId={testId} />
+      : <RenkGiris deger={typeof deger === "string" && /^#[0-9a-f]{6}$/i.test(deger) ? deger : "#808080"} degisti={degisti} />;
     case "vektor": return <VektorAlani alan={alan} deger={deger} degisti={degisti} />;
     case "unreal": return <YaziAlani deger={deger} degisti={degisti} ipucu={alan.ipucu} uyari={unrealYoluSorunu(String(deger ?? ""))} testId={testId} />;
+    case "yollar": return <MetinListesi liste={deger as string[]} degisti={degisti} ipucu={alan.ipucu} ekleYazisi="Yol ekle" testId={testId} />;
     case "yazi": return <YaziAlani deger={deger} degisti={degisti} ipucu={alan.ipucu} cokSatir={alan.cokSatir} testId={testId} />;
   }
 }
@@ -114,7 +150,7 @@ export function AlanGirisi({ alan, deger, degisti, testId }: { alan: Alan; deger
 export function AlanSatiri({ alan, yeni, children }: { alan: Alan; yeni?: boolean; children: ReactNode }) {
   return <>
     <label title={alan.aciklama}>{alan.ad}{yeni && <span className="rozet" style={{ marginLeft: 6 }} title="Bu alanın açıklaması henüz yok">yeni</span>}</label>
-    <div>{children}{alan.aciklama && alan.tur !== "unreal" && <div className="alan-aciklama">{alan.aciklama}</div>}</div>
+    <div>{children}{alan.aciklama && alan.tur !== "unreal" && alan.tur !== "yollar" && <div className="alan-aciklama">{alan.aciklama}</div>}</div>
   </>;
 }
 

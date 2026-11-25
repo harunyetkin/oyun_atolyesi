@@ -229,3 +229,21 @@ describe("oyun içeriği durumu", () => {
     expect(useOyun.getState().degisenler()).toEqual([]);
   });
 });
+
+describe("arayüz (arayuz.json) yardımcıları", () => {
+  it("yapımcı satırını iki sütuna ayırır ve geri birleştirir", async () => {
+    const { satirAyir, satirBirlestir, tasi } = await import("./Arayuz");
+    expect(satirAyir("Unreal Engine 5 | Epic Games")).toEqual(["Unreal Engine 5", "Epic Games"]);
+    expect(satirAyir("Bütün varlıklar: KREDILER.md")).toEqual(["Bütün varlıklar: KREDILER.md", ""]);
+    expect(satirBirlestir("Ses ", " kodla üretildi")).toBe("Ses | kodla üretildi");
+    expect(satirBirlestir("Tek sütun", "  ")).toBe("Tek sütun");
+    expect(tasi(["a", "b", "c"], 0, 1)).toEqual(["b", "a", "c"]);
+    expect(tasi(["a", "b"], 0, -1)).toEqual(["a", "b"]);
+  });
+  it("arayuz.json dosya türü tanınır; şemadaki her alan örnek dosyada var", async () => {
+    const { ARAYUZ_GRUPLARI } = await import("./sema");
+    expect(dosyaTuru("arayuz.json")).toBe("arayuz");
+    const ornek = ORNEK_ICERIK["arayuz.json"];
+    for (const g of ARAYUZ_GRUPLARI) for (const [yol] of g.alanlar) expect(yolOku(ornek, yol), yol).not.toBeUndefined();
+  });
+});

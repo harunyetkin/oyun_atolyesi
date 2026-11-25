@@ -16,9 +16,6 @@ Her madde yaklaşık bir günlük çalışmadır. Sıra önemlidir; üstten baş
       4. **Kaydet** JSON'u yazar ve `yanki/Yanki.html`'i gömülü içerikle yeniden üretir (Python'da, `tek_dosya.py` mantığı; Node gerekmez)
          ve `yanki/oyun/icerik.json`'u günceller. **Oyna** düğmesi Yanki.html'i (ya da seçili bölümü) tarayıcıda açar.
       5. Birim testleri (biçim, geçit denetimi) ve arayüz testi; KULLANIM_KILAVUZU'na "Yankı düzenleyicisi" bölümü.
-- [ ] Yeni dosyalar: **`arayuz.json`** (renkler, yazı tipleri, logo, menü müziği, yapımcılar, `menu_sahnesi`) düzenleyicisi;
-      karakterler.json'daki yeni oyuncu alanları (`oturma.*`, `dovus.tekme_*`, `kamera.omuz_kaydirma` vb.) için şema açıklamaları
-      (şimdilik "yeni" rozetiyle görünüyorlar); `tasarim/` klasörü (malzemeler.json, karakterler.json) okunur liste.
 - [ ] Oyunun yeni alanları, kalanlar: karakterler.json **`secilebilir_govdeler`** (ana menüdeki karakter seçimi: ad, beden, puanlar,
       `unreal_ekipman[]`: `karisim`, `sarkac`, `dusunce_birak`…), yeni dosya **`modeller.json`** (model çarpışma silindirleri; okunur liste + düzenleme).
 - [ ] **(Harun'un hedefi 2026-11-25: oynanış testinde her değişikliği Atölye'den yapmak)** Unreal seviyesine elle konmuş binaları ve
@@ -73,6 +70,7 @@ Oyun 2026-11-15'te bu içerik türleriyle oynanabilir oldu; araçta her biri iç
 - [ ] Kabul testi: Kanat Çırp'ı araçta sıfırdan kur, `ornekler/kanat_cirp.json` olarak kaydet, otomatik testle oynat
 
 ## Tamamlandı
+- [x] 2026-11-26 (gece) — **arayuz.json düzenleyicisi** (renkler boş/saydam, yazı tipleri, logo, müzik, ana menü ışığı, yapımcılar) ve oyuncunun 59 yeni alanının şeması (bankta oturma, omuz kamerası, tekme, en uzak anlar, etkileşim bölümleri, 16 animasyon). (`tasarim/` klasörü oyunda artık yok; madde düştü.)
 - [x] 2026-11-24 (gece) — **Mekânlar (v0.8):** Harita → **Mekânlar** sekmesi (`Mekanlar.tsx`): **kapılar ve geçişler** (yazı, kapının yeri,
       gidilen yer, bakış yönü; dönüş kapısına atlama; "kapı çifti ekle" giriş + dönüş, `gecisCiftiEkle`, `donusGecisi`), **iç mekânlar**
       (kimlik, ad, Unreal seviyesi, konum, açı, silme kutusu), **meşaleler** (direk/duvar, yer, yükseklik, yön; ortak ışık gücü ve erim),

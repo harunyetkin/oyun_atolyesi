@@ -1,6 +1,47 @@
 // Tarayıcı testinde (?test=1) kullanılan örnek oyun içeriği.
-// Oyunun (hikaye_oyun) icerik/ klasöründen 2026-11-16'da kopyalandı (kişiler, kalabalık, sandık, görev ve sesler 2026-11-17'de yenilendi; nitelikler, gün-gece ve bir örnek günlük program 2026-11-22'de; geçiş, meşale, zemin ve iç mekân örnekleri 2026-11-24'te eklendi); harita kısaltıldı.
+// Oyunun (hikaye_oyun) icerik/ klasöründen 2026-11-16'da kopyalandı (kişiler, kalabalık, sandık, görev ve sesler 2026-11-17'de yenilendi; nitelikler, gün-gece ve bir örnek günlük program 2026-11-22'de; geçiş, meşale, zemin ve iç mekân örnekleri 2026-11-24'te eklendi; arayuz.json ve oyuncunun oturma/kamera alanları 2026-11-26'da); harita kısaltıldı.
 export const ORNEK_ICERIK: Record<string, any> = {
+ "arayuz.json": {
+  "_aciklama": "Arayüzün görünüşü. Tasarım değişince yalnız bu dosya değişir, kod değişmez. Renkler #rrggbb ya da #rrggbbaa; boş bırakılan renk varsayılan kalır. yazi_tipleri: Unreal yazı tipi varlığının yolu (/Game/...); boşsa motorun yazı tipi. logo: ana menüde oyun adının yerine görünen doku (/Game/...); boşsa ad yazılır. menu_muzigi: ana menüde çalan ses (/Game/...); boşsa sessiz.",
+  "renkler": {
+   "yazi": "",
+   "vurgu": "#e8b44a",
+   "panel": "",
+   "soluk": "",
+   "olumlu": "",
+   "menu_seridi": "",
+   "karartma": "",
+   "pasif": ""
+  },
+  "yazi_tipleri": {
+   "buyuk": "",
+   "orta": ""
+  },
+  "logo": "",
+  "menu_muzigi": "",
+  "menu_sahnesi": {
+   "_aciklama": "Ana menüde karakterin ışığı. gunese_aci: karakter güneşe (gece aya) dönük durur, yüzü ile ışık arasındaki açı (derece; 0 = tam karşıdan, düz). dolgu_isigi: kameranın yanındaki gölgesiz yumuşak ışığın gücü (kandela; 0 = kapalı).",
+   "gunese_aci": 35,
+   "dolgu_isigi": 60
+  },
+  "yapimcilar": [
+   {
+    "baslik": "Geliştirme",
+    "satirlar": [
+     "Tasarım ve yapım | Harun",
+     "Programlama | Claude (Anthropic)"
+    ]
+   },
+   {
+    "baslik": "Motor ve karakterler",
+    "satirlar": [
+     "Unreal Engine 5 | Epic Games",
+     "MetaHuman karakterleri | Epic Games",
+     "MetaHuman kıyafetleri | Epic Games, Fab"
+    ]
+   }
+  ]
+ },
  "oyun.json": {
   "surum": 1,
   "ad": "Hikâye Oyunu",
@@ -1089,3 +1130,7 @@ export const ORNEK_ICERIK: Record<string, any> = {
   }
  }
 };
+
+// 2026-11-26: oyuncunun yeni alanları (bankta oturma, omuz kamerası) — oyundaki karakterler.json'dan.
+ORNEK_ICERIK["karakterler.json"].oyuncu.oturma = {"not": "Bankta oturma (Park Life). Oyuncu banka yürür, arkasını döner, geçiş animasyonunun 'oturus' bölümüyle oturur; otururken 'beklemeler' sırayla (rastgele) değişir; kalkarken 'kalkis' bölümü oynar. Süreler saniye. Kişiler de aynı ayarları kullanır; oyuncu oturan biriyle konuşunca 'konusma' oynar. Relax_03/04/05 kolu yandaki arkalığa atıyor (bizim banklarda kolun koyacağı yer yok), bu yüzden listede değil.", "gecis_animasyonu": "/Game/Animasyonlar/Fab/Park/PRK_Bench_Sit_Stand_Sit_01_MH", "oturus_baslangici": 19.6, "oturus_sonu": 22.6, "kalkis_baslangici": 3.6, "kalkis_sonu": 6.0, "yaklasma_hizi": 0.75, "animasyon_oturak_yuksekligi": 42, "kalca_geride": 45, "arkaliktan": 12, "kalca_yuksekligi": 11, "diz_payi": 15, "diz_onde": 44, "el_onde": 38, "beklemeler": ["/Game/Animasyonlar/Fab/Park/PRK_Bench_Sit_Relax_01_MH", "/Game/Animasyonlar/Fab/Park/PRK_Bench_Sit_Relax_02_MH"], "konusma": "/Game/Animasyonlar/Fab/Park/PRK_Bench_Sit_Talk_02_MH"};
+ORNEK_ICERIK["karakterler.json"].oyuncu.kamera.omuz_kaydirma = [40, 10];

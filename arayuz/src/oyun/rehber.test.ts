@@ -4,19 +4,21 @@
 // Alan ekleyip rehberi yenilemek için: REHBER_YAZ=1 npx vitest run rehber
 import { describe, expect, it } from "vitest";
 import { readFileSync, writeFileSync } from "node:fs";
-import { HARITA_GRUPLARI, KISI_NITELIK_GRUBU, OYUNCU_GRUPLARI, type Alan, type Grup } from "./sema";
+import { ARAYUZ_GRUPLARI, HARITA_GRUPLARI, KISI_NITELIK_GRUBU, OYUNCU_GRUPLARI, type Alan, type Grup } from "./sema";
 
 const DOSYA = new URL("../../../ALAN_REHBERI.md", import.meta.url);
 const BASLA = "<!-- OTOMATIK BASLA (sema.ts'den üretilir; elle düzenleme) -->";
 const BITTI = "<!-- OTOMATIK BITTI -->";
 
 const TUR_ADI: Record<Alan["tur"], string> = {
-  sayi: "sayı", anahtar: "açık/kapalı", yazi: "yazı", unreal: "Unreal yolu", renk: "renk", vektor: "3 sayı",
+  sayi: "sayı", anahtar: "açık/kapalı", yazi: "yazı", unreal: "Unreal yolu", renk: "renk", vektor: "sayılar", yollar: "Unreal yolu listesi",
 };
 const kacis = (s: string) => s.replace(/\|/g, "\\|").replace(/\n/g, " ");
 
 function tur(a: Alan): string {
   let t = TUR_ADI[a.tur];
+  if (a.tur === "vektor") t = `${(a.eksenler || ["X", "Y", "Z"]).join(", ")}`;
+  if (a.tur === "renk" && a.bosOlabilir) t += a.saydam ? " (saydamlıkla; boş = varsayılan)" : " (boş = varsayılan)";
   if ((a.tur === "sayi" || a.tur === "vektor") && a.birim) t += ` (${a.birim})`;
   if (a.tur === "sayi") {
     if (a.min !== undefined && a.max !== undefined) t += ` ${a.min}–${a.max}`;
@@ -45,13 +47,15 @@ export function otomatikBolum(): string {
     grupMd(KISI_NITELIK_GRUBU, "kisi_nitelikler.") + "\n",
     "### Harita → Ayarlar (`haritalar/<ad>.json`)", "",
     ...HARITA_GRUPLARI.map(g => grupMd(g, "") + "\n"),
+    "### Genel → Arayüz (`arayuz.json`)", "",
+    ...ARAYUZ_GRUPLARI.map(g => grupMd(g, "") + "\n"),
     BITTI,
   ].join("\n");
 }
 
 describe("alan rehberi", () => {
   it("her form alanının bir açıklaması var", () => {
-    const eksik = [...OYUNCU_GRUPLARI, ...HARITA_GRUPLARI, KISI_NITELIK_GRUBU]
+    const eksik = [...OYUNCU_GRUPLARI, ...HARITA_GRUPLARI, KISI_NITELIK_GRUBU, ...ARAYUZ_GRUPLARI]
       .flatMap(g => g.alanlar.filter(([, a]) => !a.aciklama?.trim()).map(([y]) => `${g.baslik}: ${y}`));
     expect(eksik).toEqual([]);
   });

@@ -10,6 +10,41 @@ En yeni girdi en üsttedir.
 
 > **2026-11-19 (gece) — Yankı gecesi:** mobil yarasa oyunu Yankı'nın telefonda oynanabilen ilk sürümü kuruldu (ayrıntı ve telefonda deneme adımları: [yanki/GUNLUK.md](yanki/GUNLUK.md)).
 
+## 2026-11-26 (gece) — Oyunun menü görünüşü ve oyuncunun yeni ayarları Atölye'de
+**Bu gece yapılanlar**
+- Sıradaki ilk iş (Yankı düzenleyicisi), Yankı'nın bölüm dosyası henüz hazır olmadığı için bekliyor; o dosya Yankı gecesinde
+  hazırlanacak. Bu gece listedeki ikinci işi yaptım.
+- Sol listede yeni bir dosya: **Genel → Arayüz (menü ve ekran)**. Oyunun menülerinin görünüşü artık buradan değişiyor:
+  - **Renkler** (yazı, vurgu, panel, menü şeridi, karartma…): kutu boşsa oyunun kendi rengi kullanılır. Renk seçince yanında bir
+    **saydamlık kaydırıcısı** çıkıyor (ör. menü açıkken arkadaki yarı saydam perde). **Varsayılana dön** rengi boşaltır.
+  - **Yazı tipleri, logo, menü müziği** ve **ana menüdeki karakterin ışığı**.
+  - **Yapımcılar ekranı:** bölümler ve iki sütunlu satırlar ("iş — kişi"); ekle, sil, oklarla sırala.
+- Oyuncu ayarlarında oyuna sonradan eklenmiş, adı ve açıklaması olmayan **59 alan** artık adlı ve açıklamalı (kalan 3 "engel izi" oyunun ölçtüğü
+  hareket verisi; elle düzenlenmez, gösterilmiyor):
+  **Bankta oturma** kartı (oturuş/kalkış saniyeleri, otururken sırayla oynayan bekleme hareketleri listesi, oturuş yeri ayarları),
+  **omuz kamerası**, koşarken kamera, **tekme mesafeleri** ve değdiği anlar, vuruşların "en uzak an"ları, sandık açma ve yerden alma
+  ayarları, **16 yeni animasyon** (tekme, tırmanma, engel atlama, kişilerin darbe tepkileri…).
+- Oyun dosyasındaki açıklama notları ayrı bir kutu olarak değil, kartın üstünde soluk yazıyla "Oyunun notu" olarak görünüyor.
+- Atölye ilk açılışta yine **Karakterler**'i açıyor (yeni dosya alfabede öne geçmesin diye).
+- Alan rehberi (ALAN_REHBERI.md) bu yeni alanlarla güncellendi.
+- Testler: 45 birim testi + Chrome'da 143 otomatik kontrol (14'ü yeni) ve dosya işleri testi; hepsi geçiyor.
+
+**Ekran görüntüleri:** `gunluk/2026-11-26/arayuz_renkler.png`, `arayuz_yapimcilar.png`, `oyuncu_oturma.png`
+
+**Nasıl denenir**
+1. GitHub Desktop: **Fetch origin → Pull origin** (`oyun_atolyesi`), sonra `exe_yap.bat`, sonra `OyunAtolyesi.exe`.
+2. **Oyun içeriğini aç → Genel → Arayüz.** "Vurgu" rengini değiştir, **Kaydet**, Unreal'de Play: menüde seçili satır yeni renkte olmalı.
+   "Varsayılana dön" deyip kaydedince eski renge döner.
+3. **Yapımcılar** kartında bir satır ekle (solda iş, sağda adın), Kaydet: oyunun Yapımcılar ekranında görünmeli.
+4. **Karakterler → Oyuncu → Bankta oturma:** "Kalça yüzeyin üstünde" değerini değiştir: karakter oturağa gömülüyorsa artır, havada
+   duruyorsa azalt.
+
+**Senin kararın gereken konular**
+- Yok.
+
+**Sıradaki adım:** Yankı'nın bölüm dosyası hazır olunca Yankı düzenleyicisi; o zamana kadar seçilebilir bedenler (ana menüdeki
+karakter seçimi) ve modeller.json.
+
 ## 2026-11-24 (gece) — Köyün kapıları, iç mekânları ve meşaleleri Atölye'de
 **Bu gece yapılanlar**
 - Haritada yeni bir sekme: **Mekânlar**. Köy meydanındaki **88 kapı** (44 giriş + 44 "Dışarı çık"), **43 meşale** ve haritanın özel
