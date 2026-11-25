@@ -21,6 +21,9 @@ Her madde yaklaşık bir günlük çalışmadır. Sıra önemlidir; üstten baş
       (şimdilik "yeni" rozetiyle görünüyorlar); `tasarim/` klasörü (malzemeler.json, karakterler.json) okunur liste.
 - [ ] Oyunun yeni alanları, kalanlar: karakterler.json **`secilebilir_govdeler`** (ana menüdeki karakter seçimi: ad, beden, puanlar,
       `unreal_ekipman[]`: `karisim`, `sarkac`, `dusunce_birak`…), yeni dosya **`modeller.json`** (model çarpışma silindirleri; okunur liste + düzenleme).
+- [ ] **(Harun'un hedefi 2026-11-25: oynanış testinde her değişikliği Atölye'den yapmak)** Unreal seviyesine elle konmuş binaları ve
+      dekoru Atölye'den taşıyabilmek: oyunun bunlar için bir "yer düzeltmesi" listesi okuması gerekir (oyun tarafı işi; oyun sohbetinde
+      yapılacak, sonra Atölye'de krokide sürükleme). Ayrıca isteğe bağlı: oyun açıkken kaydedileni beklemeden yansıtma (canlı yenileme).
 - [ ] Dekor nesneleri (`nesneler`) düzenleyicisi: liste + krokide sürükleme; nesnede `zemine_oturt`, `"carpisma": "yok"`, `grup`,
       `oturak` (yön, derinlik, `tasinir`), `aktor`. (Köy meydanında şimdilik 0 nesne; dekor Unreal seviyesinde.)
 - [ ] Diyalog seçeneğinde `esya_ver` — konuşma ağacı düzenleyicisiyle birlikte (Aşama 4).
