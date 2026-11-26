@@ -1,6 +1,7 @@
 // Yankı: ekran, dokunma, döngü, ses, titreşim, rekor kaydı ve çevrimdışı çalışma.
 import "./stil.css";
-import { H, Oyun } from "./oyun/dunya";
+import { AYAR, H, Oyun, type Bolum } from "./oyun/dunya";
+import { icerigiUygula, type Icerik } from "./oyun/icerik";
 import { ciz } from "./ciz";
 import { olayiCal, sesiAc, sessizMi, sessizYap } from "./ses";
 
@@ -16,7 +17,29 @@ const oyun = new Oyun(tohum);
 const REKOR_ANAHTARI = "yanki.rekor";
 try { oyun.rekor = Number(localStorage.getItem(REKOR_ANAHTARI)) || 0; } catch { /* gizli sekme vb. */ }
 let eskiRekor = oyun.rekor;
-const durum = { yeniRekor: false };
+/** Çizime giden ek bilgiler: yeni rekor ve bölüm sonucu. */
+const durum = { yeniRekor: false, bolumEnIyi: 0, bolumYeniEnIyi: false };
+
+// ---------------------------------------------------------------- içerik: ayarlar ve el yapımı bölümler
+// Sıra: tek dosyalık Yanki.html'e gömülü içerik → yayındaki icerik.json → koddaki varsayılanlar.
+let bolumler: Bolum[] = [];
+async function icerigiYukle() {
+  let ic = (window as any).YANKI_ICERIK as Icerik | undefined;
+  if (!ic) {
+    try { const r = await fetch("icerik.json", { cache: "no-cache" }); if (r.ok) ic = await r.json(); } catch { /* dosya yok: varsayılanlar */ }
+  }
+  const sonuc = icerigiUygula(ic);
+  bolumler = sonuc.bolumler;
+  if (sonuc.uyarilar.length) console.warn("Yankı içerik uyarıları:", sonuc.uyarilar);
+  if (oyun.durum === "menu") oyun.sifirla(oyun.tohum);   // yeni ayarlarla menüdeki mağara
+  menuyuKur();
+}
+
+/** Bir bölümün en iyi sonucu (süre, sn; küçük daha iyi) tarayıcıda saklanır. */
+const bolumAnahtari = (id: string) => "yanki.bolum." + id;
+function enIyiSure(id: string): number {
+  try { return Number(localStorage.getItem(bolumAnahtari(id))) || 0; } catch { return 0; }
+}
 
 // ---------------------------------------------------------------- ekran boyutu
 let olcek = 1, ox = 0, oy = 0;
@@ -65,12 +88,49 @@ sesDugmesi.addEventListener("click", () => {
   sesDugmesiniGuncelle();
 });
 
+// ---------------------------------------------------------------- başlangıç ekranı (menü) ve bölüm sonu
+const menuPaneli = document.getElementById("menu-paneli") as HTMLDivElement;
+const bolumListesi = document.getElementById("bolum-listesi") as HTMLDivElement;
+const sonPaneli = document.getElementById("son-paneli") as HTMLDivElement;
+for (const el of [menuPaneli, sonPaneli]) el.addEventListener("pointerdown", e => e.stopPropagation());
+(document.getElementById("sonsuz") as HTMLButtonElement).addEventListener("click", () => { sesiAc(); oyun.sonsuzBaslat(); });
+(document.getElementById("tekrar") as HTMLButtonElement).addEventListener("click", () => {
+  sesiAc();
+  if (oyun.bolum) oyun.bolumBaslat(oyun.bolum); else oyun.sonsuzBaslat();
+});
+(document.getElementById("son-menu") as HTMLButtonElement).addEventListener("click", () => { oyun.menuyeDon(); menuyuKur(); });
+/** Bölüm düğmelerini (ad ve en iyi süre) yeniden yazar. */
+function menuyuKur() {
+  bolumListesi.replaceChildren();
+  if (!bolumler.length) return;
+  const baslik = document.createElement("div");
+  baslik.className = "baslik";
+  baslik.textContent = "Bölümler";
+  bolumListesi.append(baslik);
+  for (const b of bolumler) {
+    const d = document.createElement("button");
+    d.type = "button";
+    d.dataset.bolum = b.id;
+    if (b.aciklama) d.title = b.aciklama;
+    const ad = document.createElement("span");
+    ad.textContent = b.ad;
+    const rek = document.createElement("span");
+    rek.className = "rekor";
+    const en = enIyiSure(b.id);
+    rek.textContent = en ? `✓ ${en.toFixed(1)} sn` : "";
+    d.append(ad, rek);
+    d.addEventListener("click", () => { sesiAc(); oyun.bolumBaslat(b); });
+    bolumListesi.append(d);
+  }
+}
+
 // ---------------------------------------------------------------- duraklatma
 const duraklatDugmesi = document.getElementById("duraklat") as HTMLButtonElement;
 const duraklatPaneli = document.getElementById("duraklat-paneli") as HTMLDivElement;
 for (const el of [duraklatDugmesi, duraklatPaneli]) el.addEventListener("pointerdown", e => e.stopPropagation());
 duraklatDugmesi.addEventListener("click", () => oyun.duraklat());
 (document.getElementById("yeniden") as HTMLButtonElement).addEventListener("click", () => { sesiAc(); oyun.yenidenBasla(); });
+(document.getElementById("menuye") as HTMLButtonElement).addEventListener("click", () => { oyun.menuyeDon(); menuyuKur(); });
 window.addEventListener("keydown", e => {
   if (e.code === "Escape" || e.code === "KeyP") { if (oyun.duraklatildi) oyun.devam(); else oyun.duraklat(); }
 });
@@ -79,6 +139,8 @@ function dugmeleriGuncelle() {
   const oynuyor = oyun.durum === "oyun";
   duraklatDugmesi.hidden = !oynuyor || oyun.duraklatildi;
   duraklatPaneli.hidden = !(oynuyor && oyun.duraklatildi);
+  menuPaneli.hidden = oyun.durum !== "menu";
+  sonPaneli.hidden = !((oyun.durum === "tamam" || oyun.durum === "bitti") && oyun.bitisT >= AYAR.yenidenBaslamaBeklemesi);
 }
 
 // ---------------------------------------------------------------- döngü (sabit adım: her cihazda aynı fizik)
@@ -92,7 +154,14 @@ function olaylariIsle() {
       durum.yeniRekor = oyun.rekor > eskiRekor;
       if (durum.yeniRekor) { try { localStorage.setItem(REKOR_ANAHTARI, String(oyun.rekor)); } catch { /* yok say */ } }
     }
-    if (olay === "basla") { eskiRekor = oyun.rekor; durum.yeniRekor = false; }
+    if (olay === "basla") { eskiRekor = oyun.rekor; durum.yeniRekor = false; durum.bolumYeniEnIyi = false; }
+    if (olay === "tamam" && oyun.bolum) {
+      const id = oyun.bolum.id, eski = enIyiSure(id);
+      durum.bolumYeniEnIyi = !eski || oyun.sure < eski;
+      durum.bolumEnIyi = durum.bolumYeniEnIyi ? oyun.sure : eski;
+      if (durum.bolumYeniEnIyi) { try { localStorage.setItem(bolumAnahtari(id), oyun.sure.toFixed(2)); } catch { /* yok say */ } }
+      try { navigator.vibrate?.([30, 60, 30]); } catch { /* yok say */ }
+    }
     if (olay === "bocek") { try { navigator.vibrate?.(12); } catch { /* yok say */ } }
     if (olay === "ag" || olay === "damla") { try { navigator.vibrate?.(30); } catch { /* yok say */ } }
   }
@@ -119,6 +188,8 @@ document.addEventListener("visibilitychange", () => {
 
 // ---------------------------------------------------------------- testler için
 (window as any).__yanki = oyun;
+(window as any).__bolumler = () => bolumler;
+void icerigiYukle();
 (window as any).__cizim = () => ({ olcek, ox, oy, W: oyun.W, tw: tuval.width, th: tuval.height });
 
 // ---------------------------------------------------------------- çevrimdışı çalışma (yalnız yayında; testte değil)

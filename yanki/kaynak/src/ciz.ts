@@ -72,7 +72,8 @@ function sigdir(c: CanvasRenderingContext2D, metin: string, x: number, y: number
 
 /** Bir kare çizer. Önce bütün tuval temizlenir (eski karelerden iz kalmasın); oyun alanı `olcek` ile
  *  büyütülüp (ox, oy) kadar kaydırılarak ortalanır. Ekran oranı oyun alanından farklıysa kenarlar koyu kalır. */
-export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, ox: number, oy: number, enIyi: { yeniRekor: boolean }) {
+export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, ox: number, oy: number,
+  enIyi: { yeniRekor: boolean; bolumEnIyi: number; bolumYeniEnIyi: boolean }) {
   const W = o.W;
   c.setTransform(1, 0, 0, 1, 0, 0);
   c.fillStyle = RENK.arka1;
@@ -176,6 +177,24 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, ox: num
     for (let k = sag.length - 2; k >= 1; k--) c.lineTo(sag[k][0], sag[k][1]);
     c.lineTo(sag[0][0], kenarY(sag[0][0] - sx));
     c.stroke();
+  }
+
+  // bölümün çıkışı: duvarlar arasında dikey bir ışık perdesi; o da yalnız yankı değince görünür (önü kör kuralı)
+  if (o.bolum && o.cikisIsik > 0.02) {
+    const cx = o.bolum.uzunluk - kx;
+    if (cx > -40 && cx < W + 40) {
+      const [u, a] = o.sinir(o.bolum.uzunluk);
+      const p = Math.min(1, o.cikisIsik);
+      const g = c.createLinearGradient(cx - 30, 0, cx + 30, 0);
+      g.addColorStop(0, "rgba(140,230,190,0)"); g.addColorStop(0.5, `rgba(140,230,190,${0.45 * p})`); g.addColorStop(1, "rgba(140,230,190,0)");
+      c.fillStyle = g;
+      c.fillRect(cx - 30, u, 60, a - u);
+      c.strokeStyle = `rgba(190,255,220,${0.8 * p})`;
+      c.lineWidth = 2;
+      c.setLineDash([10, 12]);
+      c.beginPath(); c.moveTo(cx, u); c.lineTo(cx, a); c.stroke();
+      c.setLineDash([]);
+    }
   }
 
   // ölümcül olmayan tehlikeler: yankı değince ve yarasanın ışığına girince görünür
@@ -284,6 +303,16 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, ox: num
   } else if (o.durum === "oyun") {
     c.fillStyle = RENK.yazi;
     sigdir(c, String(o.skor), W / 2, 90, 64, 600, W - 40);
+    if (o.bolum) {
+      // bölümde: adı ve ne kadar yol kaldığı (üstte ince çubuk)
+      const pw = Math.min(300, W * 0.6), px = (W - pw) / 2;
+      c.fillStyle = "rgba(255,255,255,0.12)";
+      c.fillRect(px, 140, pw, 6);
+      c.fillStyle = "rgba(140,230,190,0.8)";
+      c.fillRect(px, 140, pw * o.bolumIlerleme, 6);
+      c.fillStyle = RENK.soluk;
+      sigdir(c, o.bolum.ad, W / 2, 168, 22, 500, W - 40);
+    }
     // büyük sonar enerjisi: altta ince çubuk
     const bw = Math.min(260, W * 0.5), bx = (W - bw) / 2, by = H - 60;
     c.fillStyle = "rgba(255,255,255,0.12)";
@@ -301,10 +330,22 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, ox: num
     sigdir(c, "Yankı", W / 2, H * 0.24, 120, 700, W - 40);
     c.fillStyle = RENK.soluk;
     const satirlar = ["Dokun: kanat çırp, yankı gönder", "Basılı tut: büyük yankı", "Ateş böceklerini topla"];
-    satirlar.forEach((s, i) => sigdir(c, s, W / 2, H * 0.72 + i * 44, 30, 500, W - 40));
+    satirlar.forEach((s, i) => sigdir(c, s, W / 2, H * 0.73 + i * 40, 28, 500, W - 40));
     c.fillStyle = `rgba(236,232,247,${0.55 + 0.45 * Math.sin(o.t * 3)})`;
-    sigdir(c, "Başlamak için dokun", W / 2, H * 0.88, 36, 600, W - 40);
+    sigdir(c, "Ya da ekrana dokun: sonsuz mağara", W / 2, H * 0.9, 30, 600, W - 40);
     if (o.rekor > 0) { c.fillStyle = RENK.soluk; sigdir(c, `En iyi: ${o.rekor}`, W / 2, H * 0.33, 26, 500, W - 40); }
+  } else if (o.durum === "tamam" && o.bolum) {
+    c.fillStyle = "rgba(7,6,12,0.55)";
+    c.fillRect(0, 0, W, H);
+    c.fillStyle = "#a6f0cf";
+    sigdir(c, "Bölüm bitti!", W / 2, H * 0.24, 64, 700, W - 40);
+    c.fillStyle = RENK.yazi;
+    sigdir(c, o.bolum.ad, W / 2, H * 0.32, 34, 600, W - 40);
+    sigdir(c, `${o.sure.toFixed(1)} sn`, W / 2, H * 0.44, 110, 700, W - 40);
+    c.fillStyle = RENK.soluk;
+    sigdir(c, `Ateş böceği: ${Math.round(o.bonus / AYAR.bocekPuani)} / ${o.bolum.bocekler.length}   ·   Puan: ${o.skor}`, W / 2, H * 0.53, 28, 500, W - 40);
+    c.fillStyle = enIyi.bolumYeniEnIyi ? "#ffd86b" : RENK.soluk;
+    sigdir(c, enIyi.bolumYeniEnIyi ? "En iyi süre!" : `En iyi: ${enIyi.bolumEnIyi.toFixed(1)} sn`, W / 2, H * 0.6, 30, 600, W - 40);
   } else {
     c.fillStyle = "rgba(7,6,12,0.55)";
     c.fillRect(0, 0, W, H);
@@ -313,7 +354,8 @@ export function ciz(c: CanvasRenderingContext2D, o: Oyun, olcek: number, ox: num
     sigdir(c, String(o.skor), W / 2, H * 0.43, 130, 700, W - 40);
     c.font = "500 30px system-ui, sans-serif";
     c.fillStyle = enIyi.yeniRekor ? "#ffd86b" : RENK.soluk;
-    c.fillText(enIyi.yeniRekor ? "Yeni rekor!" : `En iyi: ${o.rekor}`, W / 2, H * 0.52);
+    if (o.bolum) c.fillText(`${o.bolum.ad}: yolun %${Math.round(o.bolumIlerleme * 100)}'i`, W / 2, H * 0.52);
+    else c.fillText(enIyi.yeniRekor ? "Yeni rekor!" : `En iyi: ${o.rekor}`, W / 2, H * 0.52);
     if (o.bitisT >= AYAR.yenidenBaslamaBeklemesi) {
       c.fillStyle = `rgba(236,232,247,${0.55 + 0.45 * Math.sin(o.t * 3)})`;
       sigdir(c, "Yeniden başlamak için dokun", W / 2, H * 0.68, 36, 600, W - 40);

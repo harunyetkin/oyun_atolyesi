@@ -3,19 +3,6 @@
 Her madde yaklaşık bir gecelik çalışmadır. Sıra önemlidir; üstten başla.
 
 ## Sırada
-- [ ] **(Harun'un kararı 2026-11-25 — önce bu) Yankı'yı Oyun Atölyesi'nden düzenlenebilir yap: ayarlar + el yapımı bölümler.**
-      Yankı tarafındaki iş (Atölye tarafındaki düzenleyici ayrı iş, kök YAPILACAKLAR'da):
-      1. Biçim: `yanki/icerik/yanki.json` (`surum: 1`) ve `yanki/icerik/BICIM.md` (her alan, türü, örneği). İçerik:
-         `ayarlar` (bugünkü `AYAR`daki her şey: fizik, yankı, mağara, sarkıt/dikit sıklığı-boyu-tabanı-geçidi, ağ, damla, böcek, ısınma),
-         `bolumler: [ { id, ad, aciklama, uzunluk, duvar: { tohum } ya da { noktalar: [ { x, ust, alt } ] },
-         sivriler: [ { x, ust, boy, taban } ], tehlikeler: [ { tur: "ag"|"damla", x, y? } ], bocekler: [ { x, y } ] } ]`.
-      2. Oyun içeriği şu sırayla bulur: `window.YANKI_ICERIK` (tek dosyalık Yanki.html'e gömülü) → `fetch("icerik.json")`
-         (Pages) → koddaki varsayılanlar. Eksik alan varsayılana düşer. `araclar/tek_dosya.py` JSON'u Yanki.html'e gömer;
-         derleme `yanki/oyun/icerik.json`'u da yazar.
-      3. Oyun: menüde **Sonsuz mağara** (bugünkü rastgele) ve bölüm listesi. Bölümde mağara noktalardan (ya da sabit tohumdan)
-         çizilir, sivri/tehlike/böcek yalnız listedekilerdir; bölüm sonunda "Bölüm bitti" ekranı ve süre/skor.
-      4. Testler: JSON doğrulama (birim), bölümün aynı kalması (aynı girdi → aynı mağara), oynanış testinde bir bölümü baştan sona
-         otomatik pilotla bitirme; Yanki.html'in gömülü içerikle açılması.
 - [ ] **Ayarlar ekranı** (menüden ve duraklat ekranından): ses efektleri ve müzik ayrı ses düzeyi, titreşim aç/kapa, dokunma
       hassasiyeti (basılı tutma süresi), sol/sağ el yerleşimi; tercihler saklanır. ("Ayarlar: titreşimi kapatma" maddesi bunun içinde.)
 - [ ] **İlk açılış öğreticisi:** ilk oyunda 3 kısa adım (dokun = kanat + yankı, basılı tut = büyük yankı, ateş böceği topla);
@@ -53,6 +40,11 @@ Google Play / App Store'a gönderilmez (hesaplar henüz açılmadı; açmak ve �
 - [ ] Yatay ekranda menü yazılarının yerleşimi
 
 ## Tamamlandı
+- [x] 2026-11-27 (gece) — **Atölye'den düzenlenebilir içerik ve el yapımı bölümler (Harun'un kararı 25.11):** `icerik/yanki.json` (sürüm 1:
+      bütün ayarlar + bölümler) ve `icerik/BICIM.md`; oyun içeriği gömülü → `icerik.json` → varsayılan sırasıyla okur, hatalı alanı atlar.
+      Menüde **Sonsuz mağara** ve bölüm listesi (en iyi süre); bölümde noktalı ya da tohumlu duvar, yalnız listedeki sivri/tehlike/böcek,
+      yankıyla görünen çıkış, ilerleme çubuğu, "Bölüm bitti" ekranı (süre, böcek, puan, en iyi süre), Tekrar/Menü; duraklatmada Menü.
+      3 ÖRNEK bölüm. Geçit denetimi (Atölye için). Testler: 29 birim (pilot her bölümü bitiriyor) + 69 oynanış kontrolü (Yanki.html dahil).
 - [x] 2026-11-25 (gece) — **Ölümcül olmayan tehlikeler:** örümcek ağı (kanat gücü ×0,72 ve ilerleme ×0,8, 2,2 sn) ve su damlası
       (yarasa 330 birim yaklaşınca tavandan kopar; değerse yerçekimi ×1,3, 4 sn). 3600'den sonra, sivrilerin dibine konmaz; yalnız yankı
       ya da yarasa ışığıyla görünür (`Tehlike.isik`). Uçan yazı ("Ağa takıldın!", "Islandın!"), yarasanın üstünde ağ telleri/damlacıklar,

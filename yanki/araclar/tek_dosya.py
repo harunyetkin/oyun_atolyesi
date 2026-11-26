@@ -23,6 +23,13 @@ html, n1 = re.subn(r'<script type="module" crossorigin src="([^"]+)"></script>',
 html, n2 = re.subn(r'<link rel="stylesheet" crossorigin href="([^"]+)">', lambda m: "<style>\n" + oku(m.group(1)) + "\n</style>", html)
 assert n1 == 1 and n2 == 1, "derlenmiş index.html beklenen biçimde değil"
 
+# içerik (ayarlar ve bölümler) gömülür: oyun önce window.YANKI_ICERIK'e bakar (dosya çift tıklanınca fetch çalışmaz).
+# Oyun Atölyesi kaydedince bu betiği yeniden çalıştırır; böylece Yanki.html hep son içerikle açılır.
+import json
+icerik = json.load(open(os.path.join(KOK, "icerik", "yanki.json"), encoding="utf-8"))
+gomulu = "<script>window.YANKI_ICERIK = " + json.dumps(icerik, ensure_ascii=False).replace("</", "<\\/") + ";</script>\n"
+html = html.replace('<script type="module">', gomulu + '<script type="module">', 1)
+
 # simge gömülür; uygulama bilgisi (manifest) tek dosyada işe yaramaz, çıkarılır
 simge = base64.b64encode(open(os.path.join(OYUN, "simge-192.png"), "rb").read()).decode()
 html = re.sub(r'\s*<link rel="manifest"[^>]*>', "", html)

@@ -2,6 +2,8 @@
 
 En yeni girdi en üsttedir.
 
+> **2026-11-27 (gece) — Yankı gecesi:** bölümler geldi (menüde bölüm listesi, bölüm sonu ve en iyi süre); ayarlar ve bölümler artık `yanki/icerik/yanki.json`'da, Atölye'den düzenlenmeye hazır (ayrıntı: [yanki/GUNLUK.md](yanki/GUNLUK.md)).
+
 > **2026-11-25 (gece) — Yankı gecesi:** örümcek ağları ve su damlaları (öldürmeyen tehlikeler) (ayrıntı: [yanki/GUNLUK.md](yanki/GUNLUK.md)).
 
 > **2026-11-23 (gece) — Yankı gecesi:** sarkıt ve dikitler, duraklat düğmesi, yumuşak başlangıç (ayrıntı: [yanki/GUNLUK.md](yanki/GUNLUK.md)).

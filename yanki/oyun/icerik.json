@@ -1,0 +1,371 @@
+{
+ "surum": 1,
+ "_aciklama": "Yankı'nın ayarları ve el yapımı bölümleri. Oyun Atölyesi'nden ya da elle düzenlenir; biçim BICIM.md'de.",
+ "ayarlar": {
+  "_aciklama": "Oyunun his ayarları. Her alanın anlamı BICIM.md'de. Silinen ya da hatalı alan oyunun varsayılanına döner.",
+  "yercekimi": 2400,
+  "kanatGucu": 720,
+  "enFazlaDusus": 1100,
+  "yarasaYaricap": 16,
+  "yarasaKonumu": 0.3,
+  "hiz": 280,
+  "hizArtisi": 22,
+  "enFazlaHiz": 520,
+  "bosluk": 600,
+  "enDarBosluk": 270,
+  "daralma": 7,
+  "guvenliBaslangic": 900,
+  "kucukSonar": {
+   "hiz": 950,
+   "menzil": 430,
+   "guc": 0.85
+  },
+  "buyukSonar": {
+   "hiz": 1200,
+   "menzil": 1500,
+   "guc": 1
+  },
+  "buyukSonarEsigi": 0.3,
+  "enerjiDolumu": 0.2,
+  "dalgaKalinligi": 34,
+  "sonmeSuresi": 1.3,
+  "belirmeSuresi": 0.09,
+  "ornekAraligi": 10,
+  "bocekAraligi": [
+   380,
+   760
+  ],
+  "bocekPuani": 5,
+  "bocekYaricap": 34,
+  "yenidenBaslamaBeklemesi": 0.7,
+  "isinma": 6000,
+  "sivriBaslangic": 2500,
+  "sivriAraligi": [
+   650,
+   1300
+  ],
+  "sivriBoyu": [
+   60,
+   150
+  ],
+  "sivriTaban": [
+   46,
+   74
+  ],
+  "sivriGecit": 230,
+  "tehlikeBaslangic": 3600,
+  "tehlikeAraligi": [
+   950,
+   1800
+  ],
+  "agYaricap": 30,
+  "agSuresi": 2.2,
+  "agKanatCarpani": 0.72,
+  "agHizCarpani": 0.8,
+  "damlaYaricap": 9,
+  "damlaDusmeMesafesi": 330,
+  "damlaSuresi": 4,
+  "damlaYercekimiCarpani": 1.3
+ },
+ "bolumler": [
+  {
+   "id": "ilk_ucus",
+   "ad": "İlk uçuş",
+   "aciklama": "ÖRNEK bölüm: geniş mağara, birkaç sarkıt, bir ağ.",
+   "uzunluk": 5000,
+   "duvar": {
+    "noktalar": [
+     {
+      "x": 0,
+      "ust": 200,
+      "alt": 800
+     },
+     {
+      "x": 1200,
+      "ust": 220,
+      "alt": 780
+     },
+     {
+      "x": 2000,
+      "ust": 300,
+      "alt": 760
+     },
+     {
+      "x": 2800,
+      "ust": 200,
+      "alt": 660
+     },
+     {
+      "x": 3600,
+      "ust": 320,
+      "alt": 820
+     },
+     {
+      "x": 4400,
+      "ust": 250,
+      "alt": 720
+     },
+     {
+      "x": 5400,
+      "ust": 250,
+      "alt": 750
+     }
+    ]
+   },
+   "sivriler": [
+    {
+     "x": 2400,
+     "ust": true,
+     "boy": 110,
+     "taban": 60
+    },
+    {
+     "x": 3200,
+     "ust": false,
+     "boy": 100,
+     "taban": 56
+    },
+    {
+     "x": 4100,
+     "ust": true,
+     "boy": 100,
+     "taban": 60
+    }
+   ],
+   "tehlikeler": [
+    {
+     "tur": "ag",
+     "x": 3650
+    }
+   ],
+   "bocekler": [
+    {
+     "x": 800
+    },
+    {
+     "x": 1500
+    },
+    {
+     "x": 2200
+    },
+    {
+     "x": 3000
+    },
+    {
+     "x": 3900
+    },
+    {
+     "x": 4600
+    }
+   ]
+  },
+  {
+   "id": "dar_gecit",
+   "ad": "Dar geçit",
+   "aciklama": "ÖRNEK bölüm: daralan ve kıvrılan mağara, sarkıt-dikit sırası, ağ ve damlalar.",
+   "uzunluk": 7000,
+   "duvar": {
+    "noktalar": [
+     {
+      "x": 0,
+      "ust": 220,
+      "alt": 780
+     },
+     {
+      "x": 1000,
+      "ust": 260,
+      "alt": 740
+     },
+     {
+      "x": 1800,
+      "ust": 180,
+      "alt": 560
+     },
+     {
+      "x": 2600,
+      "ust": 380,
+      "alt": 780
+     },
+     {
+      "x": 3400,
+      "ust": 260,
+      "alt": 640
+     },
+     {
+      "x": 4200,
+      "ust": 400,
+      "alt": 780
+     },
+     {
+      "x": 5000,
+      "ust": 300,
+      "alt": 660
+     },
+     {
+      "x": 5800,
+      "ust": 220,
+      "alt": 600
+     },
+     {
+      "x": 6600,
+      "ust": 330,
+      "alt": 700
+     },
+     {
+      "x": 7400,
+      "ust": 300,
+      "alt": 700
+     }
+    ]
+   },
+   "sivriler": [
+    {
+     "x": 1500,
+     "ust": true,
+     "boy": 90,
+     "taban": 56
+    },
+    {
+     "x": 2300,
+     "ust": false,
+     "boy": 90,
+     "taban": 60
+    },
+    {
+     "x": 3000,
+     "ust": true,
+     "boy": 100,
+     "taban": 56
+    },
+    {
+     "x": 3800,
+     "ust": false,
+     "boy": 90,
+     "taban": 56
+    },
+    {
+     "x": 4600,
+     "ust": true,
+     "boy": 90,
+     "taban": 60
+    },
+    {
+     "x": 5400,
+     "ust": false,
+     "boy": 90,
+     "taban": 56
+    },
+    {
+     "x": 6200,
+     "ust": true,
+     "boy": 90,
+     "taban": 56
+    }
+   ],
+   "tehlikeler": [
+    {
+     "tur": "ag",
+     "x": 2700
+    },
+    {
+     "tur": "damla",
+     "x": 4300
+    },
+    {
+     "tur": "ag",
+     "x": 5000
+    },
+    {
+     "tur": "damla",
+     "x": 6500
+    }
+   ],
+   "bocekler": [
+    {
+     "x": 700
+    },
+    {
+     "x": 1900
+    },
+    {
+     "x": 2650,
+     "y": 520
+    },
+    {
+     "x": 3500
+    },
+    {
+     "x": 4950
+    },
+    {
+     "x": 5900
+    },
+    {
+     "x": 6800
+    }
+   ]
+  },
+  {
+   "id": "tohumlu_magara",
+   "ad": "Uzun mağara",
+   "aciklama": "ÖRNEK bölüm: duvarı sabit bir tohumdan çizilen uzun mağara (her oynayışta aynı).",
+   "uzunluk": 9000,
+   "duvar": {
+    "tohum": 2026
+   },
+   "sivriler": [],
+   "tehlikeler": [
+    {
+     "tur": "damla",
+     "x": 4200
+    },
+    {
+     "tur": "ag",
+     "x": 6100
+    },
+    {
+     "tur": "damla",
+     "x": 7600
+    }
+   ],
+   "bocekler": [
+    {
+     "x": 900
+    },
+    {
+     "x": 1600
+    },
+    {
+     "x": 2300
+    },
+    {
+     "x": 3000
+    },
+    {
+     "x": 3700
+    },
+    {
+     "x": 4400
+    },
+    {
+     "x": 5100
+    },
+    {
+     "x": 5800
+    },
+    {
+     "x": 6500
+    },
+    {
+     "x": 7200
+    },
+    {
+     "x": 7900
+    },
+    {
+     "x": 8600
+    }
+   ]
+  }
+ ]
+}

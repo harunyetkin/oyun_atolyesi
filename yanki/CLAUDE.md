@@ -12,10 +12,13 @@ Yankı gecesinde `yanki/` dışına dokunma (kök `GUNLUK.md`'ye tek satırlık 
 - `kaynak/` — kaynak kod (TypeScript + Vite, HTML5 Canvas).
   - `src/oyun/dunya.ts` — oyunun **bütün mantığı**: mağara, yarasa fiziği, yankı (sonar) ve duvar ışığı, ateş böcekleri,
     çarpışma, skor. Ekrandan (DOM) bağımsızdır; `dunya.test.ts` birim testleri onu doğrudan çalıştırır.
-    Ayarlar tek yerde: `AYAR` nesnesi (ileride Oyun Atölyesi'nden düzenlenebilsin diye düz veri).
+    Ayarlar tek yerde: `AYAR` nesnesi; değerleri `icerik/yanki.json`'dan gelir (`src/oyun/icerik.ts` okur ve doğrular).
+  - `src/oyun/icerik.ts` — içerik dosyası: ayarları uygulama, bölüm doğrulama, geçit denetimi.
   - `src/ciz.ts` — çizim (yalnız okur). `src/ses.ts` — kodla üretilen sesler (Web Audio, dosya yok).
   - `src/main.ts` — ekran boyutu, dokunma/klavye, sabit adımlı döngü (1/120 sn), titreşim, rekor kaydı, çevrimdışı kayıt.
   - `public/` — `manifest.webmanifest` (uygulama bilgisi), `sw.js` (çevrimdışı çalışma), simgeler.
+- `icerik/yanki.json` — **ayarlar ve el yapımı bölümler** (Oyun Atölyesi düzenler); biçimi `icerik/BICIM.md`. AYAR'a yeni alan
+  eklersen yanki.json'a ve BICIM.md'ye de ekle (test, dosyada AYAR'ın bütün alanlarının bulunduğunu ve kabul edildiğini denetler; değerler Harun'undur); biçim değişirse `surum` artır.
 - `oyun/` — **derlenmiş oyun; commit edilir** (Harun'un bilgisayarında Node gerekmez, GitHub Pages bu klasörü sunar).
   Elle düzenleme; `cd yanki/kaynak && npm ci && npm run build` ile üretilir.
 - `araclar/oyun_testi.py` — telefon öykünmeli otomatik oynanış testi.

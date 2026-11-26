@@ -43,6 +43,7 @@ export function olayiCal(olay: Olay): void {
     case "carpma": ton(180, 60, 0.35, 0.18, "sawtooth"); break;
     case "ag": ton(320, 240, 0.25, 0.07, "square"); ton(300, 220, 0.2, 0.04, "square", 0.08); break;   // yapışkan vızıltı
     case "damla": ton(1900, 900, 0.09, 0.08); ton(1500, 700, 0.08, 0.04, "sine", 0.1); break;        // "plink"
+    case "tamam": [660, 880, 1100, 1320].forEach((f, i) => ton(f, f, 0.16, 0.06, "triangle", i * 0.11)); break;   // küçük zafer melodisi
     case "basla": break;
   }
 }

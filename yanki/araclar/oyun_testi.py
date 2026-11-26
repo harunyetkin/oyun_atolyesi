@@ -53,8 +53,11 @@ with sync_playwright() as p:
         s.screenshot(path=f"{CIKTI}/{on}_1_menu.png")
         # dokun: oyun başlar, yarasa yükselir, yankı çıkar
         y0 = oyun(s, "o.y")
-        s.touchscreen.tap(g["width"] / 2, g["height"] / 2)
+        kontrol("menüde sonsuz mağara düğmesi ve 3 örnek bölüm var", s.is_visible("#sonsuz") and s.locator("#bolum-listesi button").count() == 3)
+        # menü düğmelerinin dışında (altta) ekrana dokununca sonsuz mağara başlar
+        s.touchscreen.tap(g["width"] / 2, g["height"] * 0.86)
         time.sleep(0.12)
+        kontrol("menü paneli oyun başlayınca gizlendi", not s.is_visible("#menu-paneli"))
         kontrol("dokununca oyun başladı", oyun(s, "o.durum") == "oyun")
         kontrol("dokununca yarasa yükseldi", oyun(s, "o.y") < y0 - 30, f"{y0} -> {oyun(s, 'o.y')}")
         time.sleep(0.25)
@@ -119,6 +122,31 @@ with sync_playwright() as p:
         fps = s.evaluate("""new Promise(r => { let n = 0; const t0 = performance.now();
             const f = () => { n++; if (performance.now() - t0 < 1000) requestAnimationFrame(f); else r(n); }; requestAnimationFrame(f); })""")
         print(f"     (çizim hızı bu sanal makinede ~{fps} kare/sn; ekran kartı yok)")
+        if cihaz == "Pixel 7":
+            # el yapımı bölüm: menüden seç, otomatik pilotla sonuna kadar uç, "Bölüm bitti", en iyi süre saklanır
+            s.evaluate("window.__yanki.menuyeDon()")
+            time.sleep(0.2)
+            s.click("#bolum-listesi button[data-bolum=ilk_ucus]")
+            time.sleep(0.1)
+            kontrol("bölüm seçilince başladı", oyun(s, "o.durum") == "oyun" and oyun(s, "o.bolum.id") == "ilk_ucus")
+            kontrol("bölümde rastgele sivri yok, listedekiler var", oyun(s, "o.sivriler.length") == 3)
+            s.evaluate(PILOT)
+            time.sleep(4)
+            oyun(s, "(o.enerji = 1, o.sonar(true))")
+            time.sleep(0.5)
+            s.screenshot(path=f"{CIKTI}/{on}_4_bolum.png")
+            s.wait_for_function("window.__yanki.durum !== 'oyun'", timeout=40000)
+            kontrol("pilot bölümü bitirdi", oyun(s, "o.durum") == "tamam", oyun(s, "o.carpmaNedeni"))
+            time.sleep(1.0)
+            kontrol("bölüm sonu düğmeleri göründü", s.is_visible("#tekrar") and s.is_visible("#son-menu"))
+            kontrol("en iyi süre kaydedildi", float(s.evaluate("localStorage.getItem('yanki.bolum.ilk_ucus')") or 0) > 5)
+            s.screenshot(path=f"{CIKTI}/{on}_5_bolum_bitti.png")
+            s.evaluate("clearInterval(window.__pilot)")
+            s.click("#son-menu")
+            time.sleep(0.2)
+            kontrol("menüye dönüldü, bölümün en iyi süresi listede", oyun(s, "o.durum") == "menu"
+                    and "sn" in s.inner_text("#bolum-listesi button[data-bolum=ilk_ucus]"))
+            s.screenshot(path=f"{CIKTI}/{on}_6_menu_bolumler.png")
         kontrol("sesi kapat düğmesi çalışıyor", (s.click("#ses"), s.evaluate("localStorage.getItem('yanki.sessiz')"))[1] == "1")
         kontrol("konsol hatası yok", not konsol, "; ".join(konsol[:3]))
         ctx.close()
@@ -161,6 +189,18 @@ with sync_playwright() as p:
         s.screenshot(path=f"{CIKTI}/ekran_{gen}x{yuk}.png")
         s.evaluate("clearInterval(window.__pilot)")
         ctx.close()
+
+    # tek dosyalık paket (Yanki.html): içerik gömülü, dosya olarak açılınca da bölümler gelir
+    print("\n== Yanki.html ==")
+    ctx = tarayici.new_context(**{k: v for k, v in p.devices["Pixel 7"].items() if k != "default_browser_type"})
+    s = ctx.new_page()
+    konsol = []
+    s.on("pageerror", lambda e: konsol.append(str(e)))
+    s.goto("file://" + os.path.abspath(os.path.join(KOK, "..", "Yanki.html")) + "?test=1")
+    s.wait_for_function("!!window.__yanki")
+    time.sleep(0.5)
+    kontrol("Yanki.html gömülü içerikle açıldı (3 bölüm)", s.evaluate("window.__bolumler().length") == 3 and s.locator("#bolum-listesi button").count() == 3 and not konsol, "; ".join(konsol[:2]))
+    ctx.close()
 
     # çevrimdışı: test kipi olmadan açılınca çevrimdışı çalışma kurulur; internet kesilince de açılır
     print("\n== çevrimdışı ==")

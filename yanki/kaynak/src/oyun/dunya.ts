@@ -70,8 +70,9 @@ function ucgendeMi(px: number, py: number, ax: number, ay: number, bx: number, b
 const PUS = [1, 2, 3, 4, 3, 2, 1];
 const PUS_TOPLAM = PUS.reduce((a, b) => a + b, 0);
 
-export type Durum = "menu" | "oyun" | "bitti";
-export type Olay = "basla" | "cirp" | "buyuk_sonar" | "bocek" | "carpma" | "ag" | "damla";
+/** menu: başlangıç ekranı · oyun: uçuyor · bitti: çarptı · tamam: el yapımı bölümün sonuna vardı. */
+export type Durum = "menu" | "oyun" | "bitti" | "tamam";
+export type Olay = "basla" | "cirp" | "buyuk_sonar" | "bocek" | "carpma" | "ag" | "damla" | "tamam";
 
 export interface Dalga { x: number; y: number; r: number; hiz: number; menzil: number; guc: number; buyuk: boolean }
 /** Sarkıt (tavandan, ust = true) ya da dikit (tabandan): x'te tabanı duvarda, ucu `boy` kadar içeride. */
@@ -82,6 +83,20 @@ export interface Tehlike { tur: "ag" | "damla"; x: number; y: number; vy: number
 export interface Yazi { metin: string; renk: string; x: number; y: number; omur: number }
 /** Ateş böceği. `isik`: yankıyla görünürlük (0–1); kendi kendine parlamaz, yalnız yankı değince görünür (Harun'un kararı 2026-11-25). */
 export interface Bocek { x: number; y0: number; y: number; faz: number; alindi: boolean; isik: number }
+
+/** El yapımı bölüm (yanki/icerik/yanki.json → bolumler; biçim yanki/icerik/BICIM.md).
+ *  Duvar ya noktalardan (x'te tavan ve taban yüksekliği) ya da sabit bir tohumdan (rastgele mağaranın hep aynısı) çizilir.
+ *  Sivriler, tehlikeler ve ateş böcekleri yalnız listedekilerdir; rastgele üretilmez. */
+export interface Bolum {
+  id: string;
+  ad: string;
+  aciklama?: string;
+  uzunluk: number;
+  duvar: { tohum?: number; noktalar?: { x: number; ust: number; alt: number }[] };
+  sivriler: Sivri[];
+  tehlikeler: { tur: "ag" | "damla"; x: number; y?: number }[];
+  bocekler: { x: number; y?: number }[];
+}
 
 /** Tohumlu rastgele sayı üretici (mulberry32): aynı tohum, aynı mağara. */
 export function rastgeleUretici(tohum: number): () => number {
@@ -125,6 +140,12 @@ export class Oyun {
   isik = new Map<number, [number, number, number, number]>();
   olaylar: Olay[] = [];
   carpmaNedeni = "";
+  /** Oynanan el yapımı bölüm; null = sonsuz (rastgele) mağara. */
+  bolum: Bolum | null = null;
+  /** Bu oyunun süresi (sn; duraklatma sayılmaz). */
+  sure = 0;
+  /** Bölümün çıkışının yankıyla görünürlüğü (0–1). */
+  cikisIsik = 0;
   private rnd: () => number;
   private faz: number[] = [];
   private sonrakiBocek = 0;
@@ -162,10 +183,58 @@ export class Oyun {
     this.sonrakiBocek = AYAR.guvenliBaslangic * 0.6;
     this.sonrakiSivri = AYAR.sivriBaslangic;
     this.menuDalga = 0.4;
+    this.sure = 0; this.cikisIsik = 0;
+    const b = this.bolum;
+    if (b) {
+      // el yapımı bölüm: her şey listeden gelir, hiçbir şey rastgele üretilmez
+      if (b.duvar.tohum !== undefined) { const r = rastgeleUretici(b.duvar.tohum); this.faz = [0, 0, 0, 0].map(() => r() * Math.PI * 2); }
+      this.sonrakiBocek = this.sonrakiSivri = this.sonrakiTehlike = Infinity;
+      this.sivriler = b.sivriler.map(sv => ({ ...sv }));
+      this.tehlikeler = b.tehlikeler.map(t => {
+        const [u, a] = this.serbestAralik(t.x);
+        const y = t.y ?? (t.tur === "damla" ? this.sinir(t.x)[0] + 8 : (u + a) / 2);
+        return { tur: t.tur, x: t.x, y, vy: 0, dustu: false, alindi: false, isik: 0 };
+      });
+      this.bocekler = b.bocekler.map(bc => {
+        const [u, a] = this.serbestAralik(bc.x);
+        const y0 = bc.y ?? (u + a) / 2;
+        return { x: bc.x, y0, y: y0, faz: (bc.x * 0.37) % (Math.PI * 2), alindi: false, isik: 0 };
+      });
+    }
   }
+
+  /** El yapımı bir bölümü baştan başlatır. */
+  bolumBaslat(b: Bolum): void {
+    this.bolum = b;
+    this.sifirla();
+    this.durum = "oyun";
+    this.olaylar.push("basla");
+    this.cirp();
+  }
+
+  /** Sonsuz (rastgele) mağarayı yeni bir tohumla başlatır. */
+  sonsuzBaslat(): void {
+    this.bolum = null;
+    this.sifirla((this.rnd() * 1e9) | 0);
+    this.durum = "oyun";
+    this.olaylar.push("basla");
+    this.cirp();
+  }
+
+  /** Başlangıç ekranına döner (arkada yine sonsuz mağara akar). */
+  menuyeDon(): void {
+    this.bolum = null;
+    this.sifirla((this.rnd() * 1e9) | 0);
+    this.durum = "menu";
+  }
+
+  /** Bölümün ilerleme oranı (0–1); sonsuz mağarada 0. */
+  get bolumIlerleme(): number { return this.bolum ? Math.min(1, Math.max(0, this.yarasaX / this.bolum.uzunluk)) : 0; }
 
   /** x noktasında mağaranın tavanı ve tabanı (dünya birimi; y aşağı doğru artar). */
   sinir(x: number): [number, number] {
+    const n = this.bolum?.duvar.noktalar;
+    if (n && n.length >= 2) return noktalardanSinir(n, x);
     const ilerleme = Math.max(0, x - AYAR.guvenliBaslangic);
     // daralma ısınma eğrisiyle yavaş başlar; kıvrım başta 0, 3000 birimde tam
     const bosluk = Math.max(AYAR.enDarBosluk, AYAR.bosluk - AYAR.daralma * isinmaEgrisi(ilerleme) / 1000);
@@ -191,8 +260,11 @@ export class Oyun {
       this.cirp();
     } else if (this.durum === "oyun") {
       this.cirp();
+    } else if (this.durum === "tamam" && this.bitisT >= AYAR.yenidenBaslamaBeklemesi) {
+      this.menuyeDon();   // bölüm bitti ekranından dokununca başlangıç ekranına
     } else if (this.durum === "bitti" && this.bitisT >= AYAR.yenidenBaslamaBeklemesi) {
-      this.sifirla((this.rnd() * 1e9) | 0);
+      // bölümde çarptıysan aynı bölüm baştan, sonsuz mağarada yeni bir mağara
+      if (this.bolum) this.sifirla(); else this.sifirla((this.rnd() * 1e9) | 0);
       this.durum = "oyun";
       this.olaylar.push("basla");
       this.cirp();
@@ -208,7 +280,7 @@ export class Oyun {
   devam(): void { this.duraklatildi = false; this.basili = false; }
   /** Duraklatma ekranından "yeniden başla": yeni mağara, menüye dönmeden hemen başlar. */
   yenidenBasla(): void {
-    this.sifirla((this.rnd() * 1e9) | 0);
+    if (this.bolum) this.sifirla(); else this.sifirla((this.rnd() * 1e9) | 0);
     this.durum = "oyun";
     this.olaylar.push("basla");
     this.cirp();
@@ -266,6 +338,7 @@ export class Oyun {
       if (this.menuDalga <= 0) { this.sonar(false); this.menuDalga = 1.3; }
       return;
     }
+    if (this.durum === "tamam") { this.bitisT += dt; this.kam += this.hiz * 0.5 * dt; return; }
     if (this.durum === "bitti") {
       this.bitisT += dt;
       this.vy = Math.min(this.vy + AYAR.yercekimi * dt, AYAR.enFazlaDusus);
@@ -288,6 +361,7 @@ export class Oyun {
     for (const y of this.yazilar) { y.y -= 50 * dt; y.omur -= dt; }
     this.yazilar = this.yazilar.filter(y => y.omur > 0);
 
+    this.sure += dt;
     this.kam += this.hiz * dt;
     const g = AYAR.yercekimi * (this.etkiler.islak > 0 ? AYAR.damlaYercekimiCarpani : 1);
     this.vy = Math.min(this.vy + g * dt, AYAR.enFazlaDusus);
@@ -297,6 +371,15 @@ export class Oyun {
     this.tehlikeleriGuncelle(dt);
     this.bocekleriGuncelle(dt);
     this.carpismalar();
+    if (this.bolum && this.durum === "oyun") {
+      const b = this.bolum;
+      this.cikisIsik = this.yankiIsigi(b.uzunluk, (this.sinir(b.uzunluk)[0] + this.sinir(b.uzunluk)[1]) / 2, this.cikisIsik * Math.exp(-dt / AYAR.sonmeSuresi));
+      if (this.yarasaX >= b.uzunluk) {
+        this.durum = "tamam";
+        this.bitisT = 0;
+        this.olaylar.push("tamam");
+      }
+    }
   }
 
   private dalgalariIlerlet(dt: number): void {
@@ -463,7 +546,7 @@ export class Oyun {
     this.carpmaNedeni = neden;
     this.bitisT = 0;
     this.vy = Math.max(this.vy, 0);
-    if (this.skor > this.rekor) this.rekor = this.skor;
+    if (!this.bolum && this.skor > this.rekor) this.rekor = this.skor;   // rekor sonsuz mağaranındır
     this.olaylar.push("carpma");
   }
 
@@ -484,4 +567,16 @@ export class Oyun {
     this.olaylar = [];
     return l;
   }
+}
+
+/** Noktalardan duvar: iki nokta arası yumuşak (kosinüs) geçiş; ilk noktadan önce ve sondan sonra düz devam. */
+export function noktalardanSinir(n: { x: number; ust: number; alt: number }[], x: number): [number, number] {
+  if (x <= n[0].x) return [n[0].ust, n[0].alt];
+  const son = n[n.length - 1];
+  if (x >= son.x) return [son.ust, son.alt];
+  let i = 1;
+  while (n[i].x < x) i++;
+  const a = n[i - 1], b = n[i];
+  const t = (1 - Math.cos(Math.PI * (x - a.x) / Math.max(1e-6, b.x - a.x))) / 2;
+  return [a.ust + (b.ust - a.ust) * t, a.alt + (b.alt - a.alt) * t];
 }

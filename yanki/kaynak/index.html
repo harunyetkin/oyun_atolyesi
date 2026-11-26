@@ -18,7 +18,14 @@
   <canvas id="oyun" aria-label="Yankı oyunu"></canvas>
   <button id="ses" type="button">🔊</button>
   <button id="duraklat" type="button" aria-label="Duraklat" hidden>❚❚</button>
-  <div id="duraklat-paneli" hidden><button id="yeniden" type="button">↻ Yeniden başla</button></div>
+  <div id="duraklat-paneli" hidden><button id="yeniden" type="button">↻ Yeniden başla</button><button id="menuye" type="button">☰ Menü</button></div>
+  <!-- başlangıç ekranı: sonsuz mağara ve el yapımı bölümler (yanki/icerik/yanki.json) -->
+  <div id="menu-paneli" hidden>
+    <button id="sonsuz" type="button" class="birincil">∞ Sonsuz mağara</button>
+    <div id="bolum-listesi"></div>
+  </div>
+  <!-- bölüm bitince -->
+  <div id="son-paneli" hidden><button id="tekrar" type="button">↻ Tekrar oyna</button><button id="son-menu" type="button">☰ Menü</button></div>
   <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

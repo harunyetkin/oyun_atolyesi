@@ -2,6 +2,40 @@
 
 En yeni girdi en üsttedir.
 
+## 2026-11-27 (gece) — Bölümler geldi; ayarlar ve bölümler artık bir dosyada
+**Bu gece yapılanlar**
+- Senin kararınla (ayarlar + el yapımı bölümler) Yankı'nın tarafı tamamlandı:
+  - Oyunun bütün his ayarları (yerçekimi, kanat gücü, yankının süresi, sarkıt sıklığı…) ve bölümleri artık tek bir dosyada:
+    `yanki/icerik/yanki.json`. Her alanın anlamı `yanki/icerik/BICIM.md`'de. Oyun Atölyesi bu dosyayı düzenleyecek (sıradaki Atölye gecesi).
+  - **Başlangıç ekranı** değişti: **∞ Sonsuz mağara** düğmesi (eskisi gibi her seferinde yeni mağara) ve altında **Bölümler** listesi.
+    Ekranın boş bir yerine dokunmak da eskisi gibi sonsuz mağarayı başlatır.
+  - **Bölümler:** her bölümün mağara şekli, sarkıt/dikitleri, ağları, damlaları ve ateş böcekleri elle yerleştirilmiş; her oynayışta aynı.
+    Üstte bölümün adı ve ne kadar yol kaldığını gösteren ince bir çubuk var. Sonunda bir **çıkış** var; o da (önü kör kuralı) yalnız yankı
+    değince yeşil bir perde olarak görünüyor.
+  - Sona varınca **"Bölüm bitti!"**: süre, toplanan ateş böcekleri, puan ve **en iyi süre**. **Tekrar oyna** ya da **Menü**.
+    En iyi süre telefonda saklanıyor ve menüde bölümün yanında görünüyor (✓ 16.5 sn gibi).
+  - Bölümde çarparsan aynı bölüm baştan başlar. Duraklatma ekranına **Menü** düğmesi eklendi.
+- Denemen için **3 ÖRNEK bölüm** koydum: *İlk uçuş* (geniş, kolay), *Dar geçit* (kıvrımlı, sarkıt sırası, ağ ve damlalar),
+  *Uzun mağara* (duvarı sabit bir "tohumdan" çizilen uzun bölüm). Bunlar örnek; asıl bölümleri sen Atölye'de yapacaksın.
+- Bir bölümün hiçbir yerinde yarasanın geçemeyeceği kadar dar yer olmadığını ölçen bir **geçit denetimi** yazdım; Atölye'de dar yerleri
+  kırmızı göstermek için kullanılacak.
+- Testler: 29 birim testi (otomatik pilot üç bölümü de baştan sona bitiriyor; aynı bölüm hep aynı) + 69 oynanış kontrolü (telefonda bölüm
+  seçme, bitirme, en iyi sürenin saklanması, Yanki.html'in gömülü bölümlerle açılması dahil). Hepsi geçiyor.
+
+**Ekran görüntüleri:** `gunluk/2026-11-27/menu_bolumler.png`, `bolumde.png`, `bolum_bitti.png`
+
+**Nasıl denenir**
+- Bilgisayarda: GitHub Desktop'ta Fetch/Pull, sonra `yanki/Yanki.html`'e çift tıkla. Menüde **İlk uçuş**'a tıkla, sonuna kadar uç.
+- Telefonda: GitHub Pages açıldıysa bağlantıyı yenile (açık değilse: GitHub'da depo → Settings → Pages → "main" ve "/ (root)" → Save;
+  bağlantı `https://harunyetkin.github.io/oyun_atolyesi/yanki/oyun/`).
+
+**Senin kararın gereken konular**
+- Bölümlerde puan yerine **en kısa süre** öne çıkıyor (sonsuz mağarada rekor puan kalıyor). İstersen bölümlerde ateş böceği sayısı da
+  "yıldız" gibi ödüle dönüşebilir (ör. hepsini toplarsan 3 yıldız). Böyle bir şey ister misin?
+
+**Sıradaki adım:** Atölye gecesinde **Yankı düzenleyicisi** (ayarlar sayfası + yandan görünüşlü bölüm düzenleyici); Yankı'nın bir sonraki
+gecesinde **ayarlar ekranı** (ses/müzik düzeyi, titreşim, dokunma hassasiyeti) ve ilk açılış öğreticisi.
+
 ## 2026-11-25 (gündüz, 2) — Sarkıtlar artık duvardan uzuyor; Atölye'den düzenleme planı
 - Sarkıt ve dikitlerin görünüşü değişti: kökleri duvarın içine gömülü ve genişliyor, kenarları hafif pürüzlü ve eğri; kenar çizgileri
   duvarın kenar çizgisine bağlanıyor. Artık duvarın üstüne konmuş üçgen gibi değil, kayadan uzayan sivri gibi görünüyorlar.

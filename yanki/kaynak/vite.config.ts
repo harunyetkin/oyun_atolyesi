@@ -22,9 +22,19 @@ function cevrimdisiListe(): Plugin {
   };
 }
 
+/** Oyunun içerik dosyasını (yanki/icerik/yanki.json) derlenmiş oyuna `icerik.json` olarak koyar (GitHub Pages bunu okur). */
+function icerikDosyasi(): Plugin {
+  const kaynak = join(dirname(fileURLToPath(import.meta.url)), "../icerik/yanki.json");
+  return {
+    name: "icerik-dosyasi",
+    apply: "build",
+    generateBundle() { this.emitFile({ type: "asset", fileName: "icerik.json", source: readFileSync(kaynak, "utf8") }); },
+  };
+}
+
 export default defineConfig({
   base: "./",
-  plugins: [cevrimdisiListe()],
+  plugins: [icerikDosyasi(), cevrimdisiListe()],
   build: { outDir: "../oyun", emptyOutDir: true, assetsInlineLimit: 0 },
   test: { environment: "node" },
 });
