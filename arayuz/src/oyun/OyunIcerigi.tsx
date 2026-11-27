@@ -19,6 +19,8 @@ import { AlanGirisi, AlanSatiri, KimlikGiris, PuanDuzenleyici, SayiAlani, Uyaril
 import { Kroki } from "./Kroki";
 import { GrupKarti } from "./GrupKarti";
 import { ArayuzSayfasi } from "./Arayuz";
+import { YankiSayfasi } from "./Yanki";
+import { yankiAc } from "./ac";
 import { KisilerListesi as HaritaKisileri } from "./Kisiler";
 import { GorevlerListesi, SandiklarListesi } from "./SandiklarGorevler";
 import { MekanlarListesi } from "./Mekanlar";
@@ -234,7 +236,7 @@ function HamGorunum({ dosya }: { dosya: string }) {
 // ================================================================== ekran
 const dosyaIkonu = (yol: string) => {
   const t = dosyaTuru(yol);
-  return t === "karakterler" ? <Users size={14} /> : t === "arayuz" ? <Palette size={14} /> : t === "harita" ? <HaritaIkon size={14} /> : t === "diyalog" ? <MessageSquare size={14} /> : <FileJson size={14} />;
+  return t === "karakterler" ? <Users size={14} /> : t === "yanki" ? <Bat /> : t === "arayuz" ? <Palette size={14} /> : t === "harita" ? <HaritaIkon size={14} /> : t === "diyalog" ? <MessageSquare size={14} /> : <FileJson size={14} />;
 };
 const dosyaAdi = (yol: string, veri: any) => {
   const t = dosyaTuru(yol);
@@ -242,6 +244,7 @@ const dosyaAdi = (yol: string, veri: any) => {
   if (t === "oyun") return "Genel (ölçekler)";
   if (t === "karakter_olusturma") return "Karakter oluşturma";
   if (t === "arayuz") return "Arayüz (menü ve ekran)";
+  if (t === "yanki") return "Yankı: ayarlar ve bölümler";
   return veri?.ad || veri?.id || yol.split("/").pop()!.replace(/\.json$/, "");
 };
 
@@ -254,6 +257,7 @@ function DosyaListesi() {
     ["Karakterler", dosyalar.filter(d => dosyaTuru(d) === "karakterler")],
     ["Haritalar", dosyalar.filter(d => dosyaTuru(d) === "harita")],
     ["Diyaloglar", dosyalar.filter(d => dosyaTuru(d) === "diyalog")],
+    ["Yankı", dosyalar.filter(d => dosyaTuru(d) === "yanki")],
     ["Genel", dosyalar.filter(d => dosyaTuru(d) === "arayuz")],
     ["Diğer", dosyalar.filter(d => ["oyun", "karakter_olusturma", "diger"].includes(dosyaTuru(d)))],
   ];
@@ -262,7 +266,7 @@ function DosyaListesi() {
       {gruplar.filter(([, l]) => l.length).map(([baslik, liste]) => <div key={baslik}>
         <div className="liste-baslik">{baslik}</div>
         {liste.map(d => {
-          const duzenlenir = ["karakterler", "harita", "arayuz"].includes(dosyaTuru(d));
+          const duzenlenir = ["karakterler", "harita", "arayuz", "yanki"].includes(dosyaTuru(d));
           return (
             <div key={d} className={"satir" + (d === acik ? " secili" : "")} onClick={() => useOyun.getState().dosyaAc(d)} data-testid={"dosya-" + d} title={d}>
               {dosyaIkonu(d)}<span className="ad" style={duzenlenir ? undefined : { color: "var(--yazi3)" }}>{dosyaAdi(d, veri[d])}</span>
@@ -278,6 +282,7 @@ function DosyaListesi() {
 function OyunAracCubugu() {
   const geri = useOyun(o => o.geri.length), ileri = useOyun(o => o.ileri.length);
   const degisen = useOyun(o => o.degisenler().length);
+  const kip = useOyun(o => o.kip);
   const [cikisOnayi, setCikisOnayi] = useState(false);
   useEffect(() => { if (!cikisOnayi) return; const t = setTimeout(() => setCikisOnayi(false), 4000); return () => clearTimeout(t); }, [cikisOnayi]);
   const dugme = (id: string, ikon: ReactNode, yazi?: string, sinif = "") => {
@@ -295,7 +300,10 @@ function OyunAracCubugu() {
       <button className="dugme hayalet" disabled={!degisen} onClick={() => useOyun.getState().degisiklikleriAt()} data-testid="oyun-at">
         <RotateCcw size={14} /> Değişiklikleri at</button>
       <span style={{ marginLeft: "auto" }} />
-      {dugme("oyunKlasoru", <FolderOpen size={15} />, " Klasörü değiştir", "hayalet")}
+      {kip === "yanki"
+        ? <button className="dugme hayalet" onClick={() => { if (degisen) { useDurum.getState().bildir("Önce değişiklikleri kaydet (Ctrl+S) ya da at.", "hata"); return; } void yankiAc(true); }}>
+          <FolderOpen size={15} /> Klasörü değiştir</button>
+        : dugme("oyunKlasoru", <FolderOpen size={15} />, " Klasörü değiştir", "hayalet")}
       <button className={"dugme " + (cikisOnayi ? "tehlike" : "hayalet")} data-testid="oyun-cik" onClick={() => {
         if (degisen && !cikisOnayi) { setCikisOnayi(true); return; }
         useDurum.getState().baslangicaDon();
@@ -314,7 +322,7 @@ export function OyunIcerigiEkrani() {
   return (
     <div className="uygulama" data-testid="oyun-icerigi">
       <MenuCubugu sag={<>
-        <span className="soluk">Oyun içeriği</span>
+        <span className="soluk">{useOyun.getState().kip === "yanki" ? "Yankı" : "Oyun içeriği"}</span>
         <span className="soluk" style={{ display: "flex", alignItems: "center", gap: 4 }} data-testid="oyun-kayit-durumu">
           <Save size={13} />{kaydediliyor ? "Kaydediliyor…" : degisen ? `${degisen} dosya kaydedilmedi` : "Kaydedildi"}
         </span>
@@ -330,6 +338,7 @@ export function OyunIcerigiEkrani() {
             : tur === "karakterler" ? <KarakterlerSayfasi dosya={acik} />
             : tur === "harita" ? <HaritaSayfasi key={acik} dosya={acik} />
             : tur === "arayuz" ? <ArayuzSayfasi dosya={acik} />
+            : tur === "yanki" ? <YankiSayfasi dosya={acik} />
             : <HamGorunum dosya={acik} />}
         </div>
       </div>
@@ -340,4 +349,10 @@ export function OyunIcerigiEkrani() {
       </div>
     </div>
   );
+}
+
+/** Yarasa simgesi (Yankı dosyası için; lucide'de yarasa yok). */
+function Bat() {
+  return <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinejoin="round">
+    <path d="M2 9c2 0 3 2 4 3 1-2 3-2 4-1l2-3 2 3c1-1 3-1 4 1 1-1 2-3 4-3-1 4-4 7-7 8l-3-2-3 2C6 16 3 13 2 9z" /></svg>;
 }

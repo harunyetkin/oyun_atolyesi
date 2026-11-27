@@ -455,6 +455,87 @@ Ana menüde arkada duran karakterin ışığı.
 | **Işığa göre duruş açısı** | Karakter güneşe (gece aya) dönük durur; yüzü ile ışık arasındaki açı. 0 = ışık tam karşıdan, düz; büyüdükçe yüzde gölge artar. | sayı (°) | `menu_sahnesi.gunese_aci` |
 | **Dolgu ışığı** | Kameranın yanındaki gölgesiz yumuşak ışık; yüzdeki koyu gölgeleri açar. 0 = kapalı. | sayı (kandela) | `menu_sahnesi.dolgu_isigi` |
 
+### Yankı → Ayarlar (`yanki/icerik/yanki.json` → `ayarlar`)
+
+Dünya birimi: ekran yüksekliği 1000. Biçimin tek kaynağı `yanki/icerik/BICIM.md`.
+
+#### Uçuş
+
+Yarasanın hissi: ne kadar çabuk düştüğü, kanat çırpınca ne kadar yükseldiği, ne kadar hızlı ilerlediği.
+
+| Alan | Ne işe yarar | Tür / birim | Dosyadaki adı |
+|---|---|---|---|
+| **Yerçekimi** | Yarasayı aşağı çeken güç. Büyük = daha çabuk düşer, daha sık kanat çırpmak gerekir. | sayı (birim/sn²) | `ayarlar.yercekimi` |
+| **Kanat gücü** | Kanat çırpınca yukarı fırlama hızı. Büyük = bir çırpışta daha çok yükselir. | sayı (birim/sn) | `ayarlar.kanatGucu` |
+| **En hızlı düşüş** | Düşme hızının üst sınırı. | sayı (birim/sn) | `ayarlar.enFazlaDusus` |
+| **Yarasanın boyu** | Çarpışma yarıçapı. Büyük = duvarlara daha kolay çarpar. | sayı (birim) | `ayarlar.yarasaYaricap` |
+| **Ekrandaki yeri** | Yarasanın ekranda soldan ne kadar içeride durduğu (0,3 = genişliğin üçte biri). Büyük = önünü daha az görür. | sayı 0–0.8 | `ayarlar.yarasaKonumu` |
+| **Başlangıç hızı** | İleri uçuş hızı. | sayı (birim/sn) | `ayarlar.hiz` |
+| **Hız artışı** | Her 1000 birim yolda hızın ne kadar arttığı. | sayı (/1000 birim) | `ayarlar.hizArtisi` |
+| **En yüksek hız** | Hızın üst sınırı. | sayı (birim/sn) | `ayarlar.enFazlaHiz` |
+| **Yeniden başlama beklemesi** | Çarpınca ya da bölüm bitince dokunuşun kabul edilmesine kadar geçen süre (yanlışlıkla hemen başlamasın). | sayı (sn) | `ayarlar.yenidenBaslamaBeklemesi` |
+
+#### Yankı (sonar)
+
+Dokununca küçük, basılı tutunca büyük yankı çıkar; yankı değen duvar bir süre parlar ve söner. Önü kör: yankı değmeyen hiçbir şey görünmez.
+
+| Alan | Ne işe yarar | Tür / birim | Dosyadaki adı |
+|---|---|---|---|
+| **Küçük yankı: hız** | Dalganın yayılma hızı. | sayı (birim/sn) | `ayarlar.kucukSonar.hiz` |
+| **Küçük yankı: menzil** | Dalganın ulaştığı en uzak mesafe. | sayı (birim) | `ayarlar.kucukSonar.menzil` |
+| **Küçük yankı: parlaklık** | Değdiği yeri ne kadar parlattığı (0–1). | sayı 0–1 | `ayarlar.kucukSonar.guc` |
+| **Büyük yankı: hız** | Büyük dalganın yayılma hızı. | sayı (birim/sn) | `ayarlar.buyukSonar.hiz` |
+| **Büyük yankı: menzil** | Büyük dalganın ulaştığı en uzak mesafe. | sayı (birim) | `ayarlar.buyukSonar.menzil` |
+| **Büyük yankı: parlaklık** | Büyük dalganın parlaklığı (0–1). | sayı 0–1 | `ayarlar.buyukSonar.guc` |
+| **Basılı tutma süresi** | Bu kadar basılı tutunca büyük yankı çıkar. | sayı (sn) | `ayarlar.buyukSonarEsigi` |
+| **Büyük yankı dolum hızı** | Enerjinin saniyede dolan payı (1 = dolu). 0,2 → 5 saniyede bir büyük yankı. | sayı (/sn) | `ayarlar.enerjiDolumu` |
+| **Görünme süresi** | Yankı değen duvarın ne kadar sürede söndüğü. Büyük = daha uzun görünür, oyun kolaylaşır. | sayı (sn) | `ayarlar.sonmeSuresi` |
+| **Belirme süresi** | Duvarın parlamaya geçişi (küçük = anında, büyük = yumuşak). | sayı (sn) | `ayarlar.belirmeSuresi` |
+| **Dalga kalınlığı** | Yankı halkasının duvara değme kalınlığı. | sayı (birim) | `ayarlar.dalgaKalinligi` |
+| **Duvar ışığı aralığı** | Duvar ışığının hesaplandığı aralık. Küçük = daha akıcı ama telefonu daha çok yorar (10 önerilir). | sayı (birim), en az 4 | `ayarlar.ornekAraligi` |
+
+#### Ateş böcekleri
+
+| Alan | Ne işe yarar | Tür / birim | Dosyadaki adı |
+|---|---|---|---|
+| **Puanı** | Bir ateş böceğinin puanı. | sayı | `ayarlar.bocekPuani` |
+| **Toplama yakınlığı** | Yarasa bu kadar yaklaşınca böcek toplanır. | sayı (birim) | `ayarlar.bocekYaricap` |
+| **Aralık (sonsuz mağara)** | Sonsuz mağarada iki ateş böceği arasındaki yol. Bölümlerde böcekler elle konur. | En az, En çok (birim) | `ayarlar.bocekAraligi` |
+
+#### Örümcek ağı ve su damlası
+
+Öldürmeyen tehlikeler. Bölümlerde elle konur; sonsuz mağarada aşağıdaki aralıkla üretilir.
+
+| Alan | Ne işe yarar | Tür / birim | Dosyadaki adı |
+|---|---|---|---|
+| **Ağın büyüklüğü** | Örümcek ağının yarıçapı. | sayı (birim) | `ayarlar.agYaricap` |
+| **Ağ: etki süresi** | Ağa takılınca etkinin sürmesi. | sayı (sn) | `ayarlar.agSuresi` |
+| **Ağ: kanat gücü** | Ağdayken kanat gücü bu oranla çarpılır (0,72 = %28 zayıf). | sayı (×) 0–1 | `ayarlar.agKanatCarpani` |
+| **Ağ: ilerleme** | Ağdayken ilerleme hızı bu oranla çarpılır. | sayı (×) 0–1 | `ayarlar.agHizCarpani` |
+| **Damlanın büyüklüğü** | Su damlasının yarıçapı. | sayı (birim) | `ayarlar.damlaYaricap` |
+| **Damla: kopma mesafesi** | Yarasa bu kadar yaklaşınca damla tavandan kopar. | sayı (birim) | `ayarlar.damlaDusmeMesafesi` |
+| **Damla: ıslaklık süresi** | Islanınca ağırlaşmanın sürmesi. | sayı (sn) | `ayarlar.damlaSuresi` |
+| **Damla: ağırlaşma** | Islakken yerçekimi bu oranla çarpılır (1,3 = %30 ağır). | sayı (×) | `ayarlar.damlaYercekimiCarpani` |
+| **Başladığı yer (sonsuz mağara)** | Sonsuz mağarada ağ ve damlaların başladığı yol. | sayı (birim) | `ayarlar.tehlikeBaslangic` |
+| **Aralık (sonsuz mağara)** | İki tehlike arasındaki yol. | En az, En çok (birim) | `ayarlar.tehlikeAraligi` |
+
+#### Sonsuz mağara
+
+Yalnız rastgele (sonsuz) mağarayı etkiler: genişlik, daralma ve sarkıt/dikit üretimi. El yapımı bölümlerin duvarı ve sivrileri elle çizilir.
+
+| Alan | Ne işe yarar | Tür / birim | Dosyadaki adı |
+|---|---|---|---|
+| **Başlangıç genişliği** | Mağaranın ilk geçit yüksekliği (ekran 1000). | sayı (birim) | `ayarlar.bosluk` |
+| **En dar hâli** | Mağara bundan daha fazla daralmaz. | sayı (birim) | `ayarlar.enDarBosluk` |
+| **Daralma** | Her 1000 birim yolda ne kadar daraldığı. | sayı (/1000 birim) | `ayarlar.daralma` |
+| **Güvenli başlangıç** | İlk bu kadar yol düz ve geniş. | sayı (birim) | `ayarlar.guvenliBaslangic` |
+| **Isınma** | Zorluğun yavaş yavaş arttığı ilk yol (yumuşak başlangıç). | sayı (birim) | `ayarlar.isinma` |
+| **Sivriler: başladığı yer** | Sarkıt ve dikitlerin başladığı yol. | sayı (birim) | `ayarlar.sivriBaslangic` |
+| **Sivriler: aralık** | İki sivri arası (ilerledikçe %40'a kadar sıklaşır). | En az, En çok (birim) | `ayarlar.sivriAraligi` |
+| **Sivriler: boy** | Duvardan uca uzunluk. | En az, En çok (birim) | `ayarlar.sivriBoyu` |
+| **Sivriler: taban** | Taban genişliği. | En az, En çok (birim) | `ayarlar.sivriTaban` |
+| **Sivriler: en dar geçit** | Sivrinin yanında her zaman kalan boşluk. | sayı (birim) | `ayarlar.sivriGecit` |
+
 <!-- OTOMATIK BITTI -->
 
 ---
@@ -563,7 +644,28 @@ Renkler, yazı tipleri, logo, müzik ve ana menü ışığı 1. bölümün sonun
 | **Satır: sol sütun** | İş ya da eser (ör. "Unreal Engine 5"). |
 | **Satır: sağ sütun** | Kişi ya da kaynak (ör. "Epic Games"). Boşsa satır tek sütun yazılır. Dosyada iki sütun `Sol \| Sağ` olarak saklanır. |
 
-## 9. Kroki (haritanın kuşbakışı çizimi)
+## 9. Yankı → Bölümler (yandan görünüşlü düzenleyici)
+
+Ayarlar 1. bölümün sonundaki "Yankı → Ayarlar" tablolarında. Dünya birimi: ekran yüksekliği 1000 (0 = tavanın en üstü, 1000 = en alt);
+x yol boyunca, 0 başlangıç.
+
+| Alan / nesne | Ne işe yarar |
+|---|---|
+| **Ad** | Oyunun menüsünde ve bölüm sırasında görünen ad. |
+| **Kimlik** | Değişmeyen ad (küçük harf, rakam, `_`). Oyuncunun en iyi süresi bu kimlikle saklanır; değiştirirsen eski süre görünmez. |
+| **Açıklama** | Menüde düğmenin üstüne gelince görünen kısa yazı (isteğe bağlı). |
+| **Uzunluk** | Yarasa bu noktaya varınca "Bölüm bitti". Düzenleyicide yeşil kesik çizgiyi sürükleyerek de değişir. |
+| **Duvar: noktalı** | Mağaranın tavanı ve tabanı noktalardan çizilir; noktalar arası yumuşak eğriyle birleşir. Her nokta iki karedir (tavan ve taban); sürükleyince ikisi aynı x'te kalır. **+** aracıyla nokta eklenir, seçili kart çöp kutusuyla silinir (en az 2 nokta). |
+| **Duvar: tohumlu** | Duvar oyunun rastgele mağarasının bu sayıyla üretilen (hep aynı) hâlidir. "Noktalara çevir" onu noktalı duvara çevirir: artık elle düzeltilebilir. |
+| **Sarkıt / Dikit** | Tavandan / tabandan uzayan sivri kaya; çarpınca oyun biter. **Yer (x)**, **Boy** (duvardan uca; seçiliyken uçtaki beyaz noktayı çekerek de), **Taban** (genişlik), **Yönü**. |
+| **Örümcek ağı** | Takılınca kanat zayıflar, biraz yavaşlarsın (süre ve güç Ayarlar'da). **Yer (x)**, **Yükseklik (y)** (boşsa geçidin ortası). |
+| **Su damlası** | Tavana asılı; yarasa yaklaşınca kopar, değerse ağırlaşırsın. Yalnız **Yer (x)**. |
+| **Ateş böceği** | Toplanınca puan. **Yer (x)**, **Yükseklik (y)** (boşsa geçidin ortası). |
+| **Kırmızı bölge** | Sivriler dahil geçidin 150 birimden dar olduğu yer: yarasa buradan geçemez. Üstte "Her yerden geçilebilir" yazmalı. |
+
+Bölüm listesinde oklarla sıralanır (oyunun menüsündeki sıra), çoğaltılır, silinir. **Oyna** kaydedilmiş Yanki.html'i tarayıcıda açar.
+
+## 10. Kroki (haritanın kuşbakışı çizimi)
 
 Kişiler, Eşyalar, Sandıklar ve Mekânlar sekmelerinin üstünde durur. Fare tekerleği yakınlaştırır, boş yeri sürüklemek kaydırır,
 **Sığdır** her şeyi gösterir, **Yakın görünüm** kalabalık bölgeye odaklanır. Yalnız açık sekmenin nesneleri tutulup sürüklenebilir;

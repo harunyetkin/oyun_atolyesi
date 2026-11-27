@@ -432,11 +432,12 @@ export function haritaKisileri(veriler: Record<string, any>): { id: string; ad: 
 }
 
 /** Dosyanın içeriğe göre türü: editör hangi sayfayı göstereceğini buna göre seçer. */
-export type DosyaTuru = "karakterler" | "harita" | "diyalog" | "oyun" | "karakter_olusturma" | "arayuz" | "diger";
+export type DosyaTuru = "karakterler" | "harita" | "diyalog" | "oyun" | "karakter_olusturma" | "arayuz" | "yanki" | "diger";
 export function dosyaTuru(yol: string): DosyaTuru {
   if (yol === "karakterler.json") return "karakterler";
   if (yol === "oyun.json") return "oyun";
   if (yol === "arayuz.json") return "arayuz";
+  if (yol === "yanki.json") return "yanki";
   if (yol === "karakter_olusturma.json") return "karakter_olusturma";
   if (yol.startsWith("haritalar/")) return "harita";
   if (yol.startsWith("diyaloglar/")) return "diyalog";

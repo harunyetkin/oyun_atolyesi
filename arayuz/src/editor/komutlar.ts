@@ -1,7 +1,7 @@
 // Bütün komutlar tek yerde: menüler, komut paleti ve klavye kısayolları buradan beslenir.
 import { aktifSahne, seciliOrnekler, useDurum } from "../depo/durum";
 import { useOyun } from "../oyun/durum";
-import { oyunIceriginiAc } from "../oyun/ac";
+import { oyunIceriginiAc, yankiAc, yankiOyna } from "../oyun/ac";
 import { HIZALAMA_ADLARI, hizala, type HizalamaModu } from "../depo/hizalama";
 
 export interface Komut {
@@ -32,6 +32,7 @@ const o = () => useOyun.getState();
 async function oyunuKaydet() {
   const n = await o().kaydet();
   if (n < 0) d().bildir("Kaydedilemedi! Dosya açık ya da salt okunur olabilir.", "hata");
+  else if (n && o().kip === "yanki") d().bildir("Yankı kaydedildi; Yanki.html yenilendi. \"Oyna\" ile dene.", "basari");
   else d().bildir(n ? `${n} dosya kaydedildi. Oyunu yeniden başlatınca görünür.` : "Kaydedilecek değişiklik yok.", n ? "basari" : "bilgi");
 }
 
@@ -142,9 +143,12 @@ export const KOMUTLAR: Komut[] = [
   // ---- Oyun içeriği (3D hikâye oyunu: hikaye_oyun/icerik/*.json)
   { id: "oyunIcerigi", ad: "Oyun içeriğini aç…", kategori: "Oyun içeriği", kisayol: "Ctrl+Shift+O", tus: ctrl("o", true),
     calistir: () => void oyunIceriginiAc() },
+  { id: "yankiAc", ad: "Yankı'yı düzenle (ayarlar ve bölümler)…", kategori: "Oyun içeriği", calistir: () => void yankiAc() },
+  { id: "yankiOyna", ad: "Yankı'yı tarayıcıda oyna", kategori: "Oyun içeriği", etkin: () => oyunda() && o().kip === "yanki", calistir: () => void yankiOyna() },
   { id: "oyunKlasoru", ad: "Oyun klasörünü değiştir…", kategori: "Oyun içeriği",
     calistir: () => {
       if (oyunda() && o().degisenler().length) { d().bildir("Önce değişiklikleri kaydet (Ctrl+S) ya da at.", "hata"); return; }
+      if (oyunda() && o().kip === "yanki") { void yankiAc(true); return; }
       void oyunIceriginiAc(true);
     } },
   { id: "oyunYenile", ad: "Oyun içeriğini dosyalardan yeniden oku", kategori: "Oyun içeriği", etkin: oyunda,

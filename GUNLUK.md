@@ -2,6 +2,41 @@
 
 En yeni girdi en üsttedir.
 
+## 2026-11-28 (gece) — Yankı düzenleyicisi: bölümleri Atölye'de çiz
+**Bu gece yapılanlar**
+- Başlangıç ekranında yeni düğme: **Yankı'yı düzenle**. Atölye, yanındaki `yanki` klasörünü kendisi buluyor.
+- **Bölümler** sekmesi: bölüm listesi (sırala, çoğalt, sil, **Bölüm ekle**) ve seçili bölümün **yandan görünüşü**:
+  - Üstteki araçlardan **sarkıt, dikit, örümcek ağı, su damlası, ateş böceği** ya da **duvar noktası** seçip mağaraya tıklayınca oraya konuyor.
+  - Var olanları sürükleyerek taşıyorsun; sarkıtın ucundaki beyaz noktayı çekince boyu değişiyor; duvarın küçük kareleri tavanı ve
+    tabanı aşağı-yukarı taşıyor; yeşil kesik çizgi bölümün sonu (sürüklenir).
+  - **Yarasanın geçemeyeceği kadar dar** bir yer oluşursa orası **kırmızı** oluyor ve üstte uyarı çıkıyor; her yer geçilebilirse
+    "Her yerden geçilebilir" yazıyor. Mağara, oyunun kendi hesabıyla çiziliyor: burada gördüğün, oyunda olanın aynısı.
+  - Altta **Bölüm** kartı (ad, kimlik, açıklama, uzunluk, duvar türü) ve **Seçili** kartı (seçtiğin şeyin sayıları, silme).
+    "Uzun mağara" gibi tohumdan çizilen bir duvarı **Noktalara çevir** ile elle düzenlenebilir yapabilirsin.
+- **Ayarlar** sekmesi: uçuş, yankı, ateş böcekleri, ağ ve damla, sonsuz mağara; her kutunun altında ne işe yaradığı yazıyor.
+- **Kaydet** dosyayı yazıyor (eskisini yedekliyor) ve bilgisayarda çift tıkladığın **Yanki.html**'i de yeniliyor. **Oyna** düğmesi
+  onu hemen tarayıcıda açıyor; menüden bölümünü seçip deneyebilirsin.
+- Alan rehberine (ALAN_REHBERI.md) Yankı'nın ayarları ve bölüm düzenleyicisi eklendi.
+- Testler: 53 birim testi + Chrome'da 160 otomatik kontrol (17'si yeni: sarkıt koyma, ucunu çekip geçidi kapatma → kırmızı uyarı,
+  sürükleme, duvar noktası, ağ/böcek koyma, silme, yeni bölüm, ayarlar, kaydetme, Oyna, geri al) ve dosya işleri testi
+  (Yanki.html'in gerçekten yenilendiği dahil); hepsi geçiyor.
+
+**Ekran görüntüleri:** `gunluk/2026-11-28/yanki_bolum_duzenleyici.png`, `yanki_dar_yer.png`, `yanki_ayarlar.png`
+
+**Nasıl denenir**
+1. GitHub Desktop: **Fetch origin → Pull origin** (`oyun_atolyesi`), sonra `exe_yap.bat`, sonra `OyunAtolyesi.exe`.
+2. **Yankı'yı düzenle → Bölümler → İlk uçuş.** Sarkıt aracını seç, mağaranın tavanına yakın bir yere tıkla; ucundaki beyaz noktayı
+   tabana kadar çek: kırmızı uyarı çıkmalı. Biraz geri çek: uyarı kalkmalı.
+3. Bir ateş böceği koy, **Kaydet**, **Oyna**: tarayıcıda Yankı açılır; menüden **İlk uçuş**'u seç, yeni sarkıtın ve böceğin yerinde
+   olmalı (yankıyla görünür).
+4. Telefonda görmek için GitHub Desktop'ta Commit + Push yap.
+
+**Senin kararın gereken konular**
+- Yok. (Yankı'daki "ateş böceği yıldızları" sorusu hâlâ açık; Yankı gecesinin e-postasında.)
+
+**Sıradaki adım:** Atölye: seçilebilir bedenler (ana menüdeki karakter seçimi) ve modeller.json; sonra Yankı düzenleyicisine
+"bu bölümden oyna" ve uçuş önizlemesi.
+
 > **2026-11-27 (gece) — Yankı gecesi:** bölümler geldi (menüde bölüm listesi, bölüm sonu ve en iyi süre); ayarlar ve bölümler artık `yanki/icerik/yanki.json`'da, Atölye'den düzenlenmeye hazır (ayrıntı: [yanki/GUNLUK.md](yanki/GUNLUK.md)).
 
 > **2026-11-25 (gece) — Yankı gecesi:** örümcek ağları ve su damlaları (öldürmeyen tehlikeler) (ayrıntı: [yanki/GUNLUK.md](yanki/GUNLUK.md)).

@@ -352,6 +352,76 @@ export const ARAYUZ_GRUPLARI: Grup[] = [
     ] },
 ];
 
+// ------------------------------------------------------------------ yanki/icerik/yanki.json → ayarlar (Yankı'nın his ayarları)
+// Biçimin tek kaynağı: yanki/icerik/BICIM.md. Dünya birimi: ekran yüksekliği 1000.
+const aralik = (ad: string, aciklama: string, birim = ""): Alan => ({ tur: "vektor", ad, birim, eksenler: ["En az", "En çok"], aciklama });
+const ys = (ad: string, birim: string, aciklama: string, ek: Partial<Extract<Alan, { tur: "sayi" }>> = {}): Alan => ({ tur: "sayi", ad, birim, aciklama, min: 0, ...ek });
+export const YANKI_GRUPLARI: Grup[] = [
+  { baslik: "Uçuş", acikBaslar: true,
+    aciklama: "Yarasanın hissi: ne kadar çabuk düştüğü, kanat çırpınca ne kadar yükseldiği, ne kadar hızlı ilerlediği.",
+    alanlar: [
+      ["ayarlar.yercekimi", ys("Yerçekimi", "birim/sn²", "Yarasayı aşağı çeken güç. Büyük = daha çabuk düşer, daha sık kanat çırpmak gerekir.", { adim: 50 })],
+      ["ayarlar.kanatGucu", ys("Kanat gücü", "birim/sn", "Kanat çırpınca yukarı fırlama hızı. Büyük = bir çırpışta daha çok yükselir.", { adim: 10 })],
+      ["ayarlar.enFazlaDusus", ys("En hızlı düşüş", "birim/sn", "Düşme hızının üst sınırı.", { adim: 50 })],
+      ["ayarlar.yarasaYaricap", ys("Yarasanın boyu", "birim", "Çarpışma yarıçapı. Büyük = duvarlara daha kolay çarpar.")],
+      ["ayarlar.yarasaKonumu", ys("Ekrandaki yeri", "", "Yarasanın ekranda soldan ne kadar içeride durduğu (0,3 = genişliğin üçte biri). Büyük = önünü daha az görür.", { max: 0.8, adim: 0.01 })],
+      ["ayarlar.hiz", ys("Başlangıç hızı", "birim/sn", "İleri uçuş hızı.", { adim: 10 })],
+      ["ayarlar.hizArtisi", ys("Hız artışı", "/1000 birim", "Her 1000 birim yolda hızın ne kadar arttığı.")],
+      ["ayarlar.enFazlaHiz", ys("En yüksek hız", "birim/sn", "Hızın üst sınırı.", { adim: 10 })],
+      ["ayarlar.yenidenBaslamaBeklemesi", ys("Yeniden başlama beklemesi", "sn", "Çarpınca ya da bölüm bitince dokunuşun kabul edilmesine kadar geçen süre (yanlışlıkla hemen başlamasın).", { adim: 0.1 })],
+    ] },
+  { baslik: "Yankı (sonar)", acikBaslar: true,
+    aciklama: "Dokununca küçük, basılı tutunca büyük yankı çıkar; yankı değen duvar bir süre parlar ve söner. Önü kör: yankı değmeyen hiçbir şey görünmez.",
+    alanlar: [
+      ["ayarlar.kucukSonar.hiz", ys("Küçük yankı: hız", "birim/sn", "Dalganın yayılma hızı.", { adim: 50 })],
+      ["ayarlar.kucukSonar.menzil", ys("Küçük yankı: menzil", "birim", "Dalganın ulaştığı en uzak mesafe.", { adim: 10 })],
+      ["ayarlar.kucukSonar.guc", ys("Küçük yankı: parlaklık", "", "Değdiği yeri ne kadar parlattığı (0–1).", { max: 1, adim: 0.05 })],
+      ["ayarlar.buyukSonar.hiz", ys("Büyük yankı: hız", "birim/sn", "Büyük dalganın yayılma hızı.", { adim: 50 })],
+      ["ayarlar.buyukSonar.menzil", ys("Büyük yankı: menzil", "birim", "Büyük dalganın ulaştığı en uzak mesafe.", { adim: 50 })],
+      ["ayarlar.buyukSonar.guc", ys("Büyük yankı: parlaklık", "", "Büyük dalganın parlaklığı (0–1).", { max: 1, adim: 0.05 })],
+      ["ayarlar.buyukSonarEsigi", ys("Basılı tutma süresi", "sn", "Bu kadar basılı tutunca büyük yankı çıkar.", { adim: 0.05 })],
+      ["ayarlar.enerjiDolumu", ys("Büyük yankı dolum hızı", "/sn", "Enerjinin saniyede dolan payı (1 = dolu). 0,2 → 5 saniyede bir büyük yankı.", { adim: 0.01 })],
+      ["ayarlar.sonmeSuresi", ys("Görünme süresi", "sn", "Yankı değen duvarın ne kadar sürede söndüğü. Büyük = daha uzun görünür, oyun kolaylaşır.", { adim: 0.1 })],
+      ["ayarlar.belirmeSuresi", ys("Belirme süresi", "sn", "Duvarın parlamaya geçişi (küçük = anında, büyük = yumuşak).", { adim: 0.01 })],
+      ["ayarlar.dalgaKalinligi", ys("Dalga kalınlığı", "birim", "Yankı halkasının duvara değme kalınlığı.")],
+      ["ayarlar.ornekAraligi", ys("Duvar ışığı aralığı", "birim", "Duvar ışığının hesaplandığı aralık. Küçük = daha akıcı ama telefonu daha çok yorar (10 önerilir).", { min: 4 })],
+    ] },
+  { baslik: "Ateş böcekleri",
+    alanlar: [
+      ["ayarlar.bocekPuani", ys("Puanı", "", "Bir ateş böceğinin puanı.")],
+      ["ayarlar.bocekYaricap", ys("Toplama yakınlığı", "birim", "Yarasa bu kadar yaklaşınca böcek toplanır.")],
+      ["ayarlar.bocekAraligi", aralik("Aralık (sonsuz mağara)", "Sonsuz mağarada iki ateş böceği arasındaki yol. Bölümlerde böcekler elle konur.", "birim")],
+    ] },
+  { baslik: "Örümcek ağı ve su damlası",
+    aciklama: "Öldürmeyen tehlikeler. Bölümlerde elle konur; sonsuz mağarada aşağıdaki aralıkla üretilir.",
+    alanlar: [
+      ["ayarlar.agYaricap", ys("Ağın büyüklüğü", "birim", "Örümcek ağının yarıçapı.")],
+      ["ayarlar.agSuresi", ys("Ağ: etki süresi", "sn", "Ağa takılınca etkinin sürmesi.", { adim: 0.1 })],
+      ["ayarlar.agKanatCarpani", ys("Ağ: kanat gücü", "×", "Ağdayken kanat gücü bu oranla çarpılır (0,72 = %28 zayıf).", { max: 1, adim: 0.01 })],
+      ["ayarlar.agHizCarpani", ys("Ağ: ilerleme", "×", "Ağdayken ilerleme hızı bu oranla çarpılır.", { max: 1, adim: 0.01 })],
+      ["ayarlar.damlaYaricap", ys("Damlanın büyüklüğü", "birim", "Su damlasının yarıçapı.")],
+      ["ayarlar.damlaDusmeMesafesi", ys("Damla: kopma mesafesi", "birim", "Yarasa bu kadar yaklaşınca damla tavandan kopar.", { adim: 10 })],
+      ["ayarlar.damlaSuresi", ys("Damla: ıslaklık süresi", "sn", "Islanınca ağırlaşmanın sürmesi.", { adim: 0.1 })],
+      ["ayarlar.damlaYercekimiCarpani", ys("Damla: ağırlaşma", "×", "Islakken yerçekimi bu oranla çarpılır (1,3 = %30 ağır).", { adim: 0.05 })],
+      ["ayarlar.tehlikeBaslangic", ys("Başladığı yer (sonsuz mağara)", "birim", "Sonsuz mağarada ağ ve damlaların başladığı yol.", { adim: 100 })],
+      ["ayarlar.tehlikeAraligi", aralik("Aralık (sonsuz mağara)", "İki tehlike arasındaki yol.", "birim")],
+    ] },
+  { baslik: "Sonsuz mağara",
+    aciklama: "Yalnız rastgele (sonsuz) mağarayı etkiler: genişlik, daralma ve sarkıt/dikit üretimi. El yapımı bölümlerin duvarı ve sivrileri elle çizilir.",
+    alanlar: [
+      ["ayarlar.bosluk", ys("Başlangıç genişliği", "birim", "Mağaranın ilk geçit yüksekliği (ekran 1000).", { adim: 10 })],
+      ["ayarlar.enDarBosluk", ys("En dar hâli", "birim", "Mağara bundan daha fazla daralmaz.", { adim: 10 })],
+      ["ayarlar.daralma", ys("Daralma", "/1000 birim", "Her 1000 birim yolda ne kadar daraldığı.")],
+      ["ayarlar.guvenliBaslangic", ys("Güvenli başlangıç", "birim", "İlk bu kadar yol düz ve geniş.", { adim: 100 })],
+      ["ayarlar.isinma", ys("Isınma", "birim", "Zorluğun yavaş yavaş arttığı ilk yol (yumuşak başlangıç).", { adim: 500 })],
+      ["ayarlar.sivriBaslangic", ys("Sivriler: başladığı yer", "birim", "Sarkıt ve dikitlerin başladığı yol.", { adim: 100 })],
+      ["ayarlar.sivriAraligi", aralik("Sivriler: aralık", "İki sivri arası (ilerledikçe %40'a kadar sıklaşır).", "birim")],
+      ["ayarlar.sivriBoyu", aralik("Sivriler: boy", "Duvardan uca uzunluk.", "birim")],
+      ["ayarlar.sivriTaban", aralik("Sivriler: taban", "Taban genişliği.", "birim")],
+      ["ayarlar.sivriGecit", ys("Sivriler: en dar geçit", "birim", "Sivrinin yanında her zaman kalan boşluk.", { adim: 10 })],
+    ] },
+];
+
 /** Bir grup listesinde tanımlı bütün yollar (digerleri hesabı için). */
 export const tanimliYollar = (gruplar: Grup[]) => new Set(gruplar.flatMap(g => g.alanlar.map(([y]) => y)));
 

@@ -8,6 +8,8 @@ arayüzün dosya işlerini (proje kaydetme, sürümler, dışa aktarma) yapar.
 Projeler:  Belgeler/OyunAtolyesi/projeler/<proje adı>/oyun.json
 Sürümler:  Belgeler/OyunAtolyesi/projeler/<proje adı>/surumler/*.json
 Dışa aktarılan oyunlar: Belgeler/OyunAtolyesi/disari/<proje adı>.html
+Yankı: bu deponun yanki/ klasöründeki icerik/yanki.json (ayarlar ve bölümler). Kaydedince eski hâli yedeklenir,
+       yanki/oyun/icerik.json ve tek dosyalık yanki/Yanki.html de yenilenir.
 Oyun içeriği: Harun'un oyun klasöründeki icerik/*.json dosyaları (klasör bir kez seçilir,
                Belgeler/OyunAtolyesi/ayarlar.json'da hatırlanır). Her kayıttan önce eski hâli
                Belgeler/OyunAtolyesi/icerik_yedekleri/ altına kopyalanır.
@@ -87,6 +89,41 @@ def icerik_yolu(oyun, goreli):
     if os.path.commonpath([kok, tam]) != kok or tam == kok:
         raise ValueError("geçersiz içerik yolu")
     return tam
+
+
+def yanki_klasoru_mu(yol):
+    """Yankı klasörü: içinde icerik/yanki.json olan klasör."""
+    return bool(yol) and os.path.isfile(os.path.join(yol, "icerik", "yanki.json"))
+
+
+def uygulama_klasoru():
+    """Atölye'nin bulunduğu klasör (.exe olarak paketlenince exe'nin yanı)."""
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(os.path.abspath(sys.executable))
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+def yedekle(yol, goreli):
+    """Dosyanın şimdiki hâlini Belgeler/OyunAtolyesi/icerik_yedekleri/<zaman>/<goreli> altına kopyalar."""
+    if not os.path.isfile(yol):
+        return
+    zaman = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    hedef = os.path.join(YEDEKLER, zaman, *str(goreli).replace("\\", "/").split("/"))
+    os.makedirs(os.path.dirname(hedef), exist_ok=True)
+    with open(yol, "rb") as kaynak, open(hedef, "wb") as yedek:
+        yedek.write(kaynak.read())
+
+
+def json_bicimli_yaz(yol, veri):
+    """JSON'u eski dosyanın girintisi ve son satır sonuyla yazar (gereksiz fark çıkmasın); yarıda kalırsa bozulmaz."""
+    girinti, son_satir = bicim_bul(yol)
+    os.makedirs(os.path.dirname(yol), exist_ok=True)
+    gecici = yol + ".tmp"
+    with open(gecici, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(veri, f, ensure_ascii=False, indent=girinti)
+        if son_satir:
+            f.write("\n")
+    os.replace(gecici, yol)
 
 
 def bicim_bul(yol):
@@ -213,20 +250,75 @@ class Api:
     def icerik_yaz(self, goreli, veri):
         """Dosyayı yazar; önce eski hâlini yedekler. Girinti ve son satır sonu eskisi gibi kalır."""
         yol = icerik_yolu(self._oyun(), goreli)
-        girinti, son_satir = bicim_bul(yol)
-        if os.path.isfile(yol):
-            zaman = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            hedef = os.path.join(YEDEKLER, zaman, *str(goreli).replace("\\", "/").split("/"))
-            os.makedirs(os.path.dirname(hedef), exist_ok=True)
-            with open(yol, "rb") as kaynak, open(hedef, "wb") as yedek:
-                yedek.write(kaynak.read())
-        os.makedirs(os.path.dirname(yol), exist_ok=True)
-        gecici = yol + ".tmp"
-        with open(gecici, "w", encoding="utf-8", newline="\n") as f:
-            json.dump(veri, f, ensure_ascii=False, indent=girinti)
-            if son_satir:
-                f.write("\n")
-        os.replace(gecici, yol)
+        yedekle(yol, goreli)
+        json_bicimli_yaz(yol, veri)
+        return True
+
+    # ---------------------------------------------------------------- Yankı (yanki/icerik/yanki.json)
+    def yanki_klasoru(self):
+        """Yankı klasörü: hatırlanan, yoksa Atölye'nin yanındaki yanki/. Bulunamazsa boş metin."""
+        for aday in (ayar_oku().get("yanki_klasoru", ""), os.path.join(uygulama_klasoru(), "yanki")):
+            if yanki_klasoru_mu(aday):
+                return aday
+        return ""
+
+    def yanki_klasoru_sec(self):
+        """Klasör seçme penceresi (Atölye'nin yanında yanki/ yoksa). Dönüş: yol, "" ya da "!açıklama"."""
+        if PENCERE is None:
+            return ""
+        import webview
+        tur = getattr(getattr(webview, "FileDialog", None), "FOLDER", None)
+        if tur is None:
+            tur = webview.FOLDER_DIALOG
+        secim = PENCERE.create_file_dialog(tur)
+        if not secim:
+            return ""
+        yol = secim[0] if isinstance(secim, (list, tuple)) else secim
+        for aday in (yol, os.path.join(yol, "yanki"), os.path.dirname(yol)):
+            if yanki_klasoru_mu(aday):
+                ayar_yaz("yanki_klasoru", aday)
+                return aday
+        return "!Bu klasörde Yankı yok. oyun_atolyesi klasörünü ya da içindeki yanki klasörünü seç."
+
+    def _yanki(self):
+        yol = self.yanki_klasoru()
+        if not yol:
+            raise ValueError("Yankı klasörü bulunamadı")
+        return yol
+
+    def yanki_oku(self):
+        with open(os.path.join(self._yanki(), "icerik", "yanki.json"), encoding="utf-8") as f:
+            return json.load(f)
+
+    def yanki_yaz(self, veri):
+        """yanki.json'u yazar (önce yedek), derlenmiş oyunun icerik.json'unu ve tek dosyalık Yanki.html'i yeniler.
+        Dönüş: Yanki.html yenilendiyse True; yenilenemediyse "!açıklama" (içerik yine kaydedilmiştir)."""
+        kok = self._yanki()
+        yol = os.path.join(kok, "icerik", "yanki.json")
+        yedekle(yol, "yanki/yanki.json")
+        json_bicimli_yaz(yol, veri)
+        derlenmis = os.path.join(kok, "oyun")
+        if os.path.isdir(derlenmis):
+            with open(os.path.join(derlenmis, "icerik.json"), "w", encoding="utf-8", newline="\n") as f:
+                json.dump(veri, f, ensure_ascii=False, indent=1)
+        betik = os.path.join(kok, "araclar", "tek_dosya.py")
+        try:
+            import contextlib
+            import io
+            import runpy
+            with contextlib.redirect_stdout(io.StringIO()):
+                runpy.run_path(betik, run_name="__main__")
+            return True
+        except Exception as e:  # noqa: BLE001 — içerik kaydedildi; yalnız paket yenilenemedi
+            return "!Yanki.html yenilenemedi: " + str(e)[:200]
+
+    def yanki_oyna(self):
+        """Tek dosyalık Yanki.html'i varsayılan tarayıcıda açar."""
+        import webbrowser
+        html = os.path.join(self._yanki(), "Yanki.html")
+        if not os.path.isfile(html):
+            return "!Yanki.html bulunamadı"
+        webbrowser.open("file:///" + os.path.abspath(html).replace(os.sep, "/").lstrip("/"))
         return True
 
 

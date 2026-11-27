@@ -248,3 +248,18 @@ textarea.giris { resize: vertical; min-height: 34px; line-height: 1.4; }
 .mekan-satirlari { display: flex; flex-direction: column; gap: 5px; }
 .mekan-satiri { padding: 3px 4px; border-radius: 6px; border: 1px solid transparent; }
 .mekan-satiri.secili { border-color: var(--vurgu); background: rgba(79,156,247,.08); }
+
+/* ---- Yankı düzenleyicisi (oyun/Yanki.tsx) */
+.yanki-bolum-listesi { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.yanki-bolum-satiri { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--kenar, #2a2f3a);
+  background: var(--panel2, #1d2129); cursor: pointer; }
+.yanki-bolum-satiri.secili { border-color: var(--vurgu, #4f9cf7); background: rgba(79,156,247,.08); }
+.yanki-bolum-satiri .soluk { font-size: 12px; }
+.yanki-duzenleyici { display: flex; flex-direction: column; gap: 6px; }
+.yanki-arac-cubugu { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.yanki-arac-cubugu .ikon-dugme.aktif { background: rgba(79,156,247,.25); outline: 1px solid var(--vurgu, #4f9cf7); }
+.yanki-arac-cubugu .ayirici { width: 1px; height: 18px; background: var(--kenar, #333); margin: 0 6px; }
+svg.yanki-tuval { width: 100%; height: 380px; display: block; border-radius: 6px; cursor: grab; touch-action: none; user-select: none; }
+svg.yanki-tuval:active { cursor: grabbing; }
+svg.yanki-tuval.koyma { cursor: crosshair; }
+.yanki-kaydirici { width: 100%; }

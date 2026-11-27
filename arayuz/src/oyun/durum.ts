@@ -11,6 +11,8 @@ interface Adim { yol: string; metin: string; secili: string | null }
 
 interface OyunDurum {
   depo: Depo | null;
+  /** Hangi içerik açık: 3D hikâye oyunu ("oyun") ya da Yankı ("yanki"; tek dosya: yanki.json). */
+  kip: "oyun" | "yanki";
   klasor: string;
   dosyalar: string[];
   /** Açılan dosyaların içeriği (göreli yol → JSON). */
@@ -25,7 +27,7 @@ interface OyunDurum {
   ileri: Adim[];
 
   /** Klasördeki bütün içerik dosyalarını okur. */
-  yukle(depo: Depo, klasor: string): Promise<void>;
+  yukle(depo: Depo, klasor: string, kip?: "oyun" | "yanki"): Promise<void>;
   dosyaAc(yol: string): void;
   sec(id: string | null): void;
   /** Bir dosyayı değiştirir. Aynı `anahtar`la art arda yapılan değişiklikler tek geri al adımı sayılır. */
@@ -43,13 +45,13 @@ let sonAnahtar: string | null = null;
 let sonZaman = 0;
 
 /** Sol listede dosyaların sırası: önce karakterler, sonra haritalar, diyaloglar, diğerleri. */
-const SIRA: Record<string, number> = { karakterler: 0, harita: 1, diyalog: 2, oyun: 3, karakter_olusturma: 4, diger: 5 };
+const SIRA: Record<string, number> = { yanki: -1, karakterler: 0, harita: 1, diyalog: 2, arayuz: 3, oyun: 4, karakter_olusturma: 5, diger: 6 };
 const sirala = (liste: string[]) => [...liste].sort((a, b) => SIRA[dosyaTuru(a)] - SIRA[dosyaTuru(b)] || a.localeCompare(b));
 
 export const useOyun = create<OyunDurum>((set, get) => ({
-  depo: null, klasor: "", dosyalar: [], veri: {}, kayitli: {}, acik: null, secili: null, kaydediliyor: false, geri: [], ileri: [],
+  depo: null, kip: "oyun", klasor: "", dosyalar: [], veri: {}, kayitli: {}, acik: null, secili: null, kaydediliyor: false, geri: [], ileri: [],
 
-  async yukle(depo, klasor) {
+  async yukle(depo, klasor, kip = get().kip) {
     const dosyalar = sirala(await depo.icerik_listesi());
     const veri: Record<string, any> = {}, kayitli: Record<string, string> = {};
     for (const yol of dosyalar) {
@@ -58,7 +60,7 @@ export const useOyun = create<OyunDurum>((set, get) => ({
     }
     const onceki = get().acik;
     const acik = onceki && onceki in veri ? onceki : ("karakterler.json" in veri ? "karakterler.json" : dosyalar.find(d => d in veri) || null);  // ilk açılışta Karakterler
-    set({ depo, klasor, dosyalar, veri, kayitli, acik, secili: null, geri: [], ileri: [] });
+    set({ depo, kip, klasor, dosyalar, veri, kayitli, acik: acik ?? (dosyalar[0] in veri ? dosyalar[0] : null), secili: null, geri: [], ileri: [] });
   },
 
   dosyaAc(yol) { set({ acik: yol, secili: null }); },

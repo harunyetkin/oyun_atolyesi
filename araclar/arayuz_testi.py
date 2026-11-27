@@ -661,6 +661,85 @@ with sync_playwright() as p:
     s.click("[data-testid=oyun-cik]")
     kontrol("değişiklik atılıp başlangıca dönüldü", durum(s, "d.ekran") == "baslangic")
     s.screenshot(path=f"{CIKTI}/11_baslangic.png")
+    # 15) Yankı düzenleyicisi: bölümler (yandan görünüş: koy, sürükle, dar yer uyarısı), ayarlar, kaydet, oyna
+    s.click("[data-testid=yanki-ac]")
+    s.wait_for_selector("[data-testid=yanki-duzenleyici]")
+    time.sleep(0.3)
+    kontrol("Yankı açıldı: 3 bölüm, düzenleyici, her yerden geçilebilir",
+            s.locator("[data-testid^=yanki-bolum-][data-testid$=ucus], [data-testid=yanki-bolumler] .yanki-bolum-satiri").count() >= 3
+            and s.locator("[data-testid=yanki-gecit-tamam]").count() == 1 and oyun("o.kip") == "yanki")
+    kontrol("ilk bölümün 3 sivrisi, 1 ağı, 6 böceği, 14 duvar noktası çizildi",
+            s.locator("[data-testid^=yanki-sivri-]:not([data-testid*=uc])").count() == 3 and s.locator("[data-testid^=yanki-ag-]").count() == 1
+            and s.locator("[data-testid^=yanki-bocek-]").count() == 6 and s.locator("[data-testid^=yanki-nokta-]").count() == 14)
+    Y = "o.veri['yanki.json']"
+    # sarkıt aracı: tuvale tıkla → yeni sarkıt, seçili
+    t = s.locator("[data-testid=yanki-tuval]").bounding_box()
+    s.click("[data-testid=yanki-arac-sarkit]")
+    s.mouse.click(t["x"] + t["width"] * 0.5, t["y"] + t["height"] * 0.3)
+    kontrol("sarkıt aracıyla tıklanan yere sarkıt kondu", oyun(f"{Y}.bolumler[0].sivriler.length") == 4 and oyun(f"{Y}.bolumler[0].sivriler[3].ust") is True)
+    x_once = oyun(f"{Y}.bolumler[0].sivriler[3].x")
+    # sarkıtın ucunu aşağı çek → geçit kapanır, dar yer uyarısı
+    u = s.locator("[data-testid=yanki-sivri-uc-3]").bounding_box()
+    s.mouse.move(u["x"] + u["width"] / 2, u["y"] + u["height"] / 2); s.mouse.down()
+    s.mouse.move(u["x"] + u["width"] / 2, t["y"] + t["height"] * 0.85, steps=6); s.mouse.up()
+    kontrol("sarkıtın ucu çekilince boy uzadı ve dar yer uyarısı çıktı",
+            oyun(f"{Y}.bolumler[0].sivriler[3].boy") > 300 and s.locator("[data-testid=yanki-dar-uyari]").count() == 1 and s.locator("[data-testid=yanki-dar]").count() >= 1)
+    s.screenshot(path=f"{CIKTI}/12_yanki_dar.png")
+    s.fill("[data-testid=yanki-secili-boy]", "90"); s.keyboard.press("Enter")
+    kontrol("seçili kartında boy yazılınca uyarı kalktı", s.locator("[data-testid=yanki-gecit-tamam]").count() == 1 and oyun(f"{Y}.bolumler[0].sivriler[3].x") == x_once)
+    # sarkıtı yana sürükle
+    p_ = s.locator("[data-testid=yanki-sivri-3] polygon").bounding_box()
+    s.mouse.move(p_["x"] + p_["width"] / 2, p_["y"] + 5); s.mouse.down()
+    s.mouse.move(p_["x"] + p_["width"] / 2 + 60, p_["y"] + 5, steps=5); s.mouse.up()
+    kontrol("sarkıt sürüklenince ileri gitti", oyun(f"{Y}.bolumler[0].sivriler[3].x") > x_once + 20)
+    # duvar noktasını yukarı çek
+    n_once = oyun(f"{Y}.bolumler[0].duvar.noktalar[1].alt")
+    nb = s.locator("[data-testid=yanki-nokta-1-alt]").bounding_box()
+    if nb["x"] < t["x"] or nb["x"] > t["x"] + t["width"]:
+        s.click("[data-testid=yanki-tumu]"); time.sleep(0.2); nb = s.locator("[data-testid=yanki-nokta-1-alt]").bounding_box()
+    s.mouse.move(nb["x"] + nb["width"] / 2, nb["y"] + nb["height"] / 2); s.mouse.down()
+    s.mouse.move(nb["x"] + nb["width"] / 2, nb["y"] - 25, steps=5); s.mouse.up()
+    kontrol("duvar noktası (taban) yukarı çekildi", oyun(f"{Y}.bolumler[0].duvar.noktalar[1].alt") < n_once - 10)
+    # ateş böceği ve ağ koy
+    s.click("[data-testid=yanki-arac-bocek]")
+    s.mouse.click(t["x"] + t["width"] * 0.7, t["y"] + t["height"] * 0.5)
+    s.click("[data-testid=yanki-arac-ag]")
+    s.mouse.click(t["x"] + t["width"] * 0.6, t["y"] + t["height"] * 0.45)
+    kontrol("ateş böceği ve ağ kondu", oyun(f"{Y}.bolumler[0].bocekler.length") == 7 and oyun(f"{Y}.bolumler[0].tehlikeler.length") == 2)
+    s.click("[data-testid=yanki-secili-sil]")
+    kontrol("seçili (son konan ağ) silindi", oyun(f"{Y}.bolumler[0].tehlikeler.length") == 1)
+    s.click("[data-testid=yanki-tumu]")
+    time.sleep(0.2)
+    s.screenshot(path=f"{CIKTI}/13_yanki_bolum.png")
+    # tohumlu bölüm → noktalara çevir; yeni bölüm ekle; kimlik
+    s.click("[data-testid=yanki-bolum-tohumlu_magara]")
+    s.click("[data-testid=yanki-noktalara-cevir]")
+    kontrol("tohumlu duvar noktalara çevrildi", oyun(f"Array.isArray({Y}.bolumler[2].duvar.noktalar)") and oyun(f"{Y}.bolumler[2].duvar.noktalar.length") > 10)
+    s.click("[data-testid=yanki-bolum-ekle]")
+    s.fill("[data-testid=yanki-bolum-ad]", "Benim bölümüm"); s.keyboard.press("Enter")
+    s.fill("[data-testid=yanki-bolum-kimlik]", "Kötü Ad"); s.keyboard.press("Enter")
+    kontrol("yeni bölüm eklendi, adı yazıldı, kural dışı kimlik reddedildi",
+            oyun(f"{Y}.bolumler.length") == 4 and oyun(f"{Y}.bolumler[3].ad") == "Benim bölümüm" and oyun(f"{Y}.bolumler[3].id") == "bolum_4")
+    # ayarlar
+    s.click("[data-testid=yanki-sekme-ayarlar]")
+    s.fill("[data-testid='alan-ayarlar.kanatGucu']", "760"); s.keyboard.press("Enter")
+    s.fill("[data-testid='alan-ayarlar.kucukSonar.menzil']", "480"); s.keyboard.press("Enter")
+    kontrol("Yankı ayarları yazıldı (iç içe ayar dahil)", oyun(f"[{Y}.ayarlar.kanatGucu, {Y}.ayarlar.kucukSonar.menzil, {Y}.ayarlar.kucukSonar.hiz]") == [760, 480, 950])
+    kontrol("ayarlarda 'yeni' rozetli (açıklamasız) alan yok", s.locator("[data-testid=oyun-icerigi] .rozet:has-text('yeni')").count() == 0)
+    s.screenshot(path=f"{CIKTI}/14_yanki_ayarlar.png")
+    s.click("[data-testid=yanki-oyna]")
+    kontrol("kaydetmeden 'Oyna' uyardı (oynatmadı)", s.evaluate("window.__yankiOynandi || 0") == 0)
+    s.keyboard.press("Control+s")
+    time.sleep(0.4)
+    yazilan = s.evaluate("window.__oyun.getState().depo.icerik_oku('yanki.json')")
+    kontrol("Ctrl+S yanki.json'u yazdı", yazilan["ayarlar"]["kanatGucu"] == 760 and len(yazilan["bolumler"]) == 4 and yazilan["bolumler"][0]["sivriler"][3]["boy"] == 90)
+    s.click("[data-testid=yanki-oyna]")
+    time.sleep(0.2)
+    kontrol("kaydedince 'Oyna' Yanki.html'i açtı", s.evaluate("window.__yankiOynandi || 0") == 1)
+    s.keyboard.press("Control+z")
+    kontrol("Yankı'da geri al çalışıyor", oyun(f"{Y}.ayarlar.kucukSonar.menzil") == 430)
+    s.click("[data-testid=oyun-at]")
+    s.click("[data-testid=oyun-cik]")
     tarayici.close()
 
 sunucu.shutdown()

@@ -24,6 +24,11 @@ birebir** yapılabilmeli. Aşamalar ve kabul testleri `PLAN.md`'de. Arayüz gü�
     davranışlar, olay kuralları). Dışa aktarılan oyunlar da bunu kullanır. DOM'a bağımlı olmayan
     mantığı birim testleriyle (vitest) doğrula.
   - `arayuz/src/editor/` — editör arayüzü (paneller, sahne, özellikler, kurallar).
+  - `arayuz/src/oyun/Yanki.tsx`, `yankiIcerik.ts` — **Yankı düzenleyicisi** (`yanki/icerik/yanki.json`). Mağara/geçit hesapları
+    Yankı'nın kendi kodundan (`yanki/kaynak/src/oyun/dunya.ts`, `icerik.ts`) **içe aktarılır**: Atölye o dosyaları değiştirmez, ama
+    Yankı'daki bir değişiklik Atölye'nin derlemesini etkileyebilir (Atölye gecesinde `npm run build` + testler bunu yakalar).
+    Yankı'ya yeni ayar eklenince `sema.ts` → `YANKI_GRUPLARI`'na ekle (test eksik alanı yakalar). Kayıt `atolye.py` → `yanki_yaz`
+    (yedek + `oyun/icerik.json` + `Yanki.html`).
   - Derleme: `cd arayuz && npm ci && npm run build` → çıktı **`app/`** klasörüne yazılır ve
     **commit edilir** (Harun'un bilgisayarında Node gerekmez; `exe_yap.bat` `app/`'i paketler).
 - `atolye.py` — masaüstü kabuğu (pywebview); pencere + dosya işleri. Arayüz yeni dosya işi

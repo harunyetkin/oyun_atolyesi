@@ -23,6 +23,7 @@ Yeni bir düğme eklenince, değişince ya da bir özellik "yakında" olmaktan �
 14. [Klavye kısayolları](#14-klavye-kısayolları)
 15. [Adım adım: ilk oyununu kur](#15-adım-adım-ilk-oyununu-kur)
 16. [Oyun içeriği (3D hikâye oyunu)](#16-oyun-içeriği-3d-hikâye-oyunu)
+    - [Yankı düzenleyicisi](#16b-yankı-düzenleyicisi)
 17. [Geliştirme adımları (sürüm geçmişi)](#17-geliştirme-adımları-sürüm-geçmişi)
 
 Rozetler: <kbd>Aşama N</kbd> yazan, soluk görünen bir düğme henüz çalışmaz; o aşamada gelecektir.
@@ -493,6 +494,25 @@ zemin/yol malzeme klasörleri ve karo boyları), Yol (uzunluk, genişlik, renkle
 - Kaydetmeden **Başlangıç**'a basarsan düğme "Kaydetmeden çık?" olur; ikinci basışta çıkar.
 - Kaydettikten sonra değişiklikler oyun klasöründedir; GitHub Desktop'ta görünür, oradan commit edebilirsin.
 
+## 16b. Yankı düzenleyicisi
+
+Yarasa oyunu **Yankı**'nın his ayarları ve el yapımı bölümleri (`yanki/icerik/yanki.json`). Başlangıç ekranında **Yankı'yı düzenle**
+(ya da komut paletinde "Yankı'yı düzenle"). Atölye'nin yanındaki `yanki` klasörünü kendisi bulur; bulamazsa bir kez klasör sorar.
+Ekran Oyun içeriğiyle aynıdır: solda tek dosya (**Yankı: ayarlar ve bölümler**), üstte Kaydet, Geri al / Yinele, Değişiklikleri at.
+
+- **Bölümler sekmesi:** bölüm listesi (oyunun menüsündeki sıra; oklarla sıralanır, çoğaltılır, silinir, **Bölüm ekle**) ve seçili bölümün
+  **yandan görünüşü**:
+  - Araç çubuğu: **Seç** (sürükle: taşı; boş yeri sürükle: kaydır; tekerlek: yakınlaş), **Sarkıt**, **Dikit**, **Ağ**, **Damla**,
+    **Ateş böceği**, **Duvar noktası** (+). Bir araç seçip mağaraya tıklayınca o şey oraya konur ve seçili olur.
+  - Duvarın kareleri tavanı ve tabanı taşır; sarkıt/dikitin ucundaki beyaz nokta boyunu değiştirir; yeşil kesik çizgi bölümün sonudur.
+  - **Kırmızı bölge**: yarasanın geçemeyeceği kadar dar yer (sağ üstte sayısı yazar). Her yer geçilebilirse "Her yerden geçilebilir".
+  - Altta **Bölüm** kartı (ad, kimlik, açıklama, uzunluk, duvar türü; tohumlu duvarı "Noktalara çevir") ve **Seçili** kartı (seçili
+    nesnenin sayıları, çöp kutusuyla silme). Kaydırıcı bölüm boyunca gezdirir; ⤢ bütün bölümü, ✋ gerçek oranı gösterir.
+- **Ayarlar sekmesi:** uçuş, yankı, ateş böcekleri, ağ ve damla, sonsuz mağara kartları; her kutunun altında ne işe yaradığı yazar.
+- **Kaydet (Ctrl+S)**: dosya yazılır, eski hâli yedeklenir ve bilgisayarda çift tıklanan **Yanki.html** de yenilenir.
+  **Oyna (Yanki.html)** kaydedilmiş oyunu tarayıcıda açar (kaydedilmemiş değişiklik varsa önce kaydetmeni ister).
+- Telefonda görmek için değişikliği GitHub Desktop'ta Commit + Push yap; GitHub Pages bağlantısı birkaç dakikada güncellenir.
+
 ## 17. Geliştirme adımları (sürüm geçmişi)
 
 Her satır bir çalışma oturumudur; ayrıntılar GUNLUK.md'de.
@@ -512,6 +532,7 @@ Her satır bir çalışma oturumudur; ayrıntılar GUNLUK.md'de.
 | 2026-11-24 gece | **v0.8** — Mekânlar | Harita → **Mekânlar**: kapılar ve geçişler (dönüş kapısına atlama, kapı çifti ekleme), iç mekânlar, meşaleler (ortak ışık gücü/erim), zeminler, görünmez duvarlar, ot serpilmeyen alanlar; hepsi krokide sürüklenir; dönüşü olmayan kapı uyarısı. |
 | 2026-11-25 | Alan rehberi | **ALAN_REHBERI.md**: Oyun içeriğindeki her kutunun ne işe yaradığı; açıklaması eksik 129 alana açıklama yazıldı (araçta kutunun altında görünür). Rehberin form tabloları araçtan otomatik üretilir, testi eskiyince uyarır. |
 | 2026-11-26 gece | **v0.9** — Arayüz ve oyuncunun yeni ayarları | **Genel → Arayüz** (`arayuz.json`): menü renkleri (boş = oyunun rengi, saydamlık kaydırıcısı), yazı tipleri, logo, menü müziği, ana menü ışığı, **Yapımcılar ekranı** düzenleyicisi. Oyuncuya **Bankta oturma** kartı (bekleme hareketleri listesi), omuz kamerası, tekme mesafeleri/anları, vuruşların en uzak anları, sandık açma ve yerden alma ayarları, 16 yeni animasyon yolu; 59 yeni alan adlı ve açıklamalı. Oyunun notları kartın üstünde. |
+| 2026-11-28 gece | **v0.10** — Yankı düzenleyicisi | Başlangıçta **Yankı'yı düzenle**: Yankı'nın ayarları (5 kart) ve **bölümler**: liste + yandan görünüşlü düzenleyici (duvar noktaları, sarkıt/dikit, ağ, damla, ateş böceği; tıkla-koy, sürükle, uçtan boy), **dar yer** uyarısı, tohumlu duvarı noktalara çevirme; kayıtta Yanki.html yenilenir, **Oyna** ile açılır. |
 
 **Sıradaki adımlar:** Aşama 2 — 3D görünüm (3D Harita sekmesi, yörünge kamerası, glTF modeller,
 taşı/döndür/ölçekle tutamaçları, ışık ve gökyüzü önizlemesi).

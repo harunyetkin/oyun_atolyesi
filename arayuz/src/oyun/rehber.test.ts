@@ -4,7 +4,7 @@
 // Alan ekleyip rehberi yenilemek için: REHBER_YAZ=1 npx vitest run rehber
 import { describe, expect, it } from "vitest";
 import { readFileSync, writeFileSync } from "node:fs";
-import { ARAYUZ_GRUPLARI, HARITA_GRUPLARI, KISI_NITELIK_GRUBU, OYUNCU_GRUPLARI, type Alan, type Grup } from "./sema";
+import { ARAYUZ_GRUPLARI, YANKI_GRUPLARI, HARITA_GRUPLARI, KISI_NITELIK_GRUBU, OYUNCU_GRUPLARI, type Alan, type Grup } from "./sema";
 
 const DOSYA = new URL("../../../ALAN_REHBERI.md", import.meta.url);
 const BASLA = "<!-- OTOMATIK BASLA (sema.ts'den üretilir; elle düzenleme) -->";
@@ -49,13 +49,16 @@ export function otomatikBolum(): string {
     ...HARITA_GRUPLARI.map(g => grupMd(g, "") + "\n"),
     "### Genel → Arayüz (`arayuz.json`)", "",
     ...ARAYUZ_GRUPLARI.map(g => grupMd(g, "") + "\n"),
+    "### Yankı → Ayarlar (`yanki/icerik/yanki.json` → `ayarlar`)", "",
+    "Dünya birimi: ekran yüksekliği 1000. Biçimin tek kaynağı `yanki/icerik/BICIM.md`.", "",
+    ...YANKI_GRUPLARI.map(g => grupMd(g, "") + "\n"),
     BITTI,
   ].join("\n");
 }
 
 describe("alan rehberi", () => {
   it("her form alanının bir açıklaması var", () => {
-    const eksik = [...OYUNCU_GRUPLARI, ...HARITA_GRUPLARI, KISI_NITELIK_GRUBU, ...ARAYUZ_GRUPLARI]
+    const eksik = [...OYUNCU_GRUPLARI, ...HARITA_GRUPLARI, KISI_NITELIK_GRUBU, ...ARAYUZ_GRUPLARI, ...YANKI_GRUPLARI]
       .flatMap(g => g.alanlar.filter(([, a]) => !a.aciklama?.trim()).map(([y]) => `${g.baslik}: ${y}`));
     expect(eksik).toEqual([]);
   });

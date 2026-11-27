@@ -67,4 +67,36 @@ with tempfile.TemporaryDirectory() as tmp:
     except ValueError:
         pass
     print("oyun içeriği:", a.icerik_listesi(), "yedek:", len(yedekler))
+# Yankı: klasör bulma, okuma, yazma (yedek, girinti), derlenmiş icerik.json ve Yanki.html'in yenilenmesi
+import shutil
+with tempfile.TemporaryDirectory() as tmp:
+    atolye.KOK = tmp
+    atolye.AYARLAR = os.path.join(tmp, "ayarlar.json")
+    atolye.YEDEKLER = os.path.join(tmp, "yedek")
+    kaynak = os.path.join(os.path.dirname(__file__), "..", "yanki")
+    yk = os.path.join(tmp, "depo", "yanki")
+    for alt in ("icerik", "oyun", "araclar"):
+        shutil.copytree(os.path.join(kaynak, alt), os.path.join(yk, alt))
+    a = atolye.Api()
+    atolye.uygulama_klasoru = lambda: os.path.join(tmp, "depo")
+    assert a.yanki_klasoru() == yk, a.yanki_klasoru()
+    v = a.yanki_oku()
+    assert v["surum"] == 1 and len(v["bolumler"]) >= 1
+    v["ayarlar"]["kanatGucu"] = 777
+    v["bolumler"][0]["ad"] = "Deneme ğüş"
+    sonuc = a.yanki_yaz(v)
+    assert sonuc is True, sonuc
+    metin = open(os.path.join(yk, "icerik", "yanki.json"), encoding="utf-8").read()
+    assert '"kanatGucu": 777' in metin and metin.startswith('{\n "surum"'), metin[:60]
+    assert '"kanatGucu": 777' in open(os.path.join(yk, "oyun", "icerik.json"), encoding="utf-8").read()
+    html = open(os.path.join(yk, "Yanki.html"), encoding="utf-8").read()
+    assert "window.YANKI_ICERIK" in html and "Deneme ğüş" in html
+    yedekler = [f for d, _, fs in os.walk(atolye.YEDEKLER) for f in fs]
+    assert yedekler == ["yanki.json"], yedekler
+    # Atölye'nin yanında yanki/ yoksa ve seçilmemişse boş döner
+    atolye.uygulama_klasoru = lambda: tmp
+    assert a.yanki_klasoru() == ""
+    atolye.ayar_yaz("yanki_klasoru", yk)
+    assert a.yanki_klasoru() == yk
+    print("yankı:", len(v["bolumler"]), "bölüm, Yanki.html", len(html) // 1024, "KB")
 print("API TESTI TAMAM")

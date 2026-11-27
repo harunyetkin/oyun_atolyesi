@@ -5,17 +5,9 @@ Her madde yaklaşık bir günlük çalışmadır. Sıra önemlidir; üstten baş
 > Not (2026-11-15): Oyun Unreal Engine 5.8'e geçti (`hikaye_oyun/unreal`). İçerik biçimi aynı (`icerik/*.json`, BICIM.md); araç yine bu dosyaları düzenler. Godot'ya özel alanları (ör. `tur: mh` görünüm parçaları) yeni iş olarak ekleme; MetaHuman görünüm alanları BICIM.md'ye eklenince araca taşı.
 
 ## Sırada
-- [ ] **(Harun'un kararı 2026-11-25 — önce bu) Yankı düzenleyicisi.** Yankı'nın `yanki/icerik/yanki.json` biçimi Yankı gecesinde
-      hazırlanır (yanki/YAPILACAKLAR); o hazır değilse önce onu bekle ve sıradaki işe geç. Hazırsa:
-      1. Başlangıç ekranında **Yankı'yı düzenle** (ve Oyun menüsünde komut). Dosya yolu: Atölye'nin bulunduğu depodaki `yanki/icerik/yanki.json`
-         (yoksa klasör seçtir ve hatırla; `atolye.py`'ye yol güvenlikli oku/yaz, kayıttan önce yedek).
-      2. **Ayarlar** sekmesi: şemadan kartlar (fizik, yankı, mağara, sarkıt/dikit, ağ, damla, ateş böceği, ısınma), birimler ve açıklamalar.
-      3. **Bölümler** sekmesi: bölüm listesi (ekle/çoğalt/sil, ad, uzunluk) ve **yandan görünüşlü bölüm düzenleyici**: mağara duvarı
-         (tavan/taban noktaları sürüklenir), **sarkıt ve dikitler** (tıkla-ekle, sürükle-taşı, ucundan çekerek boy, kenarından taban),
-         ağ, damla ve ateş böcekleri; yakınlaştır/kaydır; geçit darlığı uyarısı (yarasanın geçemeyeceği yerler kırmızı).
-      4. **Kaydet** JSON'u yazar ve `yanki/Yanki.html`'i gömülü içerikle yeniden üretir (Python'da, `tek_dosya.py` mantığı; Node gerekmez)
-         ve `yanki/oyun/icerik.json`'u günceller. **Oyna** düğmesi Yanki.html'i (ya da seçili bölümü) tarayıcıda açar.
-      5. Birim testleri (biçim, geçit denetimi) ve arayüz testi; KULLANIM_KILAVUZU'na "Yankı düzenleyicisi" bölümü.
+- [ ] Yankı düzenleyicisi, ikinci adım: bölümde **"buradan oyna"** (seçili bölümü doğrudan açan bağlantı; Yankı'nın `?bolum=` desteği gerekir
+      → Yankı gecesine not), düzenleyicide **önizleme** (yarasanın yolunu otomatik pilotla çizmek), birden çok nesneyi seçip taşıma,
+      Delete tuşuyla silme.
 - [ ] Oyunun yeni alanları, kalanlar: karakterler.json **`secilebilir_govdeler`** (ana menüdeki karakter seçimi: ad, beden, puanlar,
       `unreal_ekipman[]`: `karisim`, `sarkac`, `dusunce_birak`…), yeni dosya **`modeller.json`** (model çarpışma silindirleri; okunur liste + düzenleme).
 - [ ] **(Harun'un hedefi 2026-11-25: oynanış testinde her değişikliği Atölye'den yapmak)** Unreal seviyesine elle konmuş binaları ve
@@ -70,6 +62,10 @@ Oyun 2026-11-15'te bu içerik türleriyle oynanabilir oldu; araçta her biri iç
 - [ ] Kabul testi: Kanat Çırp'ı araçta sıfırdan kur, `ornekler/kanat_cirp.json` olarak kaydet, otomatik testle oynat
 
 ## Tamamlandı
+- [x] 2026-11-28 (gece) — **Yankı düzenleyicisi (Harun'un kararı 25.11):** başlangıçta "Yankı'yı düzenle"; `atolye.py` yanki_klasoru/oku/yaz/oyna
+      (yedek, oyun/icerik.json, Yanki.html yenileme); Ayarlar sekmesi (5 kart, hepsi açıklamalı); Bölümler sekmesi: liste (sırala, çoğalt, sil, ekle)
+      ve yandan görünüşlü düzenleyici (duvar noktaları, sarkıt/dikit, ağ, damla, böcek; tıkla-koy, sürükle, uçtan boy; dar yer kırmızı;
+      tohumlu duvarı noktalara çevirme); Oyna. Testler: 53 birim + 160 arayüz + API.
 - [x] 2026-11-26 (gece) — **arayuz.json düzenleyicisi** (renkler boş/saydam, yazı tipleri, logo, müzik, ana menü ışığı, yapımcılar) ve oyuncunun 59 yeni alanının şeması (bankta oturma, omuz kamerası, tekme, en uzak anlar, etkileşim bölümleri, 16 animasyon). (`tasarim/` klasörü oyunda artık yok; madde düştü.)
 - [x] 2026-11-24 (gece) — **Mekânlar (v0.8):** Harita → **Mekânlar** sekmesi (`Mekanlar.tsx`): **kapılar ve geçişler** (yazı, kapının yeri,
       gidilen yer, bakış yönü; dönüş kapısına atlama; "kapı çifti ekle" giriş + dönüş, `gecisCiftiEkle`, `donusGecisi`), **iç mekânlar**

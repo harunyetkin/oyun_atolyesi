@@ -2,6 +2,7 @@
 // Tarayıcıda ?test=1 ile açılınca bellekte çalışan sahte depo kullanılır.
 
 import { ORNEK_ICERIK } from "../oyun/ornekIcerik";
+import ORNEK_YANKI from "../../../yanki/icerik/yanki.json";
 
 export interface SurumBilgi { dosya: string; tarih: string; not: string }
 
@@ -23,6 +24,16 @@ export interface Depo {
   icerik_listesi(): Promise<string[]>;
   icerik_oku(yol: string): Promise<any>;
   icerik_yaz(yol: string, veri: any): Promise<boolean>;
+  // ---- Yankı (bu deponun yanki/icerik/yanki.json dosyası: ayarlar ve bölümler)
+  /** Yankı klasörü (hatırlanan ya da Atölye'nin yanındaki yanki/); yoksa "". */
+  yanki_klasoru(): Promise<string>;
+  /** Klasör seçme penceresi. Dönüş: yol, "" ya da "!açıklama". */
+  yanki_klasoru_sec(): Promise<string>;
+  yanki_oku(): Promise<any>;
+  /** Yazar; Yanki.html ve oyun/icerik.json da yenilenir. Dönüş: true ya da "!açıklama" (içerik yine kaydedilir). */
+  yanki_yaz(veri: any): Promise<true | string>;
+  /** Tek dosyalık Yanki.html'i tarayıcıda açar. Dönüş: true ya da "!açıklama". */
+  yanki_oyna(): Promise<true | string>;
 }
 
 function bellekDepo(): Depo {
@@ -30,6 +41,7 @@ function bellekDepo(): Depo {
   const icerik: Record<string, string> = {};
   for (const [yol, veri] of Object.entries(ORNEK_ICERIK)) icerik[yol] = JSON.stringify(veri);
   let oyunKlasoru = "";
+  let yanki = JSON.stringify(ORNEK_YANKI);
   const projeler: Record<string, string> = {};
   const surumler: Record<string, { dosya: string; tarih: string; not: string; veri: string }[]> = {};
   return {
@@ -55,6 +67,11 @@ function bellekDepo(): Depo {
       return JSON.parse(icerik[yol]);
     },
     async icerik_yaz(yol, veri) { icerik[yol] = JSON.stringify(veri); return true; },
+    async yanki_klasoru() { return "(test) oyun_atolyesi/yanki"; },
+    async yanki_klasoru_sec() { return "(test) oyun_atolyesi/yanki"; },
+    async yanki_oku() { return JSON.parse(yanki); },
+    async yanki_yaz(veri) { yanki = JSON.stringify(veri); return true; },
+    async yanki_oyna() { (window as any).__yankiOynandi = ((window as any).__yankiOynandi || 0) + 1; return true; },
   };
 }
 

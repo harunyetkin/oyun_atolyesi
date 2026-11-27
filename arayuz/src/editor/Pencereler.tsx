@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { X, FilePlus, FolderOpen, Keyboard, Gamepad2, Sparkles, Bird, Moon, Footprints, Map as Harita, Search, Clapperboard } from "lucide-react";
 import { useDurum } from "../depo/durum";
 import { KOMUTLAR, kullanilabilir } from "./komutlar";
-import { oyunIceriginiAc } from "../oyun/ac";
+import { oyunIceriginiAc, yankiAc } from "../oyun/ac";
 
 function Pencere({ baslik, children, alt, genislik }: { baslik: string; children: ReactNode; alt?: ReactNode; genislik?: number }) {
   const kapat = () => useDurum.getState().set("pencere", null);
@@ -42,10 +42,12 @@ export function BaslangicEkrani() {
         <button className="dugme birincil" onClick={() => set("pencere", "yeniProje")} data-testid="yeni-proje"><FilePlus size={15} /> Yeni proje</button>
         <button className="dugme" onClick={() => oyunIceriginiAc()} data-testid="oyun-icerigi-ac"><Clapperboard size={15} /> Oyun içeriğini aç</button>
         <div className="cok-soluk" style={{ fontSize: 12, marginTop: -4 }}>3D hikâye oyununun karakterleri, haritaları ve eşyaları</div>
+        <button className="dugme" onClick={() => yankiAc()} data-testid="yanki-ac"><Moon size={15} /> Yankı'yı düzenle</button>
+        <div className="cok-soluk" style={{ fontSize: 12, marginTop: -4 }}>Yarasa oyununun ayarları ve bölümleri</div>
         <button className="dugme" onClick={() => useDurum.getState().depo?.klasoru_ac()}><FolderOpen size={15} /> Proje klasörünü aç</button>
         <button className="dugme hayalet" onClick={() => set("pencere", "kisayollar")}><Keyboard size={15} /> Klavye kısayolları</button>
         <span style={{ flex: 1 }} />
-        <div className="cok-soluk" style={{ fontSize: 12 }}>Sürüm 0.9 · oyun içeriği: arayüz (menü renkleri, yapımcılar), bankta oturma</div>
+        <div className="cok-soluk" style={{ fontSize: 12 }}>Sürüm 0.10 · Yankı düzenleyicisi: ayarlar ve bölümler</div>
       </aside>
       <main>
         <h2>Projelerin</h2>
